@@ -25,12 +25,12 @@ const LayananSection = () => {
     <section className="relative w-full overflow-hidden py-24">
       {/* Background paw trail */}
       <Image
-        src="/elements/paw-trail-blue.svg"
+        src="/elements/paw-trail-blue.webp"
         alt="Hero Background"
-        width={60}
-        height={60}
+        width={1920}
+        height={1920}
         priority
-        className="object-cover absolute top-0 bottom-0 left-80 w-1/2 transform scale-x-[-1]"
+        className="absolute inset-0 m-auto transform scale-x-[-1] object-contain md:w-[50%] w-full"
       />
 
       {/* Section Title */}
@@ -44,7 +44,7 @@ const LayananSection = () => {
             Untuk layar kecil → grid (vertikal stack) */}
         <div
           className="
-            flex md:flex-row flex-col
+            flex md:flex-row flex-col items-center justify-center
             overflow-x-auto md:overflow-x-auto
             overflow-y-visible md:overflow-y-hidden
             scroll-smooth
@@ -65,10 +65,10 @@ const LayananSection = () => {
                 flex-shrink-0
                 snap-center
                 flex flex-col items-center
-                w-full md:w-[40vw] lg:w-[25vw]
+                w-[70%] md:w-[40vw] lg:w-[25vw] max-w-[500px]
               "
             >
-              <div className="rounded-2xl overflow-hidden shadow-lg w-full">
+              <div className="rounded-2xl overflow-hidden w-full">
                 <Image
                   src={layanan.imageUrl}
                   alt={layanan.title}

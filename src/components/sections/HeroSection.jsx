@@ -3,38 +3,39 @@ import React from "react";
 
 const HeroSection = () => {
   return (
-    <section className="relative w-full overflow-hidden">
+    <section className="relative w-full">
       {/* Background image */}
       <Image
-        src="/sections/hero-section/hero-bg.svg"
+        src="/sections/hero-section/hero-bg.webp"
         alt="Hero Background"
-        fill
+        width={1000}
+        height={1000}
         priority
-        className="object-cover object-right md:object-contain opacity-90"
+        className="absolute -right-0 sm:-right-44 md:-top-56 lg:-top-32 bottom-0 h-[125%] sm:h-[132.5%] lg:h-[120%] -z-10 object-cover sm:object-contain"
       />
       <Image
-        src="/elements/paw-trail-white.svg"
+        src="/elements/paw-trail-white.webp"
         alt="Hero Background"
-        width={60}
-        height={60}
-        className="object-cover absolute top-0 right-0 w-1/2 min-w-[25rem]"
+        width={1920}
+        height={1920}
+        className="object-cover absolute -top-20 -right-10 w-1/5 min-w-[15rem] md:min-w-[25rem]"
       />
       <Image
-        src="/elements/paw-trail-blue.svg"
+        src="/elements/paw-trail-blue.webp"
         alt="Hero Background"
-        width={60}
-        height={60}
+        width={1920}
+        height={1920}
         priority
-        className="object-cover absolute -bottom-40 left-40 w-1/2"
+        className="object-contain absolute bottom-0 left-0 md:-bottom-0 md:left-60 w-[40%] min-w-[17.5rem] md:min-w-[25rem]"
       />
-      <div className="absolute bottom-0 lg:-bottom-12 right-0 w-[37.5%] sm:w-[32%] md:w-1/2 max-w-[600px] aspect-[1/1] -z-0">
+      <div className="absolute bottom-0 md:bottom-20 lg:-bottom-12 right-0 w-[37.5%] sm:w-[32%] md:w-1/2 max-w-[600px] aspect-[1/1] -z-0">
         <Image
           src="/sections/hero-section/hero-cat.svg"
           alt="Hero Cat"
           fill
           priority
-          className="object-contain object-bottom-right md:object-right transition-all duration-300"
-          sizes="(max-width: 768px) 80vw, 40vw"
+          className=" object-contain object-bottom-right md:object-top-right lg:object-right transition-all duration-300"
+          sizes="(max-width: 768px) 75vw, 35vw"
         />
       </div>
 
