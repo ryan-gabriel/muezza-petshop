@@ -1,8 +1,8 @@
 // middleware.js
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "./utils/supabase/middleware";
 
-export async function middleware(request) {
+export async function middleware(request: NextRequest) {
   const { supabase, response } = createClient(request);
 
   const {
@@ -21,7 +21,6 @@ export async function middleware(request) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // lanjutkan request + response yang mengandung cookies baru
   return response;
 }
 

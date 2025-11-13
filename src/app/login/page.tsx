@@ -11,10 +11,11 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  const handleLogin = async (e) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleLogin = async (e: any) => {
     e.preventDefault();
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });

@@ -1,13 +1,13 @@
 // lib/supabase-server.js
 import { createServerClient } from "@supabase/ssr";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
 
-export function createClient(request) {
+export function createClient(request: NextRequest) {
   // Buat response default (untuk update cookies nanti)
-  let response = NextResponse.next({
+  const response = NextResponse.next({
     request: { headers: request.headers },
   });
 
