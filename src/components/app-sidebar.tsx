@@ -1,4 +1,4 @@
-import { Boxes, ChartArea, ChevronUp, Group, User2 } from "lucide-react";
+import { Boxes, ChartArea, ChevronUp, Group, Store, User2 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +22,7 @@ const items = [
   { title: "Overview", url: "/dashboard", icon: ChartArea },
   { title: "Products", url: "/dashboard/products", icon: Boxes },
   { title: "Categories", url: "/dashboard/categories", icon: Group },
+  { title: "Cabang", url: "/dashboard/cabang", icon: Store },
 ];
 
 export async function AppSidebar() {

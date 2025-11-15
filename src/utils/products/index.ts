@@ -6,7 +6,7 @@ export async function getPaginatedProducts(
   search?: string
 ): Promise<PaginatedResponse<Product>> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
     // Build URL with optional search
     const url = new URL(`${baseUrl}/api/products`);
