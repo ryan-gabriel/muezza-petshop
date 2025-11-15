@@ -5,8 +5,9 @@ export interface Product {
   description: string;
   price: number;
   image_url: string;
-  category: number;
+  product_categories: { name: string; slug: string; id: number };
   created_at: string;
+  visibility: boolean;
 }
 
 export interface ProductCreateRequest {

@@ -1,31 +1,69 @@
 import { NextResponse } from "next/server";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { createClient } from "@/utils/supabase/server";
+import { generateSlug } from "@/utils/utilities";
 
-export async function GET() {
-  const supabase = createRouteHandlerClient({ cookies });
+export async function GET(req: Request) {
+  const supabase = await createClient();
 
-  const { data, error } = await supabase
+  const { searchParams } = new URL(req.url);
+  const page = parseInt(searchParams.get("page") || "1", 10);
+  const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
+  const search = searchParams.get("search")?.trim().toLowerCase() || "";
+
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  // Fetch products + categories
+  let query = supabase
     .from("products")
-    .select("*")
-    .order("created_at", { ascending: false });
+    .select(
+      `
+      *,
+      product_categories (
+        id,
+        name,
+        slug
+      )
+    `,
+      { count: "exact" }
+    )
+    .order("created_at", { ascending: false })
+    .range(from, to);
+
+  // Tambahkan filter search jika ada
+  if (search) {
+    query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
+  }
+
+  const { data, error, count } = await query;
 
   if (error)
     return NextResponse.json({ error: error.message }, { status: 400 });
-  return NextResponse.json(data);
-}
 
-function slugify(text: string): string {
-  return text
-    .toString()
-    .toLowerCase()
-    .trim()
-    .replace(/[\s\W-]+/g, "-");
+  const totalPages = count ? Math.ceil(count / pageSize) : 0;
+
+  return NextResponse.json({
+    count: count || 0,
+    totalPages,
+    next: page < totalPages ? page + 1 : null,
+    previous: page > 1 ? page - 1 : null,
+    results: data || [],
+  });
 }
 
 export async function POST(req: Request) {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createClient();
+
+    // Verify user is authenticated
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
 
     const formData = await req.formData();
 
@@ -43,7 +81,7 @@ export async function POST(req: Request) {
     }
 
     // Generate base slug
-    let slug = slugify(name);
+    let slug = generateSlug(name);
 
     // Check if slug already exists, add suffix if needed
     let counter = 1;
@@ -78,7 +116,6 @@ export async function POST(req: Request) {
       .getPublicUrl(filePath);
 
     const imageUrl = publicUrlData.publicUrl;
-    console.log("checkpoint")
     // Simpan ke tabel products
     const { data, error } = await supabase
       .from("products")

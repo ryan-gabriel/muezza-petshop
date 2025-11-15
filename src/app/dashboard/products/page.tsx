@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,40 +13,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import ProductForm from "@/components/form/ProductForm";
-import Image from "next/image";
-import { ProductCategory } from "@/type/productCategory";
+import DeleteProductButton from "@/components/products/DeleteProductButton";
+import { getCategories } from "../../../utils/categories";
+import { getPaginatedProducts } from "@/utils/products";
+import { SearchBar } from "@/components/products/SearchBar";
+import ProductVisibilityToggle from "@/components/products/ProductVisibilityToggle";
 
-// === Dummy data (server-side)
-const allProducts = Array.from({ length: 50 }, (_, i) => {
-  const name = `Product ${i + 1}`;
-  const slug = name.toLowerCase().replace(/\s+/g, "-");
-  return {
-    id: i + 1,
-    name,
-    slug,
-    description: "Sample product description for testing pagination layout.",
-    price: 50000 + i * 1000,
-    image_url: `https://placehold.co/100x100.png?text=Prod+${i + 1}`,
-    category: i % 10,
-    created_at: new Date(2025, 10, (i % 28) + 1).toISOString(),
-  };
-});
-
-function getPaginatedData(page = 1, pageSize = 10) {
-  const start = (page - 1) * pageSize;
-  const end = start + pageSize;
-  const results = allProducts.slice(start, end);
-  const totalPages = Math.ceil(allProducts.length / pageSize);
-  return {
-    count: allProducts.length,
-    totalPages,
-    next: page < totalPages ? page + 1 : null,
-    previous: page > 1 ? page - 1 : null,
-    results,
-  };
-}
-
-// === Server Component ===
 export default async function AdminProductsPage({
   searchParams,
 }: {
@@ -53,25 +26,19 @@ export default async function AdminProductsPage({
 }) {
   const params = await searchParams;
   const page = Number(params?.page) || 1;
-  const data = getPaginatedData(page);
-  let categories: ProductCategory[] = [];
+  const search = params?.search;
 
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/api/product-categories`
-    );
-
-    if (!res.ok) {
-      throw new Error(`Failed to fetch categories: ${res.statusText}`);
-    }
-
-    categories = await res.json();
-  } catch (error) {
-    console.error("Error fetching product categories:", error);
-  }
+  const [data, categories] = await Promise.all([
+    getPaginatedProducts(
+      page,
+      10,
+      typeof search === "string" ? search : undefined
+    ),
+    getCategories(),
+  ]);
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-8 space-y-6 w-full">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-semibold tracking-tight">
@@ -81,9 +48,19 @@ export default async function AdminProductsPage({
       </div>
 
       {/* Table */}
-      <Card>
+      <Card className="w-full">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Product List</CardTitle>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-4">
+            <CardTitle className="text-lg font-semibold">
+              Product List
+            </CardTitle>
+            <SearchBar />
+          </div>
+          {search && (
+            <p className="text-sm text-muted-foreground">
+              Showing results for &quot;{search}&quot;
+            </p>
+          )}
         </CardHeader>
         <CardContent>
           <div className="rounded-md border overflow-x-auto">
@@ -92,7 +69,6 @@ export default async function AdminProductsPage({
                 <TableRow>
                   <TableHead>Image</TableHead>
                   <TableHead>Name</TableHead>
-                  <TableHead>Slug</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Category</TableHead>
@@ -101,51 +77,65 @@ export default async function AdminProductsPage({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.results.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell>
-                      <Image
-                        src={product.image_url}
-                        alt={product.name}
-                        width={50}
-                        height={50}
-                        className="object-cover rounded-md border"
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {product.name}
-                    </TableCell>
-                    <TableCell className="font-mono text-sm text-muted-foreground">
-                      {product.slug}
-                    </TableCell>
-                    <TableCell className="max-w-[250px] truncate text-muted-foreground">
-                      {product.description}
-                    </TableCell>
-                    <TableCell>
-                      Rp {product.price.toLocaleString("id-ID")}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className="capitalize">{product.category}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(product.created_at).toLocaleDateString("id-ID")}
-                    </TableCell>
-                    <TableCell className="text-center space-x-2 flex justify-evenly">
-                      <ProductForm
-                        product={product}
-                        trigger={
-                          <Button variant="outline" size="sm">
-                            Edit
-                          </Button>
-                        }
-                        productCategories={categories}
-                      />
-                      <Button variant="destructive" size="sm">
-                        Delete
-                      </Button>
+                {data.results.length > 0 ? (
+                  data.results.map((product) => (
+                    <TableRow
+                      key={product.id}
+                      className={`${
+                        !product.visibility && "bg-gray-200 hover:bg-gray-200"
+                      }`}
+                    >
+                      <TableCell>
+                        <Image
+                          src={product.image_url}
+                          alt={product.name}
+                          width={50}
+                          height={50}
+                          className="object-cover rounded-md border"
+                        />
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {product.name}
+                      </TableCell>
+                      <TableCell className="max-w-[250px] truncate text-muted-foreground">
+                        {product.description}
+                      </TableCell>
+                      <TableCell>
+                        Rp {product.price.toLocaleString("id-ID")}
+                      </TableCell>
+                      <TableCell>
+                        <Badge className="capitalize">
+                          {product.product_categories.name}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(product.created_at).toLocaleDateString(
+                          "id-ID"
+                        )}
+                      </TableCell>
+                      <TableCell className="text-center flex justify-center items-center gap-4">
+                        <ProductForm
+                          product={product}
+                          productCategories={categories}
+                        />
+                        <ProductVisibilityToggle
+                          productId={product.id}
+                          initialVisibility={product.visibility}
+                        />
+                        <DeleteProductButton productId={product.id} />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={8}
+                      className="text-center py-6 text-muted-foreground"
+                    >
+                      No products found.
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>

@@ -20,10 +20,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PlusCircle, Pencil, Upload, X, Eye } from "lucide-react";
+import { PlusCircle, Upload, X, Eye, SquarePen } from "lucide-react";
 import Image from "next/image";
 import { Product, ProductCreateRequest } from "@/type/product";
 import { ProductCategory } from "@/type/productCategory";
+import { useRouter } from "next/navigation";
 
 interface ProductFormProps {
   product?: Product;
@@ -38,13 +39,14 @@ export default function ProductForm({
   trigger,
   productCategories,
 }: ProductFormProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [formData, setFormData] = useState<ProductCreateRequest>({
     name: product?.name || "",
     price: product?.price || 0,
-    category: product?.category || 0,
+    category: product?.product_categories.id || 0,
     description: product?.description || "",
     image_url: product?.image_url,
   });
@@ -149,7 +151,7 @@ export default function ProductForm({
       setFormData({
         name: product.name,
         price: product.price,
-        category: product.category,
+        category: product.product_categories.id,
         description: product.description,
         image_url: product.image_url,
       });
@@ -188,7 +190,7 @@ export default function ProductForm({
 
     try {
       const url = product ? `/api/products/${product.id}` : "/api/products";
-      const method = product ? "PUT" : "POST";
+      const method = product ? "PATCH" : "POST";
 
       const response = await fetch(url, {
         method,
@@ -200,9 +202,10 @@ export default function ProductForm({
         throw new Error(errorData.message || "Failed to submit product");
       }
 
-      if (onSubmit) onSubmit(data);
+      router.refresh();
       setOpen(false);
       setShowPreview(false);
+      if (onSubmit) onSubmit(data);
     } catch (error) {
       console.error("Error submitting product:", error);
     }
@@ -221,10 +224,14 @@ export default function ProductForm({
         {trigger ? (
           trigger
         ) : (
-          <Button className="flex items-center gap-2">
+          <Button
+            variant={product ? "outline" : "default"}
+            className="flex items-center gap-2 cursor-pointer hover:brightness-90 transition-all duration-200"
+            size={product ? "sm" : "default"}
+          >
             {product ? (
               <>
-                <Pencil className="w-4 h-4" /> Edit Product
+                <SquarePen className="w-4 h-4" />
               </>
             ) : (
               <>
@@ -424,7 +431,9 @@ export default function ProductForm({
                   <strong>Price:</strong> {formatPrice(formData.price)}
                 </p>
                 <p>
-                  <strong>Category:</strong> {formData.category}
+                  <strong>Category:</strong>{" "}
+                  {productCategories.find((cat) => cat.id === formData.category)
+                    ?.name || "N/A"}
                 </p>
                 {formData.description && (
                   <p>

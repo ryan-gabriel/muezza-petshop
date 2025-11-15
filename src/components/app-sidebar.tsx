@@ -1,31 +1,38 @@
-import { Boxes, ChartArea } from "lucide-react"
-
+import { Boxes, ChartArea, ChevronUp, Group, User2 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { SignOutButton } from "./auth/SignOutButton";
+import { createClient } from "@/utils/supabase/server";
 
-// Menu items.
 const items = [
-  {
-    title: "Overview",
-    url: "/dashboard",
-    icon: ChartArea,
-  },
-  {
-    title: "Products",
-    url: "/dashboard/products",
-    icon: Boxes,
-  },
-]
+  { title: "Overview", url: "/dashboard", icon: ChartArea },
+  { title: "Products", url: "/dashboard/products", icon: Boxes },
+  { title: "Categories", url: "/dashboard/categories", icon: Group },
+];
 
-export function AppSidebar() {
+export async function AppSidebar() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const username =
+    user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Guest";
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -47,6 +54,27 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton>
+                  <User2 />
+                  {username}
+                  <ChevronUp className="ml-auto" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="top"
+                className="w-[--radix-popper-anchor-width]"
+              >
+                <SignOutButton />
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
-  )
+  );
 }
