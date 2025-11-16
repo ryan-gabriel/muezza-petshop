@@ -1,4 +1,4 @@
-import { Bath, Blocks, Boxes, ChartArea, ChevronUp, Group, Store, Tags, User2 } from "lucide-react";
+import { Bath, Blocks, Boxes, ChartArea, ChevronUp, Group, Hotel, Store, Tags, User2 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +25,7 @@ const items = [
   { title: "Branches", url: "/dashboard/branches", icon: Store },
   { title: "Groomings", url: "/dashboard/groomings", icon: Bath },
   { title: "Addon Services", url: "/dashboard/addon-services", icon: Blocks },
+  { title: "Pet Hotel", url: "/dashboard/hotel", icon: Hotel },
   { title: "Discounts", url: "/dashboard/discounts", icon: Tags },
 ];
 
