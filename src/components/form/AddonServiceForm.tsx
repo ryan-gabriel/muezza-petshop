@@ -13,8 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusCircle, Upload, X, Eye } from "lucide-react";
-import Image from "next/image";
+import { PlusCircle, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AddonService } from "@/type/addonService";
 
@@ -34,146 +33,35 @@ export default function AddonServiceForm({
   const [open, setOpen] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
-  const [isDragging, setIsDragging] = useState(false);
-  const [isConverting, setIsConverting] = useState(false);
-
   const [formData, setFormData] = useState({
     title: addon?.title || "",
     description: addon?.description || "",
     price: addon?.price || 0,
-    image_url: addon?.image_url,
   });
 
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>(
-    addon?.image_url || ""
-  );
-
-  // ============================================
-  // Convert to WebP
-  // ============================================
-  const handleImageConvert = async (file: File): Promise<void> => {
-    setIsConverting(true);
-
-    try {
-      const reader = new FileReader();
-
-      reader.onload = (event) => {
-        const result = event.target?.result;
-        if (!result || typeof result !== "string") return;
-
-        const img = new window.Image();
-        img.src = result;
-
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
-          if (!ctx) return;
-
-          let { width, height } = img;
-          const maxSize = 1200;
-
-          if (width > maxSize || height > maxSize) {
-            if (width > height) {
-              height = (height / width) * maxSize;
-              width = maxSize;
-            } else {
-              width = (width / height) * maxSize;
-              height = maxSize;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          ctx.drawImage(img, 0, 0, width, height);
-
-          canvas.toBlob(
-            (blob) => {
-              if (blob) {
-                const webp = new File(
-                  [blob],
-                  file.name.replace(/\.[^.]+$/, ".webp"),
-                  {
-                    type: "image/webp",
-                  }
-                );
-
-                setImageFile(webp);
-                setImagePreview(URL.createObjectURL(blob));
-              }
-              setIsConverting(false);
-            },
-            "image/webp",
-            0.85
-          );
-        };
-      };
-
-      reader.readAsDataURL(file);
-    } catch (err) {
-      console.error("Convert failed:", err);
-      setIsConverting(false);
-    }
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleImageConvert(file);
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) handleImageConvert(file);
-  };
-
-  // ============================================
-  // Remove image
-  // ============================================
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview("");
-    setFormData((p) => ({ ...p, image_url: undefined }));
-  };
-
-  // ============================================
-  // Reset form if editing
-  // ============================================
+  // Reset form ketika edit atau tambah baru
   useEffect(() => {
     if (addon) {
       setFormData({
         title: addon.title,
         description: addon.description || "",
         price: addon.price,
-        image_url: addon.image_url || undefined,
       });
-      setImagePreview(addon.image_url || "");
     } else {
       setFormData({
         title: "",
         description: "",
         price: 0,
-        image_url: undefined,
       });
-      setImagePreview("");
     }
-
-    setImageFile(null);
   }, [addon]);
 
-  // ============================================
-  // Build FormData
-  // ============================================
+  // Build FormData (tanpa image)
   const buildFormData = () => {
     const data = new FormData();
     data.append("title", formData.title);
     data.append("description", formData.description || "");
     data.append("price", String(formData.price));
-
-    if (imageFile) data.append("image", imageFile);
-    else if (formData.image_url) data.append("image_url", formData.image_url);
-
     return data;
   };
 
@@ -201,17 +89,13 @@ export default function AddonServiceForm({
       setShowPreview(false);
 
       onSubmit?.(data);
+
       if (!addon) {
-        // === RESET FORM setelah submit sukses ===
         setFormData({
           title: "",
           description: "",
           price: 0,
-          image_url: undefined,
         });
-
-        setImageFile(null);
-        setImagePreview("");
       }
     } catch (err) {
       console.error(err);
@@ -251,68 +135,6 @@ export default function AddonServiceForm({
               className="flex flex-col flex-1 overflow-hidden"
             >
               <div className="overflow-y-auto px-6 py-4 space-y-4">
-                {/* IMAGE */}
-                <div className="space-y-2">
-                  <Label>Addon Image</Label>
-
-                  {imagePreview ? (
-                    <div className="relative">
-                      <Image
-                        src={imagePreview}
-                        alt="Preview"
-                        width={600}
-                        height={400}
-                        className="w-full h-48 object-cover rounded-lg border"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="absolute top-2 right-2"
-                        onClick={handleRemoveImage}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <div
-                      onDrop={handleDrop}
-                      onDragOver={(e) => {
-                        e.preventDefault();
-                        setIsDragging(true);
-                      }}
-                      onDragLeave={(e) => {
-                        e.preventDefault();
-                        setIsDragging(false);
-                      }}
-                      className={`border-2 border-dashed rounded-lg p-6 text-center ${
-                        isDragging
-                          ? "border-primary bg-primary/5"
-                          : "border-muted"
-                      }`}
-                    >
-                      <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                      <Label
-                        htmlFor="addon-image"
-                        className="cursor-pointer text-sm text-muted-foreground hover:text-foreground"
-                      >
-                        {isConverting
-                          ? "Converting to WebP..."
-                          : "Click or drag & drop image"}
-                      </Label>
-
-                      <Input
-                        id="addon-image"
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageUpload}
-                        disabled={isConverting}
-                      />
-                    </div>
-                  )}
-                </div>
-
                 {/* TITLE */}
                 <div className="space-y-2">
                   <Label htmlFor="title">Addon Title</Label>
@@ -366,7 +188,7 @@ export default function AddonServiceForm({
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isConverting}>
+                <Button type="submit">
                   <Eye className="w-4 h-4 mr-2" /> Preview
                 </Button>
               </div>
@@ -382,16 +204,6 @@ export default function AddonServiceForm({
             </div>
 
             <div className="overflow-y-auto px-6 py-4 space-y-4">
-              {imagePreview && (
-                <Image
-                  src={imagePreview}
-                  alt="Preview"
-                  width={600}
-                  height={400}
-                  className="w-full h-64 object-cover rounded-lg border"
-                />
-              )}
-
               <div className="border rounded-lg p-4 space-y-3">
                 <p>
                   <strong>Title:</strong> {formData.title}

@@ -1,5 +1,4 @@
 import AddonServiceForm from "@/components/form/AddonServiceForm";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { SquarePen } from "lucide-react";
 import DeleteResourceButton from "@/components/resource/DeleteResourceButton";
@@ -49,7 +48,6 @@ export default async function Page() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Image</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead>Price</TableHead>
@@ -60,16 +58,6 @@ export default async function Page() {
             <TableBody>
               {addonServices.map((s) => (
                 <TableRow key={s.id}>
-                  <TableCell>
-                    <Image
-                      src={s.image_url || "/placeholder.png"}
-                      alt={s.title}
-                      width={60}
-                      height={60}
-                      className="object-cover rounded-md border"
-                    />
-                  </TableCell>
-
                   <TableCell className="font-medium">{s.title}</TableCell>
 
                   <TableCell className="max-w-[300px] truncate text-muted-foreground">

@@ -83,9 +83,9 @@ export async function POST(req: Request) {
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
     const price = formData.get("price") as string;
-    const image = formData.get("image") as File | null;
 
-    if (!title || !price || !image) {
+
+    if (!title || !price) {
       return NextResponse.json(
         { message: "Missing required fields" },
         { status: 400 }
@@ -96,24 +96,7 @@ export async function POST(req: Request) {
     const baseSlug = slugify(title);
     const slug = await generateUniqueSlug(baseSlug, supabase);
 
-    // Upload image
-    const ext = image.name.split(".").pop();
-    const fileName = `${Date.now()}.${ext}`;
-    const filePath = `addon-services/${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("grooming-images") // ganti jika kamu want folder baru
-      .upload(filePath, image);
-
-    if (uploadError) throw uploadError;
-
-    const { data: publicUrlData } = supabase.storage
-      .from("grooming-images")
-      .getPublicUrl(filePath);
-
-    const imageUrl = publicUrlData.publicUrl;
-
-    // Insert record to addon_services
+    // Insert WITHOUT image
     const { data, error } = await supabase
       .from("addon_services")
       .insert([
@@ -121,7 +104,6 @@ export async function POST(req: Request) {
           title,
           description,
           price: Number(price),
-          image_url: imageUrl,
           slug,
         },
       ])

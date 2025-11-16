@@ -59,7 +59,6 @@ export async function PATCH(
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
     const price = formData.get("price") as string;
-    const image = formData.get("image") as File | null;
 
     if (!title || !price) {
       return NextResponse.json(
@@ -68,9 +67,10 @@ export async function PATCH(
       );
     }
 
+    // Ensure record exists
     const { data: existing, error: fetchError } = await supabase
       .from("addon_services")
-      .select("id, image_url")
+      .select("id")
       .eq("id", id)
       .single();
 
@@ -81,31 +81,6 @@ export async function PATCH(
       );
     }
 
-    let imageUrl = existing.image_url;
-
-    if (image) {
-      const ext = image.name.split(".").pop();
-      const fileName = `${Date.now()}.${ext}`;
-      const filePath = `addon-services/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("addon-service-images")
-        .upload(filePath, image);
-
-      if (uploadError) throw uploadError;
-
-      const { data: publicUrlData } = supabase.storage
-        .from("addon-service-images")
-        .getPublicUrl(filePath);
-
-      imageUrl = publicUrlData.publicUrl;
-
-      const oldPath = existing.image_url?.split("/addon-service-images/")[1];
-      if (oldPath) {
-        await supabase.storage.from("addon-service-images").remove([oldPath]);
-      }
-    }
-
     const slug = await generateUniqueSlug(supabase, title, Number(id));
 
     const { data, error } = await supabase
@@ -114,7 +89,6 @@ export async function PATCH(
         title,
         description,
         price: Number(price),
-        image_url: imageUrl,
         slug,
         updated_at: new Date().toISOString(),
       })
@@ -141,7 +115,6 @@ export async function DELETE(
   try {
     const supabase = await createClient();
 
-    // AUTH CHECK
     const {
       data: { user },
       error: authError,
@@ -153,10 +126,10 @@ export async function DELETE(
 
     const { id } = await params;
 
-    // Fetch existing data including image
+    // Check existence
     const { data: existing, error: fetchError } = await supabase
       .from("addon_services")
-      .select("id, image_url")
+      .select("id")
       .eq("id", id)
       .single();
 
@@ -167,16 +140,7 @@ export async function DELETE(
       );
     }
 
-    // DELETE IMAGE from storage
-    if (existing.image_url) {
-      const oldPath = existing.image_url.split("/addon-service-images/")[1];
-
-      if (oldPath) {
-        await supabase.storage.from("addon-service-images").remove([oldPath]);
-      }
-    }
-
-    // DELETE RECORD
+    // Delete record ONLY
     const { error: deleteError } = await supabase
       .from("addon_services")
       .delete()
