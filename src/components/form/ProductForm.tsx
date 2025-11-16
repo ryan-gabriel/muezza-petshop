@@ -206,6 +206,19 @@ export default function ProductForm({
       setOpen(false);
       setShowPreview(false);
       if (onSubmit) onSubmit(data);
+      if (!product) {
+        // === RESET FORM setelah submit sukses ===
+        setFormData({
+          name: "",
+          price: 0,
+          category: 0,
+          description: "",
+          image_url: undefined,
+        });
+
+        setImageFile(null);
+        setImagePreview("");
+      }
     } catch (error) {
       console.error("Error submitting product:", error);
     }

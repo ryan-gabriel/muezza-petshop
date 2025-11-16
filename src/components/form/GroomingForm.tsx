@@ -18,14 +18,17 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { GroomingService } from "@/type/grooming";
 
-
 interface GroomingFormProps {
   grooming?: GroomingService;
   onSubmit?: (data: FormData) => void;
   trigger?: React.ReactNode;
 }
 
-export default function GroomingForm({ grooming, onSubmit, trigger }: GroomingFormProps) {
+export default function GroomingForm({
+  grooming,
+  onSubmit,
+  trigger,
+}: GroomingFormProps) {
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
@@ -42,7 +45,9 @@ export default function GroomingForm({ grooming, onSubmit, trigger }: GroomingFo
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>(grooming?.image_url || "");
+  const [imagePreview, setImagePreview] = useState<string>(
+    grooming?.image_url || ""
+  );
 
   // === Convert to WebP ===
   const handleImageConvert = async (file: File): Promise<void> => {
@@ -83,9 +88,13 @@ export default function GroomingForm({ grooming, onSubmit, trigger }: GroomingFo
           canvas.toBlob(
             (blob) => {
               if (blob) {
-                const webp = new File([blob], file.name.replace(/\.[^.]+$/, ".webp"), {
-                  type: "image/webp",
-                });
+                const webp = new File(
+                  [blob],
+                  file.name.replace(/\.[^.]+$/, ".webp"),
+                  {
+                    type: "image/webp",
+                  }
+                );
 
                 setImageFile(webp);
                 setImagePreview(URL.createObjectURL(blob));
@@ -201,6 +210,18 @@ export default function GroomingForm({ grooming, onSubmit, trigger }: GroomingFo
       setShowPreview(false);
 
       onSubmit?.(data);
+      if (!grooming) {
+        // RESET FORM setelah submit sukses
+        setFormData({
+          name: "",
+          description: "",
+          price: 0,
+          image_url: undefined,
+        });
+
+        setImageFile(null);
+        setImagePreview("");
+      }
     } catch (err) {
       console.error(err);
     }
@@ -236,7 +257,10 @@ export default function GroomingForm({ grooming, onSubmit, trigger }: GroomingFo
             </div>
 
             {/* FORM */}
-            <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col flex-1 overflow-hidden"
+            >
               <div className="overflow-y-auto px-6 py-4 space-y-4">
                 {/* IMAGE */}
                 <div className="space-y-2">
@@ -267,7 +291,9 @@ export default function GroomingForm({ grooming, onSubmit, trigger }: GroomingFo
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
                       className={`border-2 border-dashed rounded-lg p-6 text-center ${
-                        isDragging ? "border-primary bg-primary/5" : "border-muted"
+                        isDragging
+                          ? "border-primary bg-primary/5"
+                          : "border-muted"
                       }`}
                     >
                       <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
@@ -275,7 +301,9 @@ export default function GroomingForm({ grooming, onSubmit, trigger }: GroomingFo
                         htmlFor="grooming-image"
                         className="cursor-pointer text-sm text-muted-foreground hover:text-foreground"
                       >
-                        {isConverting ? "Converting to WebP..." : "Click or drag & drop image"}
+                        {isConverting
+                          ? "Converting to WebP..."
+                          : "Click or drag & drop image"}
                       </Label>
 
                       <Input
@@ -298,7 +326,9 @@ export default function GroomingForm({ grooming, onSubmit, trigger }: GroomingFo
                     value={formData.name}
                     required
                     placeholder="Grooming Deluxe"
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                   />
                 </div>
 
@@ -309,7 +339,9 @@ export default function GroomingForm({ grooming, onSubmit, trigger }: GroomingFo
                     rows={3}
                     placeholder="Describe the grooming service"
                     value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
                   />
                 </div>
 
@@ -322,7 +354,10 @@ export default function GroomingForm({ grooming, onSubmit, trigger }: GroomingFo
                     value={formData.price}
                     required
                     onChange={(e) =>
-                      setFormData({ ...formData, price: Number(e.target.value) })
+                      setFormData({
+                        ...formData,
+                        price: Number(e.target.value),
+                      })
                     }
                   />
                 </div>
@@ -330,7 +365,11 @@ export default function GroomingForm({ grooming, onSubmit, trigger }: GroomingFo
 
               {/* FOOTER */}
               <div className="flex justify-end gap-2 px-6 py-4 border-t bg-background">
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isConverting}>
@@ -345,7 +384,9 @@ export default function GroomingForm({ grooming, onSubmit, trigger }: GroomingFo
             <div className="px-6 pt-6 pb-2">
               <DialogHeader>
                 <DialogTitle>Preview Grooming Service</DialogTitle>
-                <DialogDescription>Review the information before submitting.</DialogDescription>
+                <DialogDescription>
+                  Review the information before submitting.
+                </DialogDescription>
               </DialogHeader>
             </div>
 
@@ -361,13 +402,19 @@ export default function GroomingForm({ grooming, onSubmit, trigger }: GroomingFo
               )}
 
               <div className="border rounded-lg p-4 space-y-3">
-                <p><strong>Name:</strong> {formData.name}</p>
+                <p>
+                  <strong>Name:</strong> {formData.name}
+                </p>
 
                 {formData.description && (
-                  <p><strong>Description:</strong> {formData.description}</p>
+                  <p>
+                    <strong>Description:</strong> {formData.description}
+                  </p>
                 )}
 
-                <p><strong>Price:</strong> Rp {formData.price.toLocaleString()}</p>
+                <p>
+                  <strong>Price:</strong> Rp {formData.price.toLocaleString()}
+                </p>
               </div>
             </div>
 

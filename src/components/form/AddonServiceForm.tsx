@@ -18,14 +18,17 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { AddonService } from "@/type/addonService";
 
-
 interface AddonServiceFormProps {
   addon?: AddonService;
   onSubmit?: (data: FormData) => void;
   trigger?: React.ReactNode;
 }
 
-export default function AddonServiceForm({ addon, onSubmit, trigger }: AddonServiceFormProps) {
+export default function AddonServiceForm({
+  addon,
+  onSubmit,
+  trigger,
+}: AddonServiceFormProps) {
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
@@ -42,7 +45,9 @@ export default function AddonServiceForm({ addon, onSubmit, trigger }: AddonServ
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>(addon?.image_url || "");
+  const [imagePreview, setImagePreview] = useState<string>(
+    addon?.image_url || ""
+  );
 
   // ============================================
   // Convert to WebP
@@ -85,9 +90,13 @@ export default function AddonServiceForm({ addon, onSubmit, trigger }: AddonServ
           canvas.toBlob(
             (blob) => {
               if (blob) {
-                const webp = new File([blob], file.name.replace(/\.[^.]+$/, ".webp"), {
-                  type: "image/webp",
-                });
+                const webp = new File(
+                  [blob],
+                  file.name.replace(/\.[^.]+$/, ".webp"),
+                  {
+                    type: "image/webp",
+                  }
+                );
 
                 setImageFile(webp);
                 setImagePreview(URL.createObjectURL(blob));
@@ -192,6 +201,18 @@ export default function AddonServiceForm({ addon, onSubmit, trigger }: AddonServ
       setShowPreview(false);
 
       onSubmit?.(data);
+      if (!addon) {
+        // === RESET FORM setelah submit sukses ===
+        setFormData({
+          title: "",
+          description: "",
+          price: 0,
+          image_url: undefined,
+        });
+
+        setImageFile(null);
+        setImagePreview("");
+      }
     } catch (err) {
       console.error(err);
     }
@@ -225,7 +246,10 @@ export default function AddonServiceForm({ addon, onSubmit, trigger }: AddonServ
               </DialogHeader>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col flex-1 overflow-hidden"
+            >
               <div className="overflow-y-auto px-6 py-4 space-y-4">
                 {/* IMAGE */}
                 <div className="space-y-2">
@@ -262,7 +286,9 @@ export default function AddonServiceForm({ addon, onSubmit, trigger }: AddonServ
                         setIsDragging(false);
                       }}
                       className={`border-2 border-dashed rounded-lg p-6 text-center ${
-                        isDragging ? "border-primary bg-primary/5" : "border-muted"
+                        isDragging
+                          ? "border-primary bg-primary/5"
+                          : "border-muted"
                       }`}
                     >
                       <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
@@ -270,7 +296,9 @@ export default function AddonServiceForm({ addon, onSubmit, trigger }: AddonServ
                         htmlFor="addon-image"
                         className="cursor-pointer text-sm text-muted-foreground hover:text-foreground"
                       >
-                        {isConverting ? "Converting to WebP..." : "Click or drag & drop image"}
+                        {isConverting
+                          ? "Converting to WebP..."
+                          : "Click or drag & drop image"}
                       </Label>
 
                       <Input
@@ -293,7 +321,9 @@ export default function AddonServiceForm({ addon, onSubmit, trigger }: AddonServ
                     required
                     placeholder="Premium Shampoo"
                     value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, title: e.target.value })
+                    }
                   />
                 </div>
 
@@ -304,7 +334,9 @@ export default function AddonServiceForm({ addon, onSubmit, trigger }: AddonServ
                     rows={3}
                     placeholder="Describe the addon"
                     value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
                   />
                 </div>
 
@@ -317,14 +349,21 @@ export default function AddonServiceForm({ addon, onSubmit, trigger }: AddonServ
                     required
                     value={formData.price}
                     onChange={(e) =>
-                      setFormData({ ...formData, price: Number(e.target.value) })
+                      setFormData({
+                        ...formData,
+                        price: Number(e.target.value),
+                      })
                     }
                   />
                 </div>
               </div>
 
               <div className="flex justify-end gap-2 px-6 py-4 border-t bg-background">
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isConverting}>
@@ -354,14 +393,19 @@ export default function AddonServiceForm({ addon, onSubmit, trigger }: AddonServ
               )}
 
               <div className="border rounded-lg p-4 space-y-3">
-                <p><strong>Title:</strong> {formData.title}</p>
+                <p>
+                  <strong>Title:</strong> {formData.title}
+                </p>
 
                 {formData.description && (
-                  <p><strong>Description:</strong> {formData.description}</p>
+                  <p>
+                    <strong>Description:</strong> {formData.description}
+                  </p>
                 )}
 
                 <p>
-                  <strong>Price:</strong> Rp {formData.price.toLocaleString("id-ID")}
+                  <strong>Price:</strong> Rp{" "}
+                  {formData.price.toLocaleString("id-ID")}
                 </p>
               </div>
             </div>

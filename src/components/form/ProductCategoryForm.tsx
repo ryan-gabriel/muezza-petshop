@@ -79,6 +79,13 @@ export default function ProductCategoryForm({
       setOpen(false);
       setShowPreview(false);
       if (onSubmit) onSubmit();
+      if (!category) {
+        // Reset form setelah submit sukses
+        setFormData({
+          name: "",
+          description: "",
+        });
+      }
     } catch (error) {
       console.error("Error submitting category:", error);
       alert("Failed to submit category.");

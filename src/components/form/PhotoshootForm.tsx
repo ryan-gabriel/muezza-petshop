@@ -12,23 +12,22 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle, Upload, X, Eye } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { PetHotelRoom } from "@/type/hotel";
+import { PhotoshootPackage } from "@/type/photoshoot";
 
-interface PetHotelRoomFormProps {
-  room?: PetHotelRoom;
+interface PhotoshootFormProps {
+  packageItem?: PhotoshootPackage;
   onSubmit?: (data: FormData) => void;
   trigger?: React.ReactNode;
 }
 
-export default function PetHotelRoomForm({
-  room,
+export default function PhotoshootForm({
+  packageItem,
   onSubmit,
   trigger,
-}: PetHotelRoomFormProps) {
+}: PhotoshootFormProps) {
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
@@ -38,15 +37,16 @@ export default function PetHotelRoomForm({
   const [isConverting, setIsConverting] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: room?.name || "",
-    description: room?.description || "",
-    price_per_night: room?.price_per_night || 0,
-    image_url: room?.image_url,
+    name: packageItem?.name || "",
+    price: packageItem?.price || 0,
+    features: Array.isArray(packageItem?.features) ? packageItem.features : [],
+    image_url: packageItem?.image_url,
   });
 
+  const [newFeature, setNewFeature] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>(
-    room?.image_url || ""
+    packageItem?.image_url || ""
   );
 
   // ============================================
@@ -54,10 +54,8 @@ export default function PetHotelRoomForm({
   // ============================================
   const handleImageConvert = async (file: File): Promise<void> => {
     setIsConverting(true);
-
     try {
       const reader = new FileReader();
-
       reader.onload = (event) => {
         const result = event.target?.result;
         if (!result || typeof result !== "string") return;
@@ -93,11 +91,8 @@ export default function PetHotelRoomForm({
                 const webp = new File(
                   [blob],
                   file.name.replace(/\.[^.]+$/, ".webp"),
-                  {
-                    type: "image/webp",
-                  }
+                  { type: "image/webp" }
                 );
-
                 setImageFile(webp);
                 setImagePreview(URL.createObjectURL(blob));
               }
@@ -108,7 +103,6 @@ export default function PetHotelRoomForm({
           );
         };
       };
-
       reader.readAsDataURL(file);
     } catch (err) {
       console.error("Convert failed:", err);
@@ -128,51 +122,49 @@ export default function PetHotelRoomForm({
     if (file) handleImageConvert(file);
   };
 
-  // ============================================
-  // Remove image
-  // ============================================
   const handleRemoveImage = () => {
     setImageFile(null);
     setImagePreview("");
     setFormData((p) => ({ ...p, image_url: undefined }));
   };
 
-  // ============================================
-  // Reset if editing
-  // ============================================
   useEffect(() => {
-    if (room) {
+    if (packageItem) {
       setFormData({
-        name: room.name,
-        description: room.description || "",
-        price_per_night: room.price_per_night,
-        image_url: room.image_url || undefined,
+        name: packageItem.name,
+        price: packageItem.price,
+        features: Array.isArray(packageItem.features)
+          ? packageItem.features
+          : JSON.parse(packageItem.features ?? "[]"),
+        image_url: packageItem.image_url ?? undefined,
       });
-      setImagePreview(room.image_url || "");
+      setImagePreview(packageItem.image_url || "");
     } else {
       setFormData({
         name: "",
-        description: "",
-        price_per_night: 0,
+        price: 0,
+        features: [],
         image_url: undefined,
       });
       setImagePreview("");
     }
 
     setImageFile(null);
-  }, [room]);
+    setNewFeature("");
+  }, [packageItem]);
 
-  // ============================================
-  // Build formData
-  // ============================================
   const buildFormData = () => {
     const data = new FormData();
     data.append("name", formData.name);
-    data.append("description", formData.description || "");
-    data.append("price_per_night", String(formData.price_per_night));
+    data.append("price", String(formData.price));
 
-    if (imageFile) data.append("image", imageFile);
-    else if (formData.image_url) data.append("image_url", formData.image_url);
+    data.append("features", JSON.stringify(formData.features));
+
+    if (imageFile) {
+      data.append("image", imageFile);
+    } else if (formData.image_url) {
+      data.append("image_url", formData.image_url);
+    }
 
     return data;
   };
@@ -184,32 +176,29 @@ export default function PetHotelRoomForm({
 
   const handleConfirmSubmit = async () => {
     const data = buildFormData();
-
     try {
-      const url = room ? `/api/hotel/${room.id}` : "/api/hotel";
-
-      const method = room ? "PATCH" : "POST";
+      const url = packageItem
+        ? `/api/photoshoots/${packageItem.id}`
+        : "/api/photoshoots";
+      const method = packageItem ? "PATCH" : "POST";
 
       const res = await fetch(url, { method, body: data });
-
       if (!res.ok) throw new Error("Failed to submit");
 
       router.refresh();
       setOpen(false);
       setShowPreview(false);
-
       onSubmit?.(data);
-      if (!room) {
-        // RESET FORM setelah submit sukses
+      if (!packageItem) {
         setFormData({
           name: "",
-          description: "",
-          price_per_night: 0,
+          price: 0,
+          features: [],
           image_url: undefined,
         });
-
         setImageFile(null);
         setImagePreview("");
+        setNewFeature("");
       }
     } catch (err) {
       console.error(err);
@@ -223,7 +212,8 @@ export default function PetHotelRoomForm({
           trigger
         ) : (
           <Button variant="default" className="flex gap-2">
-            <PlusCircle className="w-4 h-4" /> Add Pet Hotel Room
+            <PlusCircle className="w-4 h-4" />{" "}
+            {packageItem ? "Edit Photoshoot" : "Add Photoshoot"}
           </Button>
         )}
       </DialogTrigger>
@@ -234,12 +224,14 @@ export default function PetHotelRoomForm({
             <div className="px-6 pt-6 pb-2">
               <DialogHeader>
                 <DialogTitle>
-                  {room ? "Edit Pet Hotel Room" : "Add Pet Hotel Room"}
+                  {packageItem
+                    ? "Edit Photoshoot Package"
+                    : "Add Photoshoot Package"}
                 </DialogTitle>
                 <DialogDescription>
-                  {room
-                    ? "Update the pet hotel room details."
-                    : "Fill the form to create a new pet hotel room."}
+                  {packageItem
+                    ? "Update the photoshoot package details."
+                    : "Fill the form to create a new photoshoot package."}
                 </DialogDescription>
               </DialogHeader>
             </div>
@@ -251,8 +243,7 @@ export default function PetHotelRoomForm({
               <div className="overflow-y-auto px-6 py-4 space-y-4">
                 {/* IMAGE */}
                 <div className="space-y-2">
-                  <Label>Room Image</Label>
-
+                  <Label>Package Image</Label>
                   {imagePreview ? (
                     <div className="relative">
                       <Image
@@ -291,16 +282,15 @@ export default function PetHotelRoomForm({
                     >
                       <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                       <Label
-                        htmlFor="room-image"
+                        htmlFor="package-image"
                         className="cursor-pointer text-sm text-muted-foreground hover:text-foreground"
                       >
                         {isConverting
                           ? "Converting to WebP..."
                           : "Click or drag & drop image"}
                       </Label>
-
                       <Input
-                        id="room-image"
+                        id="package-image"
                         type="file"
                         accept="image/*"
                         className="hidden"
@@ -311,12 +301,12 @@ export default function PetHotelRoomForm({
                   )}
                 </div>
 
-                {/* ROOM NAME */}
+                {/* NAME */}
                 <div className="space-y-2">
-                  <Label>Room Name</Label>
+                  <Label>Package Name</Label>
                   <Input
                     required
-                    placeholder="Deluxe Pet Suite"
+                    placeholder="Premium Photoshoot"
                     value={formData.name}
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
@@ -324,34 +314,72 @@ export default function PetHotelRoomForm({
                   />
                 </div>
 
-                {/* DESCRIPTION */}
-                <div className="space-y-2">
-                  <Label>Description</Label>
-                  <Textarea
-                    rows={3}
-                    placeholder="Describe the room"
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                  />
-                </div>
-
                 {/* PRICE */}
                 <div className="space-y-2">
-                  <Label>Price per Night (IDR)</Label>
+                  <Label>Price (IDR)</Label>
                   <Input
                     type="number"
                     min={1}
                     required
-                    value={formData.price_per_night}
+                    value={formData.price}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        price_per_night: Number(e.target.value),
+                        price: Number(e.target.value),
                       })
                     }
                   />
+                </div>
+
+                {/* FEATURES */}
+                <div className="space-y-2">
+                  <Label>Features</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="e.g. 10 edited photos"
+                      value={newFeature}
+                      onChange={(e) => setNewFeature(e.target.value)}
+                    />
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        if (newFeature.trim() !== "") {
+                          setFormData({
+                            ...formData,
+                            features: [...formData.features, newFeature.trim()],
+                          });
+                          setNewFeature("");
+                        }
+                      }}
+                    >
+                      Add
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    {formData.features.map((f, i) => (
+                      <div
+                        key={i}
+                        className="flex justify-between items-center border rounded p-2"
+                      >
+                        <span>{f}</span>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          onClick={() =>
+                            setFormData({
+                              ...formData,
+                              features: formData.features.filter(
+                                (_, idx) => idx !== i
+                              ),
+                            })
+                          }
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -371,9 +399,10 @@ export default function PetHotelRoomForm({
           </>
         ) : (
           <>
+            {/* PREVIEW */}
             <div className="px-6 pt-6 pb-2">
               <DialogHeader>
-                <DialogTitle>Preview Pet Hotel Room</DialogTitle>
+                <DialogTitle>Preview Photoshoot Package</DialogTitle>
                 <DialogDescription>Review before submitting.</DialogDescription>
               </DialogHeader>
             </div>
@@ -391,19 +420,22 @@ export default function PetHotelRoomForm({
 
               <div className="border rounded-lg p-4 space-y-3">
                 <p>
-                  <strong>Room Name:</strong> {formData.name}
+                  <strong>Package Name:</strong> {formData.name}
                 </p>
-
-                {formData.description && (
-                  <p>
-                    <strong>Description:</strong> {formData.description}
-                  </p>
-                )}
-
                 <p>
-                  <strong>Price per Night:</strong> Rp{" "}
-                  {formData.price_per_night.toLocaleString("id-ID")}
+                  <strong>Price:</strong> Rp{" "}
+                  {formData.price.toLocaleString("id-ID")}
                 </p>
+                {formData.features.length > 0 && (
+                  <div>
+                    <strong>Features:</strong>
+                    <ul className="list-disc pl-6">
+                      {formData.features.map((f, i) => (
+                        <li key={i}>{f}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
 

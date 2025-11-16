@@ -18,14 +18,17 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Branch } from "@/type/branch";
 
-
 interface BranchFormProps {
   branch?: Branch;
   onSubmit?: (data: FormData) => void;
   trigger?: React.ReactNode;
 }
 
-export default function BranchForm({ branch, onSubmit, trigger }: BranchFormProps) {
+export default function BranchForm({
+  branch,
+  onSubmit,
+  trigger,
+}: BranchFormProps) {
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
@@ -200,6 +203,18 @@ export default function BranchForm({ branch, onSubmit, trigger }: BranchFormProp
       setOpen(false);
       setShowPreview(false);
       onSubmit?.(data);
+      if (!branch) {
+        // === RESET FORM setelah submit sukses ===
+        setFormData({
+          name: "",
+          description: "",
+          google_map_url: "",
+          image_url: undefined,
+        });
+
+        setImageFile(null);
+        setImagePreview("");
+      }
     } catch (err) {
       console.error(err);
     }
@@ -222,7 +237,9 @@ export default function BranchForm({ branch, onSubmit, trigger }: BranchFormProp
           <>
             <div className="px-6 pt-6 pb-2">
               <DialogHeader>
-                <DialogTitle>{branch ? "Edit Branch" : "Add Branch"}</DialogTitle>
+                <DialogTitle>
+                  {branch ? "Edit Branch" : "Add Branch"}
+                </DialogTitle>
                 <DialogDescription>
                   {branch
                     ? "Update branch information."
@@ -231,7 +248,10 @@ export default function BranchForm({ branch, onSubmit, trigger }: BranchFormProp
               </DialogHeader>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col flex-1 overflow-hidden"
+            >
               <div className="overflow-y-auto px-6 py-4 space-y-4">
                 {/* IMAGE */}
                 <div className="space-y-2">
@@ -261,7 +281,9 @@ export default function BranchForm({ branch, onSubmit, trigger }: BranchFormProp
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
                       className={`border-2 border-dashed rounded-lg p-6 text-center ${
-                        isDragging ? "border-primary bg-primary/5" : "border-muted"
+                        isDragging
+                          ? "border-primary bg-primary/5"
+                          : "border-muted"
                       }`}
                     >
                       <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
@@ -269,7 +291,9 @@ export default function BranchForm({ branch, onSubmit, trigger }: BranchFormProp
                         htmlFor="branch-image"
                         className="cursor-pointer text-sm text-muted-foreground hover:text-foreground"
                       >
-                        {isConverting ? "Converting to WebP..." : "Click or drag & drop image"}
+                        {isConverting
+                          ? "Converting to WebP..."
+                          : "Click or drag & drop image"}
                       </Label>
                       <Input
                         id="branch-image"
@@ -291,7 +315,9 @@ export default function BranchForm({ branch, onSubmit, trigger }: BranchFormProp
                     value={formData.name}
                     required
                     placeholder="Enter branch name"
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                   />
                 </div>
 
@@ -302,7 +328,9 @@ export default function BranchForm({ branch, onSubmit, trigger }: BranchFormProp
                     rows={3}
                     placeholder="Branch description"
                     value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
                   />
                 </div>
 
@@ -313,7 +341,10 @@ export default function BranchForm({ branch, onSubmit, trigger }: BranchFormProp
                     placeholder="https://maps.google.com/..."
                     value={formData.google_map_url}
                     onChange={(e) =>
-                      setFormData({ ...formData, google_map_url: e.target.value })
+                      setFormData({
+                        ...formData,
+                        google_map_url: e.target.value,
+                      })
                     }
                   />
                 </div>
@@ -321,7 +352,11 @@ export default function BranchForm({ branch, onSubmit, trigger }: BranchFormProp
 
               {/* FOOTER */}
               <div className="flex justify-end gap-2 px-6 py-4 border-t bg-background">
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isConverting}>
@@ -352,7 +387,9 @@ export default function BranchForm({ branch, onSubmit, trigger }: BranchFormProp
               )}
 
               <div className="border rounded-lg p-4 space-y-3">
-                <p><strong>Name:</strong> {formData.name}</p>
+                <p>
+                  <strong>Name:</strong> {formData.name}
+                </p>
                 {formData.description && (
                   <p>
                     <strong>Description:</strong> {formData.description}
