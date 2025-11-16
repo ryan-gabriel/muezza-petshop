@@ -1,0 +1,380 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { PlusCircle, Upload, X, Eye } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { AddonService } from "@/type/addonService";
+
+
+interface AddonServiceFormProps {
+  addon?: AddonService;
+  onSubmit?: (data: FormData) => void;
+  trigger?: React.ReactNode;
+}
+
+export default function AddonServiceForm({ addon, onSubmit, trigger }: AddonServiceFormProps) {
+  const router = useRouter();
+
+  const [open, setOpen] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+
+  const [isDragging, setIsDragging] = useState(false);
+  const [isConverting, setIsConverting] = useState(false);
+
+  const [formData, setFormData] = useState({
+    title: addon?.title || "",
+    description: addon?.description || "",
+    price: addon?.price || 0,
+    image_url: addon?.image_url,
+  });
+
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>(addon?.image_url || "");
+
+  // ============================================
+  // Convert to WebP
+  // ============================================
+  const handleImageConvert = async (file: File): Promise<void> => {
+    setIsConverting(true);
+
+    try {
+      const reader = new FileReader();
+
+      reader.onload = (event) => {
+        const result = event.target?.result;
+        if (!result || typeof result !== "string") return;
+
+        const img = new window.Image();
+        img.src = result;
+
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return;
+
+          let { width, height } = img;
+          const maxSize = 1200;
+
+          if (width > maxSize || height > maxSize) {
+            if (width > height) {
+              height = (height / width) * maxSize;
+              width = maxSize;
+            } else {
+              width = (width / height) * maxSize;
+              height = maxSize;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const webp = new File([blob], file.name.replace(/\.[^.]+$/, ".webp"), {
+                  type: "image/webp",
+                });
+
+                setImageFile(webp);
+                setImagePreview(URL.createObjectURL(blob));
+              }
+              setIsConverting(false);
+            },
+            "image/webp",
+            0.85
+          );
+        };
+      };
+
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error("Convert failed:", err);
+      setIsConverting(false);
+    }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleImageConvert(file);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleImageConvert(file);
+  };
+
+  // ============================================
+  // Remove image
+  // ============================================
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview("");
+    setFormData((p) => ({ ...p, image_url: undefined }));
+  };
+
+  // ============================================
+  // Reset form if editing
+  // ============================================
+  useEffect(() => {
+    if (addon) {
+      setFormData({
+        title: addon.title,
+        description: addon.description || "",
+        price: addon.price,
+        image_url: addon.image_url || undefined,
+      });
+      setImagePreview(addon.image_url || "");
+    } else {
+      setFormData({
+        title: "",
+        description: "",
+        price: 0,
+        image_url: undefined,
+      });
+      setImagePreview("");
+    }
+
+    setImageFile(null);
+  }, [addon]);
+
+  // ============================================
+  // Build FormData
+  // ============================================
+  const buildFormData = () => {
+    const data = new FormData();
+    data.append("title", formData.title);
+    data.append("description", formData.description || "");
+    data.append("price", String(formData.price));
+
+    if (imageFile) data.append("image", imageFile);
+    else if (formData.image_url) data.append("image_url", formData.image_url);
+
+    return data;
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setShowPreview(true);
+  };
+
+  const handleConfirmSubmit = async () => {
+    const data = buildFormData();
+
+    try {
+      const url = addon
+        ? `/api/addon-services/${addon.id}`
+        : "/api/addon-services";
+
+      const method = addon ? "PATCH" : "POST";
+
+      const res = await fetch(url, { method, body: data });
+
+      if (!res.ok) throw new Error("Failed to submit");
+
+      router.refresh();
+      setOpen(false);
+      setShowPreview(false);
+
+      onSubmit?.(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {trigger ? (
+          trigger
+        ) : (
+          <Button variant="default" className="flex gap-2">
+            <PlusCircle className="w-4 h-4" /> Add Addon Service
+          </Button>
+        )}
+      </DialogTrigger>
+
+      <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col p-0">
+        {!showPreview ? (
+          <>
+            <div className="px-6 pt-6 pb-2">
+              <DialogHeader>
+                <DialogTitle>
+                  {addon ? "Edit Addon Service" : "Add Addon Service"}
+                </DialogTitle>
+                <DialogDescription>
+                  {addon
+                    ? "Update addon service details."
+                    : "Fill the form to create an addon service."}
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+
+            <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+              <div className="overflow-y-auto px-6 py-4 space-y-4">
+                {/* IMAGE */}
+                <div className="space-y-2">
+                  <Label>Addon Image</Label>
+
+                  {imagePreview ? (
+                    <div className="relative">
+                      <Image
+                        src={imagePreview}
+                        alt="Preview"
+                        width={600}
+                        height={400}
+                        className="w-full h-48 object-cover rounded-lg border"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2"
+                        onClick={handleRemoveImage}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div
+                      onDrop={handleDrop}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDragging(true);
+                      }}
+                      onDragLeave={(e) => {
+                        e.preventDefault();
+                        setIsDragging(false);
+                      }}
+                      className={`border-2 border-dashed rounded-lg p-6 text-center ${
+                        isDragging ? "border-primary bg-primary/5" : "border-muted"
+                      }`}
+                    >
+                      <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                      <Label
+                        htmlFor="addon-image"
+                        className="cursor-pointer text-sm text-muted-foreground hover:text-foreground"
+                      >
+                        {isConverting ? "Converting to WebP..." : "Click or drag & drop image"}
+                      </Label>
+
+                      <Input
+                        id="addon-image"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageUpload}
+                        disabled={isConverting}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* TITLE */}
+                <div className="space-y-2">
+                  <Label htmlFor="title">Addon Title</Label>
+                  <Input
+                    id="title"
+                    required
+                    placeholder="Premium Shampoo"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  />
+                </div>
+
+                {/* DESCRIPTION */}
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea
+                    rows={3}
+                    placeholder="Describe the addon"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  />
+                </div>
+
+                {/* PRICE */}
+                <div className="space-y-2">
+                  <Label>Price (IDR)</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    required
+                    value={formData.price}
+                    onChange={(e) =>
+                      setFormData({ ...formData, price: Number(e.target.value) })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 px-6 py-4 border-t bg-background">
+                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isConverting}>
+                  <Eye className="w-4 h-4 mr-2" /> Preview
+                </Button>
+              </div>
+            </form>
+          </>
+        ) : (
+          <>
+            <div className="px-6 pt-6 pb-2">
+              <DialogHeader>
+                <DialogTitle>Preview Addon Service</DialogTitle>
+                <DialogDescription>Review before submitting.</DialogDescription>
+              </DialogHeader>
+            </div>
+
+            <div className="overflow-y-auto px-6 py-4 space-y-4">
+              {imagePreview && (
+                <Image
+                  src={imagePreview}
+                  alt="Preview"
+                  width={600}
+                  height={400}
+                  className="w-full h-64 object-cover rounded-lg border"
+                />
+              )}
+
+              <div className="border rounded-lg p-4 space-y-3">
+                <p><strong>Title:</strong> {formData.title}</p>
+
+                {formData.description && (
+                  <p><strong>Description:</strong> {formData.description}</p>
+                )}
+
+                <p>
+                  <strong>Price:</strong> Rp {formData.price.toLocaleString("id-ID")}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 px-6 py-4 border-t bg-background">
+              <Button variant="outline" onClick={() => setShowPreview(false)}>
+                Back to Edit
+              </Button>
+              <Button onClick={handleConfirmSubmit}>Confirm & Submit</Button>
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
