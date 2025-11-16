@@ -13,11 +13,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import ProductForm from "@/components/form/ProductForm";
-import DeleteProductButton from "@/components/products/DeleteProductButton";
 import { getCategories } from "../../../utils/categories";
 import { getPaginatedProducts } from "@/utils/products";
 import { SearchBar } from "@/components/products/SearchBar";
 import ProductVisibilityToggle from "@/components/products/ProductVisibilityToggle";
+import DeleteResourceButton from "@/components/resource/DeleteResourceButton";
 
 export default async function AdminProductsPage({
   searchParams,
@@ -122,7 +122,12 @@ export default async function AdminProductsPage({
                           productId={product.id}
                           initialVisibility={product.visibility}
                         />
-                        <DeleteProductButton productId={product.id} />
+                        <DeleteResourceButton
+                          id={product.id}
+                          apiUrl="/api/products"
+                          title="Delete Product"
+                          message="This product will be permanently deleted."
+                        />
                       </TableCell>
                     </TableRow>
                   ))

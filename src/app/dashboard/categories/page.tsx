@@ -10,9 +10,9 @@ import {
 } from "@/components/ui/table";
 import { getCategories } from "@/utils/categories";
 import ProductCategoryForm from "@/components/form/ProductCategoryForm";
-import DeleteCategoryButton from "@/components/product-categories/DeleteCategoryButton";
 import { SearchBar } from "@/components/products/SearchBar";
 import { SquarePenIcon } from "lucide-react";
+import DeleteResourceButton from "@/components/resource/DeleteResourceButton";
 
 export default async function AdminCategoriesPage({
   searchParams,
@@ -85,7 +85,12 @@ export default async function AdminCategoriesPage({
                             </Button>
                           }
                         />
-                        <DeleteCategoryButton categoryId={category.id} />
+                        <DeleteResourceButton
+                          id={category.id}
+                          apiUrl="/api/product-categories"
+                          title="Delete Product Category"
+                          message="This product category will be permanently deleted."
+                        />
                       </TableCell>
                     </TableRow>
                   ))

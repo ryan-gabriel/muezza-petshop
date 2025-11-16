@@ -4,7 +4,7 @@ import { Branch } from "@/type/branch";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, SquarePen } from "lucide-react";
-import DeleteBranchButton from "@/components/branches/DeleteBranchButton";
+import DeleteResourceButton from "@/components/resource/DeleteResourceButton";
 
 async function getBranches(): Promise<Branch[]> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/branches`, {
@@ -97,7 +97,12 @@ export default async function Page() {
                       </Button>
                     }
                   />
-                  <DeleteBranchButton branchId={b.id} />
+                  <DeleteResourceButton
+                    id={b.id}
+                    apiUrl="/api/branches"
+                    title="Delete Branch"
+                    message="This branch will be permanently deleted."
+                  />
                 </div>
               </div>
             </TabsContent>

@@ -1,4 +1,4 @@
-import { Boxes, ChartArea, ChevronUp, Group, Store, User2 } from "lucide-react";
+import { Bath, Boxes, ChartArea, ChevronUp, Group, Store, Tags, User2 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -22,7 +22,9 @@ const items = [
   { title: "Overview", url: "/dashboard", icon: ChartArea },
   { title: "Products", url: "/dashboard/products", icon: Boxes },
   { title: "Categories", url: "/dashboard/categories", icon: Group },
-  { title: "Cabang", url: "/dashboard/cabang", icon: Store },
+  { title: "Branches", url: "/dashboard/branches", icon: Store },
+  { title: "Groomings", url: "/dashboard/groomings", icon: Bath },
+  { title: "Discounts", url: "/dashboard/discounts", icon: Tags },
 ];
 
 export async function AppSidebar() {
