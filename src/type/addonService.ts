@@ -1,6 +1,6 @@
 export interface AddonService {
   id: number;
-  title: string;
+  name: string;
   description?: string | null;
   price: number;
   created_at: string;

@@ -48,7 +48,7 @@ export default async function Page() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Title</TableHead>
+                <TableHead>Name</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead>Price</TableHead>
                 <TableHead className="text-center">Action</TableHead>
@@ -58,7 +58,7 @@ export default async function Page() {
             <TableBody>
               {addonServices.map((s) => (
                 <TableRow key={s.id}>
-                  <TableCell className="font-medium">{s.title}</TableCell>
+                  <TableCell className="font-medium">{s.name}</TableCell>
 
                   <TableCell className="max-w-[300px] truncate text-muted-foreground">
                     {s.description}

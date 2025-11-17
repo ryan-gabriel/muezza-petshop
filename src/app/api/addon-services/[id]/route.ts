@@ -14,10 +14,10 @@ function slugify(text: string) {
 
 async function generateUniqueSlug(
   supabase: any,
-  title: string,
+  name: string,
   currentId: number
 ) {
-  const baseSlug = slugify(title);
+  const baseSlug = slugify(name);
   let slug = baseSlug;
   let counter = 1;
 
@@ -56,11 +56,11 @@ export async function PATCH(
     const { id } = await params;
     const formData = await req.formData();
 
-    const title = formData.get("title") as string;
+    const name = formData.get("name") as string;
     const description = formData.get("description") as string;
     const price = formData.get("price") as string;
 
-    if (!title || !price) {
+    if (!name || !price) {
       return NextResponse.json(
         { message: "Missing required fields" },
         { status: 400 }
@@ -81,12 +81,12 @@ export async function PATCH(
       );
     }
 
-    const slug = await generateUniqueSlug(supabase, title, Number(id));
+    const slug = await generateUniqueSlug(supabase, name, Number(id));
 
     const { data, error } = await supabase
       .from("addon_services")
       .update({
-        title,
+        name,
         description,
         price: Number(price),
         slug,

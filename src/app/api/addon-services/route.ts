@@ -16,7 +16,7 @@ export async function GET(req: Request) {
     .order("created_at", { ascending: false });
 
   if (search) {
-    query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+    query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
   }
 
   const { data, error } = await query;
@@ -80,12 +80,12 @@ export async function POST(req: Request) {
 
     const formData = await req.formData();
 
-    const title = formData.get("title") as string;
+    const name = formData.get("name") as string;
     const description = formData.get("description") as string;
     const price = formData.get("price") as string;
 
 
-    if (!title || !price) {
+    if (!name || !price) {
       return NextResponse.json(
         { message: "Missing required fields" },
         { status: 400 }
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
     }
 
     // Generate unique slug
-    const baseSlug = slugify(title);
+    const baseSlug = slugify(name);
     const slug = await generateUniqueSlug(baseSlug, supabase);
 
     // Insert WITHOUT image
@@ -101,7 +101,7 @@ export async function POST(req: Request) {
       .from("addon_services")
       .insert([
         {
-          title,
+          name,
           description,
           price: Number(price),
           slug,

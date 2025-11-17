@@ -34,22 +34,22 @@ export default function AddonServiceForm({
   const [showPreview, setShowPreview] = useState(false);
 
   const [formData, setFormData] = useState({
-    title: addon?.title || "",
+    name: addon?.name || "",
     description: addon?.description || "",
     price: addon?.price || 0,
   });
 
   // Reset form ketika edit atau tambah baru
   useEffect(() => {
-    if (addon) {
+    if (addon) {    
       setFormData({
-        title: addon.title,
+        name: addon.name,
         description: addon.description || "",
         price: addon.price,
       });
     } else {
       setFormData({
-        title: "",
+        name: "",
         description: "",
         price: 0,
       });
@@ -59,7 +59,7 @@ export default function AddonServiceForm({
   // Build FormData (tanpa image)
   const buildFormData = () => {
     const data = new FormData();
-    data.append("title", formData.title);
+    data.append("name", formData.name);
     data.append("description", formData.description || "");
     data.append("price", String(formData.price));
     return data;
@@ -92,7 +92,7 @@ export default function AddonServiceForm({
 
       if (!addon) {
         setFormData({
-          title: "",
+          name: "",
           description: "",
           price: 0,
         });
@@ -142,9 +142,9 @@ export default function AddonServiceForm({
                     id="title"
                     required
                     placeholder="Premium Shampoo"
-                    value={formData.title}
+                    value={formData.name}
                     onChange={(e) =>
-                      setFormData({ ...formData, title: e.target.value })
+                      setFormData({ ...formData, name: e.target.value })
                     }
                   />
                 </div>
@@ -206,7 +206,7 @@ export default function AddonServiceForm({
             <div className="overflow-y-auto px-6 py-4 space-y-4">
               <div className="border rounded-lg p-4 space-y-3">
                 <p>
-                  <strong>Title:</strong> {formData.title}
+                  <strong>Name:</strong> {formData.name}
                 </p>
 
                 {formData.description && (
