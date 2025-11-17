@@ -8,8 +8,68 @@ import { createClient } from "@/utils/supabase/server";
 export async function GET(req: Request) {
   const supabase = await createClient();
   const { searchParams } = new URL(req.url);
+
+  const clientMode = searchParams.get("client") === "true";
   const search = searchParams.get("search")?.trim().toLowerCase() || "";
 
+  // =====================================================================
+  // CLIENT MODE (Include Discount)
+  // =====================================================================
+  if (clientMode) {
+    let query = supabase
+      .from("pet_hotel_rooms")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (search) {
+      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
+    }
+
+    const { data: rooms, error } = await query;
+
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 400 });
+
+    const enrichedRooms = [];
+
+    for (const room of rooms) {
+      // ---- Check if this room has a discount ----
+      const { data: target } = await supabase
+        .from("discount_targets")
+        .select("discount_id")
+        .eq("target_type", "hotel")
+        .eq("target_id", room.id)
+        .maybeSingle();
+
+      let discount = null;
+
+      if (target?.discount_id) {
+        const { data: d } = await supabase
+          .from("discounts")
+          .select("*")
+          .eq("id", target.discount_id)
+          .eq("is_active", true)
+          .maybeSingle();
+
+        // Validasi tanggal discount aktif (opsional, tapi recommended)
+        const today = new Date().toISOString().split("T")[0];
+        if (d && d.start_date <= today && d.end_date >= today) {
+          discount = d;
+        }
+      }
+
+      enrichedRooms.push({
+        ...room,
+        discount, // null or discount object
+      });
+    }
+
+    return NextResponse.json(enrichedRooms);
+  }
+
+  // =====================================================================
+  // ADMIN MODE (normal)
+  // =====================================================================
   let query = supabase
     .from("pet_hotel_rooms")
     .select("*")

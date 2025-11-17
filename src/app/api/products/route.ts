@@ -6,31 +6,115 @@ export async function GET(req: Request) {
   const supabase = await createClient();
 
   const { searchParams } = new URL(req.url);
-  const page = parseInt(searchParams.get("page") || "1", 10);
-  const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
+  const clientMode = searchParams.get("client") === "true";
   const search = searchParams.get("search")?.trim().toLowerCase() || "";
 
+  // =====================================================
+  // CLIENT MODE → GROUPED BY CATEGORY
+  // =====================================================
+  if (clientMode) {
+    const { data: categories, error: catErr } = await supabase
+      .from("product_categories")
+      .select("id, name, slug")
+      .order("name", { ascending: true });
+
+    if (catErr)
+      return NextResponse.json({ error: catErr.message }, { status: 400 });
+
+    const results = [];
+    const discountList = []; // <── NEW
+
+    for (const c of categories) {
+      let query = supabase
+        .from("products")
+        .select("id, name, description, price, image_url, slug, created_at")
+        .eq("category_id", c.id)
+        .limit(3)
+        .order("created_at", { ascending: false });
+
+      if (search) {
+        query = query.or(
+          `name.ilike.%${search}%,description.ilike.%${search}%`
+        );
+      }
+
+      const { data: products, error: prodErr } = await query;
+
+      if (prodErr)
+        return NextResponse.json({ error: prodErr.message }, { status: 400 });
+
+      const enrichedProducts = [];
+
+      for (const p of products) {
+        // Cari discount target utk produk ini
+        const { data: target } = await supabase
+          .from("discount_targets")
+          .select("discount_id")
+          .eq("target_type", "product")
+          .eq("target_id", p.id)
+          .maybeSingle();
+
+        let discount = null;
+
+        if (target?.discount_id) {
+          const { data: d } = await supabase
+            .from("discounts")
+            .select("*")
+            .eq("id", target.discount_id)
+            .eq("is_active", true)
+            .maybeSingle();
+
+          if (d) discount = d;
+        }
+
+        const item = { ...p, discount };
+
+        enrichedProducts.push(item);
+
+        // 🔥 Push ke global discount list jika produk ini punya diskon
+        if (discount) {
+          discountList.push({
+            product: {
+              id: p.id,
+              name: p.name,
+              slug: p.slug,
+              image_url: p.image_url,
+              price: p.price,
+            },
+            discount,
+          });
+        }
+      }
+
+      results.push({
+        category: c.name,
+        slug: c.slug,
+        products: enrichedProducts,
+      });
+    }
+
+    // RETURN FINAL
+    return NextResponse.json({
+      products: results,
+      discounts: discountList,
+    });
+  }
+
+  // =====================================================
+  // NORMAL MODE (ADMIN) — default behaviour
+  // =====================================================
+
+  const page = parseInt(searchParams.get("page") || "1", 10);
+  const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
-  // Fetch products + categories
   let query = supabase
     .from("products")
-    .select(
-      `
-      *,
-      product_categories (
-        id,
-        name,
-        slug
-      )
-    `,
-      { count: "exact" }
-    )
+    .select("*, product_categories(id, name, slug)", { count: "exact" })
     .order("created_at", { ascending: false })
     .range(from, to);
 
-  // Tambahkan filter search jika ada
   if (search) {
     query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
   }
@@ -40,6 +124,36 @@ export async function GET(req: Request) {
   if (error)
     return NextResponse.json({ error: error.message }, { status: 400 });
 
+  // 🎯 Add discount to each product
+  const productsWithDiscount = [];
+
+  for (const p of data || []) {
+    const { data: target } = await supabase
+      .from("discount_targets")
+      .select("discount_id")
+      .eq("target_type", "product")
+      .eq("target_id", p.id)
+      .maybeSingle();
+
+    let discount = null;
+
+    if (target?.discount_id) {
+      const { data: d } = await supabase
+        .from("discounts")
+        .select("*")
+        .eq("id", target.discount_id)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (d) discount = d;
+    }
+
+    productsWithDiscount.push({
+      ...p,
+      discount,
+    });
+  }
+
   const totalPages = count ? Math.ceil(count / pageSize) : 0;
 
   return NextResponse.json({
@@ -47,7 +161,7 @@ export async function GET(req: Request) {
     totalPages,
     next: page < totalPages ? page + 1 : null,
     previous: page > 1 ? page - 1 : null,
-    results: data || [],
+    results: productsWithDiscount,
   });
 }
 

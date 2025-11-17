@@ -8,8 +8,67 @@ import { createClient } from "@/utils/supabase/server";
 export async function GET(req: Request) {
   const supabase = await createClient();
   const { searchParams } = new URL(req.url);
+
+  const clientMode = searchParams.get("client") === "true";
   const search = searchParams.get("search")?.trim().toLowerCase() || "";
 
+  // =====================================================================
+  // CLIENT MODE — include discount
+  // =====================================================================
+  if (clientMode) {
+    let query = supabase
+      .from("photoshoot_packages")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (search) {
+      query = query.ilike("name", `%${search}%`);
+    }
+
+    const { data: packages, error } = await query;
+
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 400 });
+
+    const today = new Date().toISOString().split("T")[0];
+    const result = [];
+
+    for (const pkg of packages) {
+      // 🔎 Cari discount_target untuk photoshoot
+      const { data: target } = await supabase
+        .from("discount_targets")
+        .select("discount_id")
+        .eq("target_type", "photoshoot")
+        .eq("target_id", pkg.id)
+        .maybeSingle();
+
+      let discount = null;
+
+      if (target?.discount_id) {
+        const { data: d } = await supabase
+          .from("discounts")
+          .select("*")
+          .eq("id", target.discount_id)
+          .eq("is_active", true)
+          .maybeSingle();
+
+        if (d && d.start_date <= today && d.end_date >= today) {
+          discount = d; // return single object
+        }
+      }
+
+      result.push({
+        ...pkg,
+        discount,
+      });
+    }
+
+    return NextResponse.json(result);
+  }
+
+  // =====================================================================
+  // ADMIN MODE — normal
+  // =====================================================================
   let query = supabase
     .from("photoshoot_packages")
     .select("*")
@@ -99,8 +158,8 @@ export async function POST(req: Request) {
         features = JSON.parse(featuresRaw);
         if (!Array.isArray(features)) features = [];
       }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_:any) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_: any) {
       console.warn("Invalid features JSON:", featuresRaw);
       features = [];
     }
@@ -152,4 +211,3 @@ export async function POST(req: Request) {
     );
   }
 }
-

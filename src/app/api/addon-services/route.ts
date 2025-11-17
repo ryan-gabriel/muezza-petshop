@@ -8,8 +8,69 @@ import { createClient } from "@/utils/supabase/server";
 export async function GET(req: Request) {
   const supabase = await createClient();
   const { searchParams } = new URL(req.url);
+
+  const clientMode = searchParams.get("client") === "true";
   const search = searchParams.get("search")?.trim().toLowerCase() || "";
 
+  // =====================================================================
+  // CLIENT MODE — include discount (single object)
+  // =====================================================================
+  if (clientMode) {
+    let query = supabase
+      .from("addon_services")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (search) {
+      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
+    }
+
+    const { data: addons, error } = await query;
+
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 400 });
+
+    const today = new Date().toISOString().split("T")[0];
+    const result = [];
+
+    for (const addon of addons) {
+      // 1) Ambil discount target untuk addon
+      const { data: target } = await supabase
+        .from("discount_targets")
+        .select("discount_id")
+        .eq("target_type", "addon")
+        .eq("target_id", addon.id)
+        .maybeSingle();
+
+      let discount = null;
+
+      // 2) Jika ada discount → ambil detail discount
+      if (target?.discount_id) {
+        const { data: d } = await supabase
+          .from("discounts")
+          .select("*")
+          .eq("id", target.discount_id)
+          .eq("is_active", true)
+          .maybeSingle();
+
+        // 3) Validasi tanggal discount
+        if (d && d.start_date <= today && d.end_date >= today) {
+          discount = d; // return sebagai single object
+        }
+      }
+
+      result.push({
+        ...addon,
+        discount,
+      });
+    }
+
+    return NextResponse.json(result);
+  }
+
+  // =====================================================================
+  // ADMIN MODE — normal (no discount)
+  // =====================================================================
   let query = supabase
     .from("addon_services")
     .select("*")
@@ -83,7 +144,6 @@ export async function POST(req: Request) {
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
     const price = formData.get("price") as string;
-
 
     if (!name || !price) {
       return NextResponse.json(
