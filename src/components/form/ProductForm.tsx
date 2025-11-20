@@ -46,7 +46,7 @@ export default function ProductForm({
   const [formData, setFormData] = useState<ProductCreateRequest>({
     name: product?.name || "",
     price: product?.price || 0,
-    category: product?.product_categories.id || 0,
+    category: product?.product_categories?.id || 0,
     description: product?.description || "",
     image_url: product?.image_url,
   });
@@ -151,7 +151,7 @@ export default function ProductForm({
       setFormData({
         name: product.name,
         price: product.price,
-        category: product.product_categories.id,
+        category: product?.product_categories?.id || 0,
         description: product.description,
         image_url: product.image_url,
       });

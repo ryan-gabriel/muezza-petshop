@@ -1,5 +1,4 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -11,7 +10,6 @@ import {
 import { getCategories } from "@/utils/categories";
 import ProductCategoryForm from "@/components/form/ProductCategoryForm";
 import { SearchBar } from "@/components/products/SearchBar";
-import { SquarePenIcon } from "lucide-react";
 import DeleteResourceButton from "@/components/resource/DeleteResourceButton";
 
 export default async function AdminCategoriesPage({
@@ -77,14 +75,7 @@ export default async function AdminCategoriesPage({
                         )}
                       </TableCell>
                       <TableCell className="text-center flex justify-evenly">
-                        <ProductCategoryForm
-                          category={category}
-                          trigger={
-                            <Button variant="outline" size="sm">
-                              <SquarePenIcon />
-                            </Button>
-                          }
-                        />
+                        <ProductCategoryForm category={category} />
                         <DeleteResourceButton
                           id={category.id}
                           apiUrl="/api/product-categories"

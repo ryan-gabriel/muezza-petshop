@@ -21,13 +21,14 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
+
 import { Discount } from "@/type/discount";
+import Image from "next/image";
 
 type TargetOption = {
   id: number;
   name: string;
 };
-
 
 export default function DiscountForm({
   discount,
@@ -37,12 +38,9 @@ export default function DiscountForm({
   trigger?: React.ReactNode;
 }) {
   const isEdit = !!discount;
-
   const [open, setOpen] = useState(false);
 
-  // -----------------------
-  // FORM STATE
-  // -----------------------
+  // FORM STATES
   const [title, setTitle] = useState(discount?.title || "");
   const [description, setDescription] = useState(discount?.description || "");
   const [percent, setPercent] = useState(
@@ -60,19 +58,48 @@ export default function DiscountForm({
     name: string;
     target_type: string;
   } | null>(
-    discount?.target_id && discount?.target_type
+    discount?.target_id
       ? {
           id: discount.target_id,
-          name: "Loading...",
-          target_type: discount.target_type,
+          name: discount.target_name || "",
+          target_type: discount.target_type!,
         }
       : null
   );
 
-  // If edit mode → load target title for show
+  // IMAGE STATES
+  const [image, setImage] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(
+    discount?.image_url || null
+  );
+
+  // VERY IMPORTANT: new state to track image action
+  const [imageAction, setImageAction] = useState<"keep" | "replace" | "remove">(
+    "keep"
+  );
+
+  // Handle upload change
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+
+    if (!file) return;
+
+    setImage(file);
+    setPreview(URL.createObjectURL(file));
+    setImageAction("replace");
+  };
+
+  // Handle remove image
+  const handleRemoveImage = () => {
+    setImage(null);
+    setPreview(null);
+    setImageAction("remove");
+  };
+
+  // Load target name on edit
   useEffect(() => {
-    async function loadSelectedTargetTitle() {
-      if (!discount?.target_id || !discount?.target_type) return;
+    async function loadTarget() {
+      if (!discount?.target_id || !discount.target_type) return;
 
       const res = await fetch(
         `/api/discount-targets?id=${discount.target_id}&type=${discount.target_type}`
@@ -82,32 +109,30 @@ export default function DiscountForm({
       if (data?.name) {
         setSelectedTarget({
           id: data.id,
-          name: discount.target_name,
+          name: data.name,
           target_type: discount.target_type!,
         });
       }
     }
 
-    if (isEdit) loadSelectedTargetTitle();
+    if (isEdit) loadTarget();
   }, [discount, isEdit]);
 
-  // Load options when selecting type or searching
+  // Load possible target options
   useEffect(() => {
     if (!targetType) return;
 
-    async function loadTargets() {
+    async function loadData() {
       const res = await fetch(
         `/api/discount-targets?type=${targetType}&search=${search}`
       );
-
       const data = await res.json();
       setOptions(data || []);
     }
 
-    loadTargets();
+    loadData();
   }, [targetType, search]);
 
-  // select target handler
   const chooseTarget = (item: TargetOption) => {
     setSelectedTarget({
       id: item.id,
@@ -116,35 +141,36 @@ export default function DiscountForm({
     });
   };
 
-  // -----------------------
   // SUBMIT HANDLER
-  // -----------------------
   const handleSubmit = async () => {
     if (!selectedTarget) {
       alert("Pilih target dulu!");
       return;
     }
 
-    const payload = {
-      title,
-      description,
-      discount_percent: Number(percent),
-      start_date: startDate,
-      end_date: endDate,
-      target: {
-        type: selectedTarget.target_type,
-        id: selectedTarget.id,
-      },
-    };
+    const formData = new FormData();
 
+    formData.append("title", title);
+    formData.append("description", description || "");
+    formData.append("discount_percent", percent);
+    formData.append("start_date", startDate);
+    formData.append("end_date", endDate);
+    formData.append("target_type", selectedTarget.target_type);
+    formData.append("target_id", selectedTarget.id.toString());
+
+    // ---- IMAGE HANDLING ----
+    formData.append("image_action", imageAction); // IMPORTANT
+
+    if (imageAction === "replace" && image) {
+      formData.append("image", image);
+    }
+
+    // ---- CALL API ----
     const res = await fetch(
       isEdit ? `/api/discounts/${discount!.id}` : "/api/discounts",
       {
         method: isEdit ? "PATCH" : "POST",
-        body: JSON.stringify(payload),
-        headers: {
-          "Content-Type": "application/json",
-        },
+        body: formData,
       }
     );
 
@@ -158,39 +184,31 @@ export default function DiscountForm({
     window.location.reload();
   };
 
-  // -----------------------
-  // FORM UI
-  // -----------------------
+  // UI SECTION
   const FormUI = (
     <div className="space-y-6 p-4">
-      {/* Title */}
       <div>
         <Label>Title</Label>
         <Input value={title} onChange={(e) => setTitle(e.target.value)} />
       </div>
 
-      {/* Description */}
       <div>
         <Label>Description</Label>
         <Textarea
-          value={description || ""}
+          value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
       </div>
 
-      {/* Discount Percent */}
       <div>
         <Label>Discount Percent (%)</Label>
         <Input
           type="number"
-          min={1}
-          max={100}
           value={percent}
           onChange={(e) => setPercent(e.target.value)}
         />
       </div>
 
-      {/* Dates */}
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label>Start Date</Label>
@@ -202,22 +220,46 @@ export default function DiscountForm({
         </div>
         <div>
           <Label>End Date</Label>
-          <Input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-          />
+          <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
         </div>
       </div>
 
-      {/* Target Type */}
+      {/* IMAGE SECTION */}
+      <div>
+        <Label>Image (Optional)</Label>
+
+        <Input type="file" accept="image/*" onChange={handleImageChange} />
+
+        {preview && (
+          <div className="mt-2">
+            <Image
+              src={preview}
+              alt="Preview"
+              width={120}
+              height={120}
+              className="rounded-md border object-cover"
+            />
+            <Button
+              variant="destructive"
+              size="sm"
+              className="mt-2"
+              onClick={handleRemoveImage}
+            >
+              Remove Image
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* TARGET TYPE */}
       <div>
         <Label>Target Type</Label>
+
         <Select
           value={targetType}
-          onValueChange={(val) => {
+          onValueChange={(v) => {
+            setTargetType(v);
             setSelectedTarget(null);
-            setTargetType(val);
           }}
         >
           <SelectTrigger>
@@ -234,7 +276,6 @@ export default function DiscountForm({
         </Select>
       </div>
 
-      {/* Search */}
       {targetType && (
         <div>
           <Label>Cari Target</Label>
@@ -246,7 +287,6 @@ export default function DiscountForm({
         </div>
       )}
 
-      {/* Options Panel */}
       {targetType && (
         <div className="border p-3 rounded-md max-h-48 overflow-y-auto">
           {options.map((item) => (
@@ -261,11 +301,9 @@ export default function DiscountForm({
         </div>
       )}
 
-      {/* Selected Target */}
       {selectedTarget && (
-        <div className="mt-2 p-3 bg-blue-50 border rounded-md text-blue-900">
-          <div className="font-semibold">Selected Target:</div>
-          {selectedTarget.name} ({selectedTarget.target_type})
+        <div className="mt-2 p-3 bg-blue-50 border rounded-md">
+          <strong>Selected Target:</strong> {selectedTarget.name}
         </div>
       )}
 
@@ -273,20 +311,15 @@ export default function DiscountForm({
     </div>
   );
 
-  // -----------------------
-  // RETURN: Dialog Wrapper
-  // -----------------------
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {trigger ? trigger : <Button>Add Discount</Button>}
+        {trigger || <Button>Add Discount</Button>}
       </DialogTrigger>
 
-      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-lg max-h-[75vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {isEdit ? "Edit Discount" : "Create Discount"}
-          </DialogTitle>
+          <DialogTitle>{isEdit ? "Edit Discount" : "Create Discount"}</DialogTitle>
         </DialogHeader>
 
         {FormUI}

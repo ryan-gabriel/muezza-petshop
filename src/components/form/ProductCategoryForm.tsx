@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusCircle, Pencil, Eye } from "lucide-react";
+import { PlusCircle, Eye, SquarePenIcon } from "lucide-react";
 import { ProductCategory } from "@/type/productCategory";
 import { useRouter } from "next/navigation";
 
@@ -100,11 +100,13 @@ export default function ProductCategoryForm({
         {trigger ? (
           trigger
         ) : (
-          <Button className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
             {category ? (
-              <>
-                <Pencil className="w-4 h-4" /> Edit Category
-              </>
+              <SquarePenIcon />
             ) : (
               <>
                 <PlusCircle className="w-4 h-4" /> Add Category

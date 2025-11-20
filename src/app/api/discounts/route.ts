@@ -16,6 +16,7 @@ export async function GET() {
       start_date,
       end_date,
       slug,
+      is_active,
       discount_targets (
         target_type,
         target_id
@@ -107,18 +108,64 @@ async function generateUniqueDiscountSlug(baseSlug: string, supabase: any) {
   }
 }
 
+// ----------------------
+// POST — FormData + File Upload
+// ----------------------
 export async function POST(req: Request) {
   const supabase = await createClient();
-  const body = await req.json();
+  const formData = await req.formData();
 
-  const { title, description, discount_percent, start_date, end_date, target } =
-    body;
+  const title = formData.get("title") as string;
+  const description = formData.get("description") as string;
+  const discount_percent = Number(formData.get("discount_percent"));
+  const start_date = formData.get("start_date") as string;
+  const end_date = formData.get("end_date") as string;
 
-  // --- Step 1: Generate slug ---
+  const target_type = formData.get("target_type") as string;
+  const target_id = Number(formData.get("target_id"));
+
+  const imageFile = formData.get("image") as File | null;
+
+  // --------------------------
+  // Step 1: Upload Image
+  // --------------------------
+  let image_url = null;
+
+  if (imageFile) {
+    const fileExt = imageFile.name.split(".").pop();
+    const filePath = `discounts/${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("discount-images")
+      .upload(filePath, imageFile, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+    if (uploadError) {
+      return NextResponse.json(
+        { message: "Failed to upload image", error: uploadError },
+        { status: 500 }
+      );
+    }
+
+    // Get public URL
+    const { data: publicURLData } = supabase.storage
+      .from("discount-images")
+      .getPublicUrl(filePath);
+
+    image_url = publicURLData.publicUrl;
+  }
+
+  // --------------------------
+  // Step 2: Create Slug
+  // --------------------------
   const baseSlug = slugify(title);
   const uniqueSlug = await generateUniqueDiscountSlug(baseSlug, supabase);
 
-  // --- Step 2: Insert Discount ---
+  // --------------------------
+  // Step 3: Insert Discount
+  // --------------------------
   const { data: discount, error } = await supabase
     .from("discounts")
     .insert({
@@ -128,6 +175,7 @@ export async function POST(req: Request) {
       start_date,
       end_date,
       slug: uniqueSlug,
+      image_url,
     })
     .select()
     .single();
@@ -139,12 +187,17 @@ export async function POST(req: Request) {
     );
   }
 
-  // --- Step 3: Insert Target Mapping ---
+  // --------------------------
+  // Step 4: Create Target Mapping
+  // --------------------------
   await supabase.from("discount_targets").insert({
     discount_id: discount.id,
-    target_type: target.type,
-    target_id: target.id,
+    target_type,
+    target_id,
   });
 
-  return NextResponse.json(discount);
+  return NextResponse.json({
+    message: "Discount created successfully",
+    discount,
+  });
 }

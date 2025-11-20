@@ -1,6 +1,7 @@
 export interface Discount {
   id: number;
   title: string;
+  image_url?: string;
   description?: string;
   discount_percent: number;
   start_date: string;

@@ -12,18 +12,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Discount } from "@/type/discount";
-
+import Image from "next/image";
+import DiscountActiveToggle from "@/components/discounts/DiscountActiveToggle";
 
 // ------------------------
 // FETCH DISCOUNTS
 // ------------------------
 async function getDiscounts(): Promise<Discount[]> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/discounts`,
-    {
-      cache: "no-store",
-    }
-  );
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/discounts`, {
+    cache: "no-store",
+  });
 
   if (!res.ok) return [];
 
@@ -57,6 +55,7 @@ export default async function Page() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Image</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Percent</TableHead>
                 <TableHead>Start Date</TableHead>
@@ -67,7 +66,21 @@ export default async function Page() {
 
             <TableBody>
               {discounts.map((d) => (
-                <TableRow key={d.id}>
+                <TableRow key={d.id} className={`${d.is_active ? "" : "opacity-60"}`}>
+                  <TableCell className="font-medium">
+                    {d.image_url ? (
+                      <Image
+                        src={d.image_url}
+                        alt={d.title}
+                        width={50}
+                        height={50}
+                        className="rounded-md object-cover"
+                      />
+                    ) : (
+                      <span className="text-gray-400 italic">No Image</span>
+                    )}
+                  </TableCell>
+
                   <TableCell className="font-medium">{d.title}</TableCell>
 
                   <TableCell>{d.discount_percent}%</TableCell>
@@ -91,7 +104,10 @@ export default async function Page() {
                           </Button>
                         }
                       />
-
+                      <DiscountActiveToggle
+                        discountId={d.id}
+                        initialActive={d.is_active}
+                      />
                       {/* Delete */}
                       <DeleteResourceButton
                         id={d.id}

@@ -94,7 +94,7 @@ export default async function AdminProductsPage({
                           className="object-cover rounded-md border"
                         />
                       </TableCell>
-                      <TableCell className="font-medium">
+                      <TableCell className="font-medium max-w-[250px] truncate">
                         {product.name}
                       </TableCell>
                       <TableCell className="max-w-[250px] truncate text-muted-foreground">
@@ -104,8 +104,14 @@ export default async function AdminProductsPage({
                         Rp {product.price.toLocaleString("id-ID")}
                       </TableCell>
                       <TableCell>
-                        <Badge className="capitalize">
-                          {product.product_categories.name}
+                        <Badge
+                          className={`capitalize ${
+                            !product.product_categories
+                              ? "bg-gray-200 text-gray-600"
+                              : ""
+                          }`}
+                        >
+                          {product.product_categories?.name || "Uncategorized"}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -114,10 +120,12 @@ export default async function AdminProductsPage({
                         )}
                       </TableCell>
                       <TableCell className="text-center flex justify-center items-center gap-4">
-                        <ProductForm
-                          product={product}
-                          productCategories={categories}
-                        />
+                        {categories.length > 0 && (
+                          <ProductForm
+                            product={product}
+                            productCategories={categories}
+                          />
+                        )}
                         <ProductVisibilityToggle
                           productId={product.id}
                           initialVisibility={product.visibility}
