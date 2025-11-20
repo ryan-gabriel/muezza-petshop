@@ -37,7 +37,7 @@ const ProdukSection = () => {
         </div>
         <div className="w-full md:w-1/2 h-full">
           <Image
-            src={"/sections/produk-section/produk.webp"}
+            src={"/landing/sections/produk-section/produk.webp"}
             alt={"Produk Muezza"}
             width={600}
             height={600}

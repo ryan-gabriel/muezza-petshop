@@ -24,7 +24,7 @@ const Footer = () => {
       {/* Cat Image */}
       <div className="w-full flex justify-center -mt-36 sm:-mt-40">
         <Image
-          src="/sections/footer/footer-cat.webp"
+          src="/landing/sections/footer/footer-cat.webp"
           alt="Muezza Cat"
           width={280}
           height={350}

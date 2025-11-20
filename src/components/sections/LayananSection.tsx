@@ -4,19 +4,19 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 const LayananSection = () => {
   const layananMuezza = [
     {
-      imageUrl: "/sections/layanan-section/pet-shop.webp",
+      imageUrl: "/landing/sections/layanan-section/pet-shop.webp",
       title: "Pet Shop",
     },
     {
-      imageUrl: "/sections/layanan-section/pet-grooming.webp",
+      imageUrl: "/landing/sections/layanan-section/pet-grooming.webp",
       title: "Pet Grooming",
     },
     {
-      imageUrl: "/sections/layanan-section/pet-hotel.webp",
+      imageUrl: "/landing/sections/layanan-section/pet-hotel.webp",
       title: "Pet Hotel",
     },
     {
-      imageUrl: "/sections/layanan-section/pet-studio.webp",
+      imageUrl: "/landing/sections/layanan-section/pet-studio.webp",
       title: "Pet Studio",
     },
   ];

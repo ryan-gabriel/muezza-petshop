@@ -7,28 +7,28 @@ const CabangSection = () => {
       description:
         "Lorem ipsum dolor sit amet consectetur. Mi libero nunc duis accumsan massa vitae tempus aenean in. Pharetra turpis lacus congue egestas in. Tincidunt eget id ac tellus. Tempus vitae eget nisi quis suspendisse egestas adipiscing ac.",
       whatsapp: "0912838128",
-      imageUrl: "/sections/cabang-section/margahayu.webp",
+      imageUrl: "/landing/sections/cabang-section/margahayu.webp",
     },
     {
       title: "Muezza Petshop Buah Batu",
       description:
         "Phasellus eget justo at libero suscipit pretium. Quisque nec sapien elit. Donec ullamcorper purus vitae felis commodo, a sodales neque elementum.",
       whatsapp: "0899123456",
-      imageUrl: "/sections/cabang-section/margahayu.webp",
+      imageUrl: "/landing/sections/cabang-section/margahayu.webp",
     },
     {
       title: "Muezza Petshop Cibiru",
       description:
         "Integer sit amet mauris nec lorem blandit gravida. Nulla facilisi. Curabitur consequat varius sapien, vel hendrerit enim porta non.",
       whatsapp: "082233445566",
-      imageUrl: "/sections/cabang-section/margahayu.webp",
+      imageUrl: "/landing/sections/cabang-section/margahayu.webp",
     },
     {
       title: "Muezza Petshop Dago",
       description:
         "Suspendisse potenti. Duis sed nisi ut mi ullamcorper aliquam. Curabitur ac erat sit amet ex pretium pretium.",
       whatsapp: "081122334455",
-      imageUrl: "/sections/cabang-section/margahayu.webp",
+      imageUrl: "/landing/sections/cabang-section/margahayu.webp",
     },
   ];
 

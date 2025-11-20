@@ -6,7 +6,7 @@ const HeroSection = () => {
     <section className="relative w-full">
       {/* Background image */}
       <Image
-        src="/sections/hero-section/hero-bg.webp"
+        src="/landing/sections/hero-section/hero-bg.webp"
         alt="Hero Background"
         width={1000}
         height={1000}
@@ -30,7 +30,7 @@ const HeroSection = () => {
       />
       <div className="absolute bottom-0 md:bottom-20 lg:-bottom-12 right-0 w-[37.5%] sm:w-[32%] md:w-1/2 max-w-[600px] aspect-[1/1] -z-0">
         <Image
-          src="/sections/hero-section/hero-cat.svg"
+          src="/landing/sections/hero-section/hero-cat.svg"
           alt="Hero Cat"
           fill
           priority
