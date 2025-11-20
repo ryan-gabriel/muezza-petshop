@@ -30,7 +30,7 @@ const LayananSection = () => {
         width={1920}
         height={1920}
         priority
-        className="absolute inset-0 m-auto transform scale-x-[-1] object-contain md:w-[50%] w-full"
+        className="absolute inset-0 m-auto transform scale-x-[-1] object-contain md:w-[50%] w-full -z-50"
       />
 
       {/* Section Title */}

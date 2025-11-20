@@ -18,7 +18,7 @@ const HeroSection = () => {
         alt="Hero Background"
         width={1920}
         height={1920}
-        className="object-cover absolute -top-20 -right-10 w-1/5 min-w-[15rem] md:min-w-[25rem]"
+        className="-z-50 object-cover absolute -top-20 -right-10 w-1/5 min-w-[15rem] md:min-w-[25rem]"
       />
       <Image
         src="/elements/paw-trail-blue.webp"
@@ -26,7 +26,7 @@ const HeroSection = () => {
         width={1920}
         height={1920}
         priority
-        className="object-contain absolute bottom-0 left-0 md:-bottom-0 md:left-60 w-[40%] min-w-[17.5rem] md:min-w-[25rem]"
+        className="-z-50 object-contain absolute bottom-0 left-0 md:-bottom-0 md:left-60 w-[40%] min-w-[17.5rem] md:min-w-[25rem]"
       />
       <div className="absolute bottom-0 md:bottom-20 lg:-bottom-12 right-0 w-[37.5%] sm:w-[32%] md:w-1/2 max-w-[600px] aspect-[1/1] -z-0">
         <Image

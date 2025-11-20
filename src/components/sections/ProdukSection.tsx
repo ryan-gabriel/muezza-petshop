@@ -10,7 +10,7 @@ const ProdukSection = () => {
         width={1920}
         height={1920}
         priority
-        className="absolute inset-0 m-auto transform scale-x-[-1] object-contain md:w-[50%] w-full"
+        className="-z-50 absolute inset-0 m-auto transform scale-x-[-1] object-contain md:w-[50%] w-full"
       />
       
       <h2 className="text-3xl md:text-4xl font-boogaloo font-semibold text-center mb-16">

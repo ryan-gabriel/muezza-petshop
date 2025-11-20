@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <main>
+      <main className="flex flex-col items-center justify-center w-full overflow-x-hidden">
         <HeroSection />
         <LayananSection />
         <CabangSection />

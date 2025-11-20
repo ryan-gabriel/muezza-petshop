@@ -40,6 +40,7 @@ export default function BranchForm({
     name: branch?.name || "",
     description: branch?.description || "",
     google_map_url: branch?.google_map_url || "",
+    whatsapp_number: branch?.whatsapp_number || "",
     image_url: branch?.image_url,
   });
 
@@ -147,6 +148,7 @@ export default function BranchForm({
         name: branch.name,
         description: branch.description || "",
         google_map_url: branch.google_map_url || "",
+        whatsapp_number: branch.whatsapp_number || "",
         image_url: branch.image_url,
       });
       setImagePreview(branch.image_url || "");
@@ -155,6 +157,7 @@ export default function BranchForm({
         name: "",
         description: "",
         google_map_url: "",
+        whatsapp_number: "",
         image_url: undefined,
       });
       setImagePreview("");
@@ -169,6 +172,7 @@ export default function BranchForm({
     data.append("name", formData.name);
     data.append("description", formData.description || "");
     data.append("google_map_url", formData.google_map_url || "");
+    data.append("whatsapp_number", formData.whatsapp_number || "");
 
     if (imageFile) data.append("image", imageFile);
     else if (formData.image_url) data.append("image_url", formData.image_url);
@@ -210,6 +214,7 @@ export default function BranchForm({
           description: "",
           google_map_url: "",
           image_url: undefined,
+          whatsapp_number: "",
         });
 
         setImageFile(null);
@@ -330,6 +335,21 @@ export default function BranchForm({
                     value={formData.description}
                     onChange={(e) =>
                       setFormData({ ...formData, description: e.target.value })
+                    }
+                  />
+                </div>
+
+                {/* WHATSAPP NUMBER */}
+                <div className="space-y-2">
+                  <Label>WhatsApp Number</Label>
+                  <Input
+                    placeholder="081234567890"
+                    value={formData.whatsapp_number}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        whatsapp_number: e.target.value,
+                      })
                     }
                   />
                 </div>

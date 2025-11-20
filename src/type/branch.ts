@@ -7,4 +7,5 @@ export type Branch = {
   updated_at: string;
   google_map_url: string;
   image_url: string;
+  whatsapp_number: string;
 };
