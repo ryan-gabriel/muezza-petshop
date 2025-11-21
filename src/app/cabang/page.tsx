@@ -37,7 +37,7 @@ const Page = async () => {
 
   return (
     <>
-      <Navbar />
+      <Navbar useBackground={true}/>
       <main className="px-6 py-12 pt-28 space-y-14 md:space-y-20">
         <h2 className="font-boogaloo text-4xl md:text-5xl text-center mt-6 md:mt-10">
           Cabang Muezza
