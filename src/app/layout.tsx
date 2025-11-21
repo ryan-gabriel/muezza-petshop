@@ -16,7 +16,7 @@ export default function RootLayout({
       <body
         className={`font-calibri antialiased w-full flex justify-center`}
       >
-        <div className="mx-auto w-full max-w-[1440px]">{children}</div>
+        <div className="mx-auto w-full max-w-[1440px] relative">{children}</div>
       </body>
     </html>
   );

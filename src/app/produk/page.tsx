@@ -11,7 +11,7 @@ const page = async () => {
   return (
     <>
       <Navbar />
-      <main className="px-6 py-12">
+      <main className="px-6 py-12 pt-28">
         {data.products.map((group, index) => (
           <React.Fragment key={group.slug}>
             <section className="mb-16">

@@ -3,7 +3,7 @@ import React from "react";
 
 const HeroSection = () => {
   return (
-    <section className="relative w-full">
+    <section className="relative w-full pt-10">
       {/* Background image */}
       <Image
         src="/landing/sections/hero-section/hero-bg.webp"
@@ -35,7 +35,7 @@ const HeroSection = () => {
           fill
           priority
           className=" object-contain object-bottom-right md:object-top-right lg:object-right transition-all duration-300"
-          sizes="(max-width: 768px) 75vw, 35vw"
+          sizes="(max-width: 600px) 75vw, 35vw"
         />
       </div>
 
@@ -52,7 +52,7 @@ const HeroSection = () => {
             pariatur. Quod molestias aliquid temporibus sit odio vitae iste hic,
             in voluptatem optio.
           </p>
-          <button className="shadow-lg hover:shadow-2xl transition-all duration-200 px-8 md:px-10 py-3 rounded-full font-boogaloo border-[0.2px] border-blue-300 bg-primary-blue text-black hover:bg-primary-blue/80">
+          <button className="shadow-lg hover:shadow-2xl transition-all duration-200 px-8 md:px-10 py-3 rounded-full font-boogaloo border-[0.2px] border-blue-300 bg-white md:bg-primary-blue text-black hover:bg-white/80 cursor-pointer md:hover:bg-primary-blue/80">
             Placeholder
           </button>
         </div>
