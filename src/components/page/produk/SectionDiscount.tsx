@@ -144,11 +144,11 @@ function DiscountCard({ item }: { item: DiscountProduct }) {
             ${!discountImage ? "text-center items-center" : "text-left"}
           `}
         >
-          <h3 className="font-bold text-3xl mb-2 flex items-center gap-2 justify-center md:justify-start">
+          <h3 className="text-[#224F34] font-bold text-3xl mb-2 flex items-center gap-2 justify-center md:justify-start">
             {d.title}
           </h3>
 
-          <p className="text-sm line-through">
+          <p className="text-sm line-through text-muted-foreground">
             Rp{" "}
             {new Intl.NumberFormat("id-ID", {
               minimumFractionDigits: 2,
