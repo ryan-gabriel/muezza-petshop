@@ -24,6 +24,7 @@ import {
 
 import { Discount } from "@/type/discount";
 import Image from "next/image";
+import { SquarePen } from "lucide-react";
 
 type TargetOption = {
   id: number;
@@ -32,10 +33,8 @@ type TargetOption = {
 
 export default function DiscountForm({
   discount,
-  trigger,
 }: {
   discount?: Discount;
-  trigger?: React.ReactNode;
 }) {
   const isEdit = !!discount;
   const [open, setOpen] = useState(false);
@@ -220,7 +219,11 @@ export default function DiscountForm({
         </div>
         <div>
           <Label>End Date</Label>
-          <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+          <Input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
         </div>
       </div>
 
@@ -314,12 +317,20 @@ export default function DiscountForm({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {trigger || <Button>Add Discount</Button>}
+        {discount ? (
+          <Button variant="outline" className="gap-2">
+            <SquarePen className="w-4 h-4" />
+          </Button>
+        ) : (
+          <Button>Add Discount</Button>
+        )}
       </DialogTrigger>
 
       <DialogContent className="max-w-lg max-h-[75vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit Discount" : "Create Discount"}</DialogTitle>
+          <DialogTitle>
+            {isEdit ? "Edit Discount" : "Create Discount"}
+          </DialogTitle>
         </DialogHeader>
 
         {FormUI}

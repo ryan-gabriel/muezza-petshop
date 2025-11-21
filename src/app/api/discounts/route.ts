@@ -16,6 +16,7 @@ export async function GET() {
       start_date,
       end_date,
       slug,
+      image_url,
       is_active,
       discount_targets (
         target_type,
@@ -124,16 +125,18 @@ export async function POST(req: Request) {
   const target_type = formData.get("target_type") as string;
   const target_id = Number(formData.get("target_id"));
 
+  const imageAction = (formData.get("image_action") as string) || "keep";
   const imageFile = formData.get("image") as File | null;
 
   // --------------------------
-  // Step 1: Upload Image
+  // Step 1: Handle Image Logic
   // --------------------------
-  let image_url = null;
+  let image_url: string | null = null;
 
-  if (imageFile) {
+  if (imageAction === "replace" && imageFile) {
     const fileExt = imageFile.name.split(".").pop();
     const filePath = `discounts/${Date.now()}.${fileExt}`;
+
 
     const { error: uploadError } = await supabase.storage
       .from("discount-images")
@@ -149,13 +152,15 @@ export async function POST(req: Request) {
       );
     }
 
-    // Get public URL
     const { data: publicURLData } = supabase.storage
       .from("discount-images")
       .getPublicUrl(filePath);
 
     image_url = publicURLData.publicUrl;
   }
+
+  // "remove" dan "keep" di create → image_url null (default)
+  // Jadi tidak perlu melakukan apa-apa
 
   // --------------------------
   // Step 2: Create Slug

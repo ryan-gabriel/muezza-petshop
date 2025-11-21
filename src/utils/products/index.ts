@@ -1,4 +1,8 @@
-import { PaginatedResponse, Product } from "@/type/product";
+import {
+  PaginatedResponse,
+  Product,
+  ProductClientResponse,
+} from "@/type/product";
 
 export async function getPaginatedProducts(
   page = 1,
@@ -34,5 +38,29 @@ export async function getPaginatedProducts(
   } catch (error) {
     console.error("Error fetching paginated products:", error);
     return { count: 0, totalPages: 0, next: null, previous: null, results: [] };
+  }
+}
+
+export async function getProductClient(): Promise<ProductClientResponse> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const res = await fetch(`${baseUrl}/api/products?client=true`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Failed to fetch products: ${err}`);
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error("getProductClient error:", error);
+    throw error;
   }
 }

@@ -15,14 +15,14 @@ export async function GET(req: Request) {
   if (clientMode) {
     const { data: categories, error: catErr } = await supabase
       .from("product_categories")
-      .select("id, name, slug")
+      .select("id, name, slug, description")
       .order("name", { ascending: true });
 
     if (catErr)
       return NextResponse.json({ error: catErr.message }, { status: 400 });
 
     const results = [];
-    const discountList = []; // <── NEW
+    const discountList = []; // GLOBAL DISCOUNT COLLECTOR
 
     for (const c of categories) {
       let query = supabase
@@ -46,33 +46,44 @@ export async function GET(req: Request) {
       const enrichedProducts = [];
 
       for (const p of products) {
-        // Cari discount target utk produk ini
-        const { data: target } = await supabase
+        // 👉 Ambil semua discount target untuk produk ini
+        const { data: targets, error: targetErr } = await supabase
           .from("discount_targets")
           .select("discount_id")
           .eq("target_type", "product")
-          .eq("target_id", p.id)
-          .maybeSingle();
+          .eq("target_id", p.id);
 
-        let discount = null;
+        if (targetErr)
+          return NextResponse.json(
+            { error: targetErr.message },
+            { status: 400 }
+          );
 
-        if (target?.discount_id) {
-          const { data: d } = await supabase
-            .from("discounts")
-            .select("*")
-            .eq("id", target.discount_id)
-            .eq("is_active", true)
-            .maybeSingle();
-
-          if (d) discount = d;
+        // Tidak ada discount target
+        if (!targets || targets.length === 0) {
+          enrichedProducts.push({ ...p, discounts: [] });
+          continue;
         }
 
-        const item = { ...p, discount };
+        const today = new Date().toISOString().slice(0, 10);
+        const activeDiscounts = [];
 
-        enrichedProducts.push(item);
+        // 👉 Loop semua discount_id
+        for (const t of targets) {
+          const { data: discount, error: discErr } = await supabase
+            .from("discounts")
+            .select("*")
+            .eq("id", t.discount_id)
+            .lte("start_date", today)
+            .gte("end_date", today)
+            .maybeSingle();
 
-        // 🔥 Push ke global discount list jika produk ini punya diskon
-        if (discount) {
+          if (discErr) continue;
+          if (!discount) continue; // skip jika expired / belum aktif
+
+          activeDiscounts.push(discount);
+
+          // Push ke global discount list
           discountList.push({
             product: {
               id: p.id,
@@ -84,19 +95,24 @@ export async function GET(req: Request) {
             discount,
           });
         }
+
+        enrichedProducts.push({
+          ...p,
+          discounts: activeDiscounts, // <- array of discounts
+        });
       }
 
       results.push({
         category: c.name,
         slug: c.slug,
+        description: c.description,
         products: enrichedProducts,
       });
     }
 
-    // RETURN FINAL
     return NextResponse.json({
-      products: results,
-      discounts: discountList,
+      products: results, // produk per kategori
+      discounts: discountList, // semua discount aktif
     });
   }
 

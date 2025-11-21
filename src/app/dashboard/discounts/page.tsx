@@ -1,6 +1,4 @@
 import DiscountForm from "@/components/form/DiscountForm";
-import { Button } from "@/components/ui/button";
-import { SquarePen } from "lucide-react";
 import DeleteResourceButton from "@/components/resource/DeleteResourceButton";
 
 import {
@@ -98,11 +96,6 @@ export default async function Page() {
                       {/* Edit Discount */}
                       <DiscountForm
                         discount={d}
-                        trigger={
-                          <Button variant="outline" className="gap-2">
-                            <SquarePen className="w-4 h-4" />
-                          </Button>
-                        }
                       />
                       <DiscountActiveToggle
                         discountId={d.id}

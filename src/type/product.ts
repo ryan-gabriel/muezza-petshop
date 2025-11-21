@@ -1,3 +1,5 @@
+import { Discount } from "./discount";
+
 export interface Product {
   id: number;
   name: string;
@@ -24,4 +26,23 @@ export interface PaginatedResponse<T> {
   next: number | null;
   previous: number | null;
   results: T[];
+}
+
+export interface ProductCategoryGroup {
+  category: string;
+  slug: string;
+  description: string;
+  products: (Omit<Omit<Product, "visibility">, "product_categories"> & {
+    discount: Discount | null;
+  })[];
+}
+
+export interface DiscountProduct {
+  product: Omit<Product, "visibility" | "product_categories" | "description">;
+  discount: Discount;
+}
+
+export interface ProductClientResponse {
+  products: ProductCategoryGroup[];
+  discounts: DiscountProduct[];
 }
