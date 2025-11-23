@@ -15,9 +15,7 @@ import {
 } from "@/components/ui/table";
 
 async function getGroomings(): Promise<GroomingService[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/groomings`, {
-    cache: "no-store",
-  });
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/groomings`);
 
   if (!res.ok) {
     return [];

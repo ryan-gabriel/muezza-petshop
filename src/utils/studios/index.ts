@@ -5,9 +5,6 @@ export async function getStudiosClient(): Promise<PhotoshootPackageClient[]> {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     const res = await fetch(`${baseUrl}/api/photoshoots?client=true`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
     });
 
     if (!res.ok) {

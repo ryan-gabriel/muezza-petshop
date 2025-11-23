@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 
 export async function PATCH(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   const parameter = await context.params
   const supabase = await createClient();

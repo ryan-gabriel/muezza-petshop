@@ -17,9 +17,7 @@ import DiscountActiveToggle from "@/components/discounts/DiscountActiveToggle";
 // FETCH DISCOUNTS
 // ------------------------
 async function getDiscounts(): Promise<Discount[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/discounts`, {
-    cache: "no-store",
-  });
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/discounts`);
 
   if (!res.ok) return [];
 
@@ -64,7 +62,10 @@ export default async function Page() {
 
             <TableBody>
               {discounts.map((d) => (
-                <TableRow key={d.id} className={`${d.is_active ? "" : "opacity-60"}`}>
+                <TableRow
+                  key={d.id}
+                  className={`${d.is_active ? "" : "opacity-60"}`}
+                >
                   <TableCell className="font-medium">
                     {d.image_url ? (
                       <Image
@@ -94,9 +95,7 @@ export default async function Page() {
                   <TableCell className="text-center">
                     <div className="flex justify-center items-center gap-3">
                       {/* Edit Discount */}
-                      <DiscountForm
-                        discount={d}
-                      />
+                      <DiscountForm discount={d} />
                       <DiscountActiveToggle
                         discountId={d.id}
                         initialActive={d.is_active}

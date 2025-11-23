@@ -7,7 +7,6 @@ export async function getBranches(): Promise<Branch[]> {
       `${process.env.NEXT_PUBLIC_BASE_URL}/api/branches`,
       {
         method: "GET",
-        cache: "no-store", // jika kamu ingin selalu fresh; bisa diganti "force-cache"
       }
     );
 

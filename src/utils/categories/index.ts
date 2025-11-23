@@ -5,14 +5,12 @@ export async function getCategories(
 ): Promise<ProductCategory[]> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-    
+
     // Build URL dengan search param jika ada
     const url = new URL(`${baseUrl}/api/product-categories`);
     if (search) url.searchParams.append("search", search);
 
-    const res = await fetch(url.toString(), {
-      next: { revalidate: 0 },
-    });
+    const res = await fetch(url.toString(), {});
 
     if (!res.ok)
       throw new Error(`Failed to fetch categories: ${res.statusText}`);

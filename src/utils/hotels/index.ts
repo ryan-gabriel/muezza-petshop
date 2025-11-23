@@ -5,9 +5,6 @@ export async function getHotelsClient(): Promise<HotelClient[]> {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     const res = await fetch(`${baseUrl}/api/hotel?client=true`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
     });
 
     if (!res.ok) {

@@ -19,8 +19,7 @@ import {
 // -----------------------------
 async function getPhotoshoots(): Promise<PhotoshootPackage[]> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/photoshoots`,
-    { cache: "no-store" }
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/photoshoots`
   );
 
   if (!res.ok) {
@@ -40,7 +39,9 @@ export default async function Page() {
     <div className="p-6">
       {/* HEADER */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">Photoshoot Packages</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Photoshoot Packages
+        </h1>
         <PhotoshootForm />
       </div>
 

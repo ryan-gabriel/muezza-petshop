@@ -20,9 +20,7 @@ export async function getPaginatedProducts(
       url.searchParams.set("search", search.trim());
     }
 
-    const res = await fetch(url.toString(), {
-      next: { revalidate: 0 }, // disable caching
-    });
+    const res = await fetch(url.toString(), {});
 
     if (!res.ok) throw new Error(`Failed to fetch products: ${res.status}`);
 
@@ -46,9 +44,6 @@ export async function getProductClient(): Promise<ProductClientResponse> {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     const res = await fetch(`${baseUrl}/api/products?client=true`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
     });
 
     if (!res.ok) {

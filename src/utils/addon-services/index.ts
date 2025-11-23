@@ -5,9 +5,6 @@ export async function getAddonClient(): Promise<AddonServiceClient[]> {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     const res = await fetch(`${baseUrl}/api/addon-services?client=true`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
     });
 
     if (!res.ok) {

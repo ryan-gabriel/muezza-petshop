@@ -15,12 +15,7 @@ import {
 import PetHotelRoomForm from "@/components/form/HotelServiceForm";
 
 async function getPetHotelRooms(): Promise<PetHotelRoom[]> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/hotel`,
-    {
-      cache: "no-store",
-    }
-  );
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/hotel`);
 
   if (!res.ok) {
     return [];
@@ -79,8 +74,7 @@ export default async function Page() {
                   </TableCell>
 
                   <TableCell className="">
-                    Rp.{" "}
-                    {Number(room.price_per_night).toLocaleString("id-ID")}
+                    Rp. {Number(room.price_per_night).toLocaleString("id-ID")}
                   </TableCell>
 
                   <TableCell className="text-center">
