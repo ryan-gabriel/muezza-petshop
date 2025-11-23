@@ -1,7 +1,7 @@
 import Facilities from "@/components/page/hotel/Facilities";
 import HotelHeroSection from "@/components/page/hotel/HotelHeroSection";
 import RoomTypes from "@/components/page/hotel/RoomTypes";
-import YoutubeVideo from "@/components/page/hotel/YoutubeVideo";
+import YoutubeVideo from "@/components/page/reusable/YoutubeVideo";
 import { getHotelsClient } from "@/utils/hotels";
 import React from "react";
 
@@ -12,7 +12,11 @@ const page = async () => {
       <HotelHeroSection />
       <RoomTypes roomTypes={data} />
       <Facilities />
-      <YoutubeVideo url="https://www.youtube.com/embed/mxSFbLk-eaY?si=268ZsskV3mdcaJqc" />
+      <YoutubeVideo
+        title="Tour Pets Hotel Muezza !"
+        description="Tonton bagaimana Mogli menginap di Pet Hotel Muezza"
+        url="https://www.youtube.com/embed/mxSFbLk-eaY?si=268ZsskV3mdcaJqc"
+      />
     </main>
   );
 };

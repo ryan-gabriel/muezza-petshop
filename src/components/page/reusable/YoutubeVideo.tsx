@@ -1,14 +1,23 @@
 import React from "react";
 
-const YoutubeVideo = ({ url }: { url: string }) => {
+const YoutubeVideo = ({
+  url,
+  title,
+  description,
+}: {
+  url: string;
+  title: string;
+  description: string;
+}) => {
   return (
     <section className="w-full flex justify-center items-center my-16">
       <div className="w-[90%] bg-[#B0D9F0] rounded-xl flex flex-col lg:flex-row overflow-hidden">
-
         {/* LEFT TEXT AREA */}
         <div className="w-full lg:w-1/3 flex flex-col justify-center items-center p-8 lg:p-12 text-center">
-          <h4 className="text-2xl font-semibold">Tour Pets Hotel Muezza !</h4>
-          <p className="mt-2">Tonton bagaimana Mogli menginap di Pet Hotel Muezza</p>
+          <h4 className="text-2xl font-semibold">{title}</h4>
+          <p className="mt-2">
+            {description}
+          </p>
         </div>
 
         {/* RIGHT VIDEO AREA */}
@@ -24,7 +33,6 @@ const YoutubeVideo = ({ url }: { url: string }) => {
             ></iframe>
           </div>
         </div>
-
       </div>
     </section>
   );

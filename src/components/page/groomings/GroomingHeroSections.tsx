@@ -1,9 +1,9 @@
 import Image from "next/image";
 import React from "react";
 
-const HotelHeroSection = () => {
+const GroomingHeroSection = () => {
   return (
-    <section className="relative w-full pt-10">
+    <section className="relative w-full pt-6">
       {/* Background image */}
       <Image
         src="/landing/sections/hero-section/hero-bg.webp"
@@ -15,7 +15,7 @@ const HotelHeroSection = () => {
       />
       <div className="absolute bottom-0 md:bottom-20 lg:-bottom-12 right-0 w-[37.5%] sm:w-[32%] md:w-1/2 max-w-[600px] aspect-[1/1] -z-0">
         <Image
-          src="/hotel/hero-image.webp"
+          src="/groomings/hero-image.webp"
           alt="Hero Cat"
           fill
           priority
@@ -29,7 +29,7 @@ const HotelHeroSection = () => {
         {/* Left content */}
         <div className="w-full md:w-1/2 text-center md:text-left">
           <h1 className="font-boogaloo text-5xl md:text-8xl leading-tight drop-shadow-lg">
-            Pet Hotel
+            Pet Grooming
           </h1>
           <p className="text-base md:text-lg text-justify mt-6 mb-10">
             Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptate
@@ -46,4 +46,4 @@ const HotelHeroSection = () => {
   );
 };
 
-export default HotelHeroSection;
+export default GroomingHeroSection;
