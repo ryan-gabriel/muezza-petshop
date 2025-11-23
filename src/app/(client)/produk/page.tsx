@@ -4,6 +4,8 @@ import { getProductClient } from "@/utils/products";
 import { MoveRight } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+export const dynamic = "force-dynamic"; // di page.tsx
+
 
 const page = async () => {
   const data = await getProductClient();

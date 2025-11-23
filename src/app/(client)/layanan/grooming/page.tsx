@@ -5,6 +5,8 @@ import YoutubeVideo from "@/components/page/reusable/YoutubeVideo";
 import { getAddonClient } from "@/utils/addon-services";
 import { getGroomingsClient } from "@/utils/groomings";
 import React from "react";
+export const dynamic = "force-dynamic"; // di page.tsx
+
 
 const page = async () => {
   const groomingData = await getGroomingsClient();

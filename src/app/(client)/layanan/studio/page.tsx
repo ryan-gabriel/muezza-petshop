@@ -3,6 +3,7 @@ import PackageSection from "@/components/page/studios/PackageSection";
 import StudioHeroSection from "@/components/page/studios/StudioHeroSection";
 import { getStudiosClient } from "@/utils/studios";
 import React from "react";
+export const dynamic = "force-dynamic";
 
 const page = async () => {
   const data = await getStudiosClient();

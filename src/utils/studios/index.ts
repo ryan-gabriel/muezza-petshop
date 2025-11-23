@@ -6,12 +6,12 @@ export async function getStudiosClient(): Promise<PhotoshootPackageClient[]> {
     const res = await fetch(`${baseUrl}/api/photoshoots?client=true`, {
       method: "GET",
     });
-
+    
     if (!res.ok) {
       const err = await res.text();
       throw new Error(`Failed to fetch studios: ${err}`);
     }
-
+    
     const data = await res.json();
     return data;
   } catch (error) {

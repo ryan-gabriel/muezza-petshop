@@ -4,6 +4,7 @@ import RoomTypes from "@/components/page/hotel/RoomTypes";
 import YoutubeVideo from "@/components/page/reusable/YoutubeVideo";
 import { getHotelsClient } from "@/utils/hotels";
 import React from "react";
+export const dynamic = "force-dynamic"; // di page.tsx
 
 const page = async () => {
   const data = await getHotelsClient();
