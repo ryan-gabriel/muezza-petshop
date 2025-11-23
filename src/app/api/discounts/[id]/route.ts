@@ -1,15 +1,67 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
-export async function PATCH(req: Request, context: any) {
-  const params = await context.params;
+export async function PATCH(
+  req: NextRequest,
+  context: { params: { id: string } }
+) {
+  const parameter = await context.params
   const supabase = await createClient();
+  const discountId = Number(parameter.id);
+
+  if (!discountId) {
+    return NextResponse.json({ message: "Invalid ID" }, { status: 400 });
+  }
+
+  // ==========================================
+  // 1. CHECK: apakah ini request toggle?
+  // ==========================================
+  const toggleActive = req.nextUrl.searchParams.get("active") === "true";
+
+  if (toggleActive) {
+    // ambil status lama
+    const { data: existing, error: getErr } = await supabase
+      .from("discounts")
+      .select("is_active")
+      .eq("id", discountId)
+      .single();
+
+    if (getErr || !existing) {
+      return NextResponse.json(
+        { message: "Discount not found", error: getErr },
+        { status: 404 }
+      );
+    }
+
+    // toggle
+    const newValue = !existing.is_active;
+
+    const { data: updated, error: updateErr } = await supabase
+      .from("discounts")
+      .update({ is_active: newValue })
+      .eq("id", discountId)
+      .select()
+      .single();
+
+    if (updateErr) {
+      return NextResponse.json(
+        { message: "Failed to toggle status", error: updateErr },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      message: "Status updated",
+      is_active: updated.is_active,
+    });
+  }
+
+  // ==========================================
+  // 2. OTHERWISE jalankan PATCH normal
+  // ==========================================
   const formData = await req.formData();
 
-  const discountId = Number(params.id);
-
-  // ----- Form fields -----
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
   const discount_percent = Number(formData.get("discount_percent"));
@@ -20,12 +72,9 @@ export async function PATCH(req: Request, context: any) {
   const target_id = Number(formData.get("target_id")) || null;
 
   const newImage = formData.get("image") as File | null;
-  const image_action = formData.get("image_action") as string; 
-  // "keep" | "replace" | "remove"
+  const image_action = formData.get("image_action") as string;
 
-  // -----------------------
-  // Step 1: fetch existing image_url
-  // -----------------------
+  // fetch existing image
   const { data: existing } = await supabase
     .from("discounts")
     .select("image_url")
@@ -34,23 +83,17 @@ export async function PATCH(req: Request, context: any) {
 
   let image_url = existing?.image_url || null;
 
-  // -----------------------
-  // Step 2: Handle Image Logic
-  // -----------------------
-
-  // CASE A: REMOVE IMAGE
+  // REMOVE IMAGE
   if (image_action === "remove" && image_url) {
     const oldPath = image_url.split("/").pop();
     await supabase.storage
       .from("discount-images")
       .remove([`discounts/${oldPath}`]);
-
     image_url = null;
   }
 
-  // CASE B: REPLACE IMAGE
+  // REPLACE IMAGE
   if (image_action === "replace" && newImage) {
-    // delete old first
     if (image_url) {
       const oldPath = image_url.split("/").pop();
       await supabase.storage
@@ -79,12 +122,7 @@ export async function PATCH(req: Request, context: any) {
     image_url = publicURL.publicUrl;
   }
 
-  // CASE C: KEEP IMAGE (do nothing)
-  // image_url stays unchanged
-
-  // -----------------------
-  // Step 3: Update database
-  // -----------------------
+  // UPDATE DB
   const { data: updated, error: updateErr } = await supabase
     .from("discounts")
     .update({
@@ -106,12 +144,12 @@ export async function PATCH(req: Request, context: any) {
     );
   }
 
-  // -----------------------
-  // Step 4: Update target mapping
-  // -----------------------
+  // UPDATE TARGET MAPPING
   if (target_type && target_id) {
-    await supabase.from("discount_targets").delete().eq("discount_id", discountId);
-
+    await supabase
+      .from("discount_targets")
+      .delete()
+      .eq("discount_id", discountId);
     await supabase.from("discount_targets").insert({
       discount_id: discountId,
       target_type,
@@ -124,8 +162,6 @@ export async function PATCH(req: Request, context: any) {
     updated,
   });
 }
-
-
 
 // ----------------------
 // DELETE — delete discount + mapping

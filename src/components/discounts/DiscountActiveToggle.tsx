@@ -27,7 +27,7 @@ export default function DiscountActiveToggle({
     setLoading(true);
 
     try {
-      const res = await fetch(`/api/discounts/${discountId}/active`, {
+      const res = await fetch(`/api/discounts/${discountId}?active=true`, {
         method: "PATCH",
       });
 
