@@ -10,34 +10,28 @@ const Page = async () => {
 
   try {
     branches = await getBranches();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
   } catch (_: any) {
     return (
-      <>
-        <Navbar />
-        <main className="px-6 py-12 pt-28">
-          <p className="text-center text-gray-500">
-            Terjadi kesalahan saat memuat data cabang.
-          </p>
-        </main>
-      </>
+      <main className="px-6 py-12 pt-28">
+        <p className="text-center text-gray-500">
+          Terjadi kesalahan saat memuat data cabang.
+        </p>
+      </main>
     );
   }
 
   if (!branches || branches.length === 0) {
     return (
-      <>
-        <Navbar />
-        <main className="px-6 py-12 pt-28">
-          <p className="text-center text-gray-500">Belum ada cabang.</p>
-        </main>
-      </>
+      <main className="px-6 py-12 pt-28">
+        <p className="text-center text-gray-500">Belum ada cabang.</p>
+      </main>
     );
   }
 
   return (
     <>
-      <Navbar useBackground={true}/>
+      <Navbar useBackground={true} />
       <main className="px-6 py-12 pt-28 space-y-14 md:space-y-20">
         <h2 className="font-boogaloo text-4xl md:text-5xl text-center mt-6 md:mt-10">
           Cabang Muezza

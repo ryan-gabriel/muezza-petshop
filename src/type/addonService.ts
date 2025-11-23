@@ -1,3 +1,5 @@
+import { Discount } from "./discount";
+
 export interface AddonService {
   id: number;
   name: string;
@@ -6,4 +8,8 @@ export interface AddonService {
   created_at: string;
   updated_at: string;
   slug: string;
+}
+
+export interface AddonServiceClient extends AddonService {
+  discount: Discount | null;
 }

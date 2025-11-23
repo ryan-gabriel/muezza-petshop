@@ -49,7 +49,6 @@ export async function getProductClient(): Promise<ProductClientResponse> {
       headers: {
         "Content-Type": "application/json",
       },
-      cache: "no-store",
     });
 
     if (!res.ok) {

@@ -1,3 +1,5 @@
+import { Discount } from "./discount";
+
 export interface GroomingService {
   id: number;
   name: string;
@@ -6,4 +8,8 @@ export interface GroomingService {
   created_at?: string;
   updated_at?: string;
   price: number;
+}
+
+export interface GroomingClient extends GroomingService {
+  discount: Discount | null;
 }

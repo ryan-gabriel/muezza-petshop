@@ -1,11 +1,9 @@
-import React from 'react'
+import { getHotelsClient } from "@/utils/hotels";
+import React from "react";
 
-const page = () => {
-  return (
-    <div>
-      Pet studio
-    </div>
-  )
-}
+const page = async () => {
+  const data = await getHotelsClient();
+  return <main className="my-40">{JSON.stringify(data)}</main>;
+};
 
-export default page
+export default page;
