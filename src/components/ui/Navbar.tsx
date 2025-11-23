@@ -14,7 +14,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
-export default function Navbar({ useBackground = false }: { useBackground?: boolean }) {
+export default function Navbar({
+  useBackground = false,
+}: {
+  useBackground?: boolean;
+}) {
   const path = usePathname();
 
   const [openDropdown, setOpenDropdown] = useState(false); // Desktop
@@ -26,6 +30,15 @@ export default function Navbar({ useBackground = false }: { useBackground?: bool
     { href: "/layanan", label: "Layanan" },
     { href: "/cabang", label: "Cabang" },
     { href: "/kontak", label: "Kontak" },
+  ];
+
+  // Detect active subpage in /layanan/*
+  const layananActive = path.startsWith("/layanan");
+
+  const subItems = [
+    { href: "/layanan/hotel", label: "Hotel" },
+    { href: "/layanan/grooming", label: "Grooming" },
+    { href: "/layanan/studio", label: "Studio" },
   ];
 
   return (
@@ -63,31 +76,29 @@ export default function Navbar({ useBackground = false }: { useBackground?: bool
       <div className="hidden md:flex items-center gap-10 font-semibold tracking-wide relative">
         {navItems.map((item) => {
           const isActive =
-            item.href === "/" ? path === "/" : path.startsWith(item.href);
+            item.href === "/"
+              ? path === "/"
+              : path.startsWith(item.href);
 
           // ============= DESKTOP DROPDOWN =============
           if (item.label === "Layanan") {
             return (
-              <div
-                key={item.href}
-                className="relative group"
-              >
+              <div key={item.href} className="relative group">
                 {/* BUTTON */}
                 <button
                   onClick={() => setOpenDropdown(!openDropdown)}
+                  onMouseEnter={() => setOpenDropdown(true)}
                   className={`
                     pb-1 flex items-center gap-1 transition-colors
                     ${
-                      isActive
+                      layananActive
                         ? "text-[#1D3A2F]"
                         : "text-black/70 hover:text-black"
                     }
                   `}
-                  onMouseEnter={() => setOpenDropdown(true)}
                 >
                   Layanan
 
-                  {/* CHEVRON ICON */}
                   <ChevronDown
                     className={`w-4 h-4 transition-transform duration-300 ${
                       openDropdown ? "rotate-180" : "rotate-0"
@@ -95,7 +106,12 @@ export default function Navbar({ useBackground = false }: { useBackground?: bool
                   />
                 </button>
 
-                {/* DROPDOWN (NO GAP FIXED) */}
+                {/* UNDERLINE WHEN ACTIVE */}
+                {layananActive && (
+                  <span className="absolute left-0 -bottom-1 h-[2px] w-full bg-[#1D3A2F]" />
+                )}
+
+                {/* DROPDOWN */}
                 <div
                   onMouseEnter={() => setOpenDropdown(true)}
                   onMouseLeave={() => setOpenDropdown(false)}
@@ -111,24 +127,26 @@ export default function Navbar({ useBackground = false }: { useBackground?: bool
                     }
                   `}
                 >
-                  <Link
-                    href="/layanan/hotel"
-                    className="block px-4 py-2 hover:bg-black/5"
-                  >
-                    Hotel
-                  </Link>
-                  <Link
-                    href="/layanan/grooming"
-                    className="block px-4 py-2 hover:bg-black/5"
-                  >
-                    Grooming
-                  </Link>
-                  <Link
-                    href="/layanan/studio"
-                    className="block px-4 py-2 hover:bg-black/5"
-                  >
-                    Studio
-                  </Link>
+                  {subItems.map((sub) => {
+                    const isSubActive = path.startsWith(sub.href);
+
+                    return (
+                      <Link
+                        key={sub.href}
+                        href={sub.href}
+                        className={`
+                          block px-4 py-2 transition
+                          ${
+                            isSubActive
+                              ? "bg-[#1D3A2F]/10 text-[#1D3A2F] font-semibold"
+                              : "hover:bg-black/5"
+                          }
+                        `}
+                      >
+                        {sub.label}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             );
@@ -196,7 +214,7 @@ export default function Navbar({ useBackground = false }: { useBackground?: bool
                         className={`
                           px-2 py-2 flex items-center justify-between rounded-lg transition-all
                           ${
-                            isActive
+                            layananActive
                               ? "text-[#1D3A2F] bg-[#1D3A2F]/10 font-semibold"
                               : "text-black/70 hover:bg-black/5 hover:text-black"
                           }
@@ -214,9 +232,26 @@ export default function Navbar({ useBackground = false }: { useBackground?: bool
                       {/* SUBMENU */}
                       {mobileDropdown && (
                         <div className="ml-4 mt-2 flex flex-col gap-3 text-base">
-                          <Link href="/layanan/hotel">Pet Hotel</Link>
-                          <Link href="/layanan/grooming">Pet Grooming</Link>
-                          <Link href="/layanan/studio">Pet Studio</Link>
+                          {subItems.map((sub) => {
+                            const isSubActive = path.startsWith(sub.href);
+
+                            return (
+                              <Link
+                                key={sub.href}
+                                href={sub.href}
+                                className={`
+                                  px-2 py-1 rounded-md
+                                  ${
+                                    isSubActive
+                                      ? "text-[#1D3A2F] font-semibold bg-[#1D3A2F]/10"
+                                      : "text-black/70"
+                                  }
+                                `}
+                              >
+                                {sub.label}
+                              </Link>
+                            );
+                          })}
                         </div>
                       )}
                     </div>
