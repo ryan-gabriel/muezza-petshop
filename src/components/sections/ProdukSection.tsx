@@ -1,5 +1,6 @@
 import Image from "next/image";
 import React from "react";
+import Link from "next/link"; 
 
 const ProdukSection = () => {
   return (
@@ -22,17 +23,12 @@ const ProdukSection = () => {
             Produk di toko muezza
           </h3>
           <p className="text-lg">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Temporibus
-            doloribus, adipisci voluptatum mollitia laboriosam vero nisi
-            suscipit voluptates, sint vel saepe eos nostrum culpa numquam.
-            Repellendus inventore ipsam nemo sed? Lorem, ipsum dolor sit amet
-            consectetur adipisicing elit. Aperiam, corrupti molestias officiis
-            ab repellendus exercitationem quis amet. Quae, nihil consequuntur?
-            Architecto quis inventore nulla debitis ad facere eligendi,
-            molestiae quo.
+            Kamu bisa menemukan berbagai kebutuhan kucing di sini. Muezza menyediakan makanan, vitamin, pasir, mainan, alat grooming, dan perlengkapan harian lain yang bisa kamu pilih sesuai kebutuhan kucingmu. 
+            Setiap produk sudah dipilih dengan cermat agar aman dan nyaman dipakai. 
+            Kamu bisa belanja tanpa bingung karena semua kategori tersedia dalam satu tempat.
           </p>
           <button className="font-boogaloo text-xl px-16 py-3 rounded-full w-fit bg-primary-blue shadow-xl">
-            Selengkapnya
+            Selengkapnya 
           </button>
         </div>
         <div className="w-full md:w-1/2 h-full">

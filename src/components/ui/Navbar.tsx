@@ -29,7 +29,6 @@ export default function Navbar({
     { href: "/produk", label: "Produk" },
     { href: "/layanan", label: "Layanan" },
     { href: "/cabang", label: "Cabang" },
-    { href: "/kontak", label: "Kontak" },
   ];
 
   // Detect active subpage in /layanan/*

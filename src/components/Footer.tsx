@@ -4,19 +4,19 @@ import { Facebook, Instagram, Twitter } from "lucide-react";
 
 const Footer = () => {
   const mainLinks = [
-    { href: "/contact", label: "Contact Us" },
-    { href: "/about", label: "About Us" },
-    { href: "/help", label: "Help Center" },
-    { href: "/faqs", label: "FAQs" },
-    { href: "/how-it-works", label: "How It Works" },
+    { href: "/layanan/hotel", label: "Layanan Hotel" },
+    { href: "/layanan/grooming", label: "Layanan Grooming" },
+    { href: "/layanan/studio", label: "Layanan Studio" },
+    // { href: "/faqs", label: "FAQs" },
+    // { href: "/how-it-works", label: "How It Works" },
   ];
 
   const petLinks = [
-    { href: "/pet-care", label: "Pet Care" },
-    { href: "/privacy-policy", label: "Privacy & Policy" },
-    { href: "/popular-product", label: "Popular Product" },
-    { href: "/call-us", label: "Call Us" },
-    { href: "/blog", label: "Blog" },
+    { href: "/cabang", label: "Cabang Muezza" },
+    { href: "/produk", label: "Produk Muezza" },
+    { href: "/dashboard", label: "Dashboard admin" },
+    // { href: "/call-us", label: "Call Us" },
+    // { href: "/blog", label: "Blog" },
   ];
 
   return (

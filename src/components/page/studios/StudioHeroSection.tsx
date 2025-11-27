@@ -32,10 +32,7 @@ const StudioHeroSection = () => {
             Pet Studio
           </h1>
           <p className="text-base md:text-lg text-justify mt-6 mb-10">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptate
-            sint, quasi doloremque deleniti consectetur ipsam blanditiis nemo
-            pariatur. Quod molestias aliquid temporibus sit odio vitae iste hic,
-            in voluptatem optio.
+            Kamu bisa abadikan momen terbaik hewanmu dengan sesi foto yang nyaman dan aman. Kami siapkan studio yang bersih, pencahayaan yang pas, dan properti yang cocok untuk berbagai pose. Kamu cukup bawa hewanmu dan biarkan kami menangkap ekspresinya.
           </p>
           <button className="shadow-lg hover:shadow-2xl transition-all duration-200 px-8 md:px-10 py-3 rounded-full font-boogaloo border-[0.2px] border-blue-300 bg-white md:bg-primary-blue text-black hover:bg-white/80 cursor-pointer md:hover:bg-primary-blue/80">
             Booking Sekarang
