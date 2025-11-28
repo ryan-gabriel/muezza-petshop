@@ -7,17 +7,24 @@ import {
 export async function getPaginatedProducts(
   page = 1,
   pageSize = 10,
-  search?: string
+  search?: string,
+  category?: string
 ): Promise<PaginatedResponse<Product>> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
-    // Build URL with optional search
     const url = new URL(`${baseUrl}/api/products`);
     url.searchParams.set("page", page.toString());
     url.searchParams.set("pageSize", pageSize.toString());
+
+    // 🔍 Search (optional)
     if (search && search.trim() !== "") {
       url.searchParams.set("search", search.trim());
+    }
+
+    // 🏷 Category (optional)
+    if (category && category.trim() !== "") {
+      url.searchParams.set("category", category.trim());
     }
 
     const res = await fetch(url.toString(), {});

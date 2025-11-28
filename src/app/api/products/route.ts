@@ -8,6 +8,9 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const clientMode = searchParams.get("client") === "true";
   const search = searchParams.get("search")?.trim().toLowerCase() || "";
+  const categorySlug = searchParams.get("category")?.trim().toLowerCase() || "";
+  
+    console.log("slug: ", categorySlug)
 
   // =====================================================
   // CLIENT MODE → GROUPED BY CATEGORY
@@ -125,6 +128,29 @@ export async function GET(req: Request) {
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
+  // STEP 1: Konversi slug → category_id
+  let categoryId: number | null = null;
+
+  if (categorySlug) {
+    const { data: cat, error: catErr } = await supabase
+      .from("product_categories")
+      .select("id")
+      .eq("slug", categorySlug)
+      .maybeSingle();
+
+    if (catErr)
+      return NextResponse.json({ error: catErr.message }, { status: 400 });
+
+    if (!cat)
+      return NextResponse.json(
+        { error: "Kategori tidak ditemukan." },
+        { status: 404 }
+      );
+
+    categoryId = cat.id;
+  }
+
+  // STEP 2: Query produk + filter kategori jika ada
   let query = supabase
     .from("products")
     .select("*, product_categories(id, name, slug)", { count: "exact" })
@@ -135,12 +161,16 @@ export async function GET(req: Request) {
     query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
   }
 
+  if (categoryId) {
+    query = query.eq("category_id", categoryId);
+  }
+
   const { data, error, count } = await query;
 
   if (error)
     return NextResponse.json({ error: error.message }, { status: 400 });
 
-  // 🎯 Add discount to each product
+  // STEP 3: Ambil discount
   const productsWithDiscount = [];
 
   for (const p of data || []) {
