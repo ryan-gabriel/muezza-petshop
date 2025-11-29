@@ -34,9 +34,14 @@ const StudioHeroSection = () => {
           <p className="text-base md:text-lg text-justify mt-6 mb-10">
             Kamu bisa abadikan momen terbaik hewanmu dengan sesi foto yang nyaman dan aman. Kami siapkan studio yang bersih, pencahayaan yang pas, dan properti yang cocok untuk berbagai pose. Kamu cukup bawa hewanmu dan biarkan kami menangkap ekspresinya.
           </p>
-          <button className="shadow-lg hover:shadow-2xl transition-all duration-200 px-8 md:px-10 py-3 rounded-full font-boogaloo border-[0.2px] border-blue-300 bg-white md:bg-primary-blue text-black hover:bg-white/80 cursor-pointer md:hover:bg-primary-blue/80">
+          <a
+            href="https://wa.me/6281234567890"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shadow-lg hover:shadow-2xl transition-all duration-200 px-8 md:px-10 py-3 rounded-full font-boogaloo border-[0.2px] border-blue-300 bg-white md:bg-primary-blue text-black hover:bg-white/80 cursor-pointer md:hover:bg-primary-blue/80 inline-block"
+          >
             Booking Sekarang
-          </button>
+          </a>
         </div>
       </div>
     </section>

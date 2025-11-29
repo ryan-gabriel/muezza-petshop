@@ -4,6 +4,7 @@ import { getProductClient } from "@/utils/products";
 import { MoveRight } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+import Link from "next/link";
 export const dynamic = "force-dynamic"; // di page.tsx
 
 
@@ -96,12 +97,12 @@ const page = async () => {
               </div>
 
               <div className="mt-6 flex justify-center w-full">
-                <a
-                  href={`#`}
+                <Link
+                  href="/list-produk"
                   className="text-wrap w-fit px-4 py-4 rounded-sm border-2 border-green-800 text-green-800 hover:bg-green-100 transition flex items-center justify-center gap-2"
                 >
                   Selengkapnya <MoveRight className="inline" />
-                </a>
+                </Link>
               </div>
             </section>
 
