@@ -52,8 +52,12 @@ export async function PATCH(
       error: authError,
     } = await supabase.auth.getUser();
 
+    // Auth
     if (authError || !user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Anda tidak memiliki izin untuk mengakses layanan ini." },
+        { status: 401 }
+      );
     }
 
     const { id } = await params;
@@ -64,9 +68,10 @@ export async function PATCH(
     const price = formData.get("price") as string;
     const image = formData.get("image") as File | null;
 
+    // Required field validation
     if (!id || !name || !price) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        { message: "Beberapa field wajib belum diisi." },
         { status: 400 }
       );
     }
@@ -80,7 +85,7 @@ export async function PATCH(
 
     if (fetchError || !existing) {
       return NextResponse.json(
-        { message: "Grooming service not found" },
+        { message: "Layanan grooming tidak ditemukan." },
         { status: 404 }
       );
     }
@@ -105,7 +110,7 @@ export async function PATCH(
 
       imageUrl = publicUrlData.publicUrl;
 
-      // Delete old image
+      // Delete old image if exists
       const oldPath = existing.image_url?.split("/grooming-images/")[1];
       if (oldPath) {
         await supabase.storage.from("grooming-images").remove([oldPath]);
@@ -115,7 +120,7 @@ export async function PATCH(
     // Generate slug
     const slug = await generateUniqueSlug(supabase, name, Number(id));
 
-    // Update DB
+    // Update database
     const { data, error } = await supabase
       .from("grooming_services")
       .update({
@@ -136,7 +141,7 @@ export async function PATCH(
   } catch (error: any) {
     console.error("Error updating grooming service:", error.message);
     return NextResponse.json(
-      { error: "Failed to update grooming service" },
+      { error: "Gagal memperbarui layanan grooming." },
       { status: 500 }
     );
   }
@@ -156,20 +161,24 @@ export async function DELETE(
       error: authError,
     } = await supabase.auth.getUser();
 
+    // Auth
     if (authError || !user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Anda tidak memiliki izin untuk mengakses layanan ini." },
+        { status: 401 }
+      );
     }
 
     const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
-        { message: "Missing ID" },
+        { message: "ID tidak ditemukan pada permintaan." },
         { status: 400 }
       );
     }
 
-    // Get old data to delete image
+    // Retrieve data to delete image
     const { data: grooming, error: fetchError } = await supabase
       .from("grooming_services")
       .select("image_url")
@@ -178,18 +187,18 @@ export async function DELETE(
 
     if (fetchError || !grooming) {
       return NextResponse.json(
-        { message: "Grooming service not found" },
+        { message: "Layanan grooming tidak ditemukan." },
         { status: 404 }
       );
     }
 
-    // Delete image file
+    // Delete image file if exists
     const filePath = grooming.image_url?.split("/grooming-images/")[1];
     if (filePath) {
       await supabase.storage.from("grooming-images").remove([filePath]);
     }
 
-    // Delete DB row
+    // Delete database row
     const { error } = await supabase
       .from("grooming_services")
       .delete()
@@ -198,13 +207,13 @@ export async function DELETE(
     if (error) throw error;
 
     return NextResponse.json(
-      { message: "Grooming service deleted successfully" },
+      { message: "Layanan grooming berhasil dihapus." },
       { status: 200 }
     );
   } catch (error: any) {
     console.error("Error deleting grooming service:", error.message);
     return NextResponse.json(
-      { error: "Failed to delete grooming service" },
+      { error: "Gagal menghapus layanan grooming." },
       { status: 500 }
     );
   }

@@ -49,8 +49,12 @@ export async function PATCH(
       error: authError,
     } = await supabase.auth.getUser();
 
+    // Auth
     if (authError || !user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Tidak memiliki izin (Unauthorized)." },
+        { status: 401 }
+      );
     }
 
     const { id } = await params;
@@ -60,9 +64,10 @@ export async function PATCH(
     const description = formData.get("description") as string;
     const price = formData.get("price") as string;
 
+    // Validation
     if (!name || !price) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        { message: "Field yang wajib diisi tidak lengkap." },
         { status: 400 }
       );
     }
@@ -76,13 +81,14 @@ export async function PATCH(
 
     if (fetchError || !existing) {
       return NextResponse.json(
-        { message: "Addon service not found" },
+        { message: "Layanan tambahan tidak ditemukan." },
         { status: 404 }
       );
     }
 
     const slug = await generateUniqueSlug(supabase, name, Number(id));
 
+    // Update
     const { data, error } = await supabase
       .from("addon_services")
       .update({
@@ -102,7 +108,7 @@ export async function PATCH(
   } catch (error: any) {
     console.error("Error updating addon service:", error.message);
     return NextResponse.json(
-      { error: "Failed to update addon service" },
+      { error: "Gagal memperbarui layanan tambahan." },
       { status: 500 }
     );
   }
@@ -120,8 +126,12 @@ export async function DELETE(
       error: authError,
     } = await supabase.auth.getUser();
 
+    // Auth
     if (authError || !user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Tidak memiliki izin (Unauthorized)." },
+        { status: 401 }
+      );
     }
 
     const { id } = await params;
@@ -135,12 +145,12 @@ export async function DELETE(
 
     if (fetchError || !existing) {
       return NextResponse.json(
-        { message: "Addon service not found" },
+        { message: "Layanan tambahan tidak ditemukan." },
         { status: 404 }
       );
     }
 
-    // Delete record ONLY
+    // Delete
     const { error: deleteError } = await supabase
       .from("addon_services")
       .delete()
@@ -149,13 +159,13 @@ export async function DELETE(
     if (deleteError) throw deleteError;
 
     return NextResponse.json(
-      { message: "Addon service deleted successfully" },
+      { message: "Layanan tambahan berhasil dihapus." },
       { status: 200 }
     );
   } catch (error: any) {
     console.error("Error deleting addon service:", error.message);
     return NextResponse.json(
-      { error: "Failed to delete addon service" },
+      { error: "Gagal menghapus layanan tambahan." },
       { status: 500 }
     );
   }

@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AddonService } from "@/type/addonService";
+import { showAlert } from "@/lib/alert";
 
 interface AddonServiceFormProps {
   addon?: AddonService;
@@ -41,7 +42,7 @@ export default function AddonServiceForm({
 
   // Reset form ketika edit atau tambah baru
   useEffect(() => {
-    if (addon) {    
+    if (addon) {
       setFormData({
         name: addon.name,
         description: addon.description || "",
@@ -67,6 +68,20 @@ export default function AddonServiceForm({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (
+      !formData.name.trim() ||
+      formData.price <= 0 ||
+      isNaN(formData.price) ||
+      !isFinite(formData.price) ||
+      !formData.description.trim()
+    ) {
+      showAlert(
+        "Harus mengisi nama, harga, dan deskripsi yang valid.",
+        "warning"
+      );
+      return;
+    }
+
     setShowPreview(true);
   };
 
@@ -82,8 +97,18 @@ export default function AddonServiceForm({
 
       const res = await fetch(url, { method, body: data });
 
-      if (!res.ok) throw new Error("Failed to submit");
+      if (!res.ok) {
+        const err = await res.json();
+        showAlert(err.message || "Gagal mengirim addon service.", "error");
+        return;
+      }
 
+      showAlert(
+        addon
+          ? "Addon service updated successfully."
+          : "Addon service created successfully.",
+        "success"
+      );
       router.refresh();
       setOpen(false);
       setShowPreview(false);
@@ -99,6 +124,7 @@ export default function AddonServiceForm({
       }
     } catch (err) {
       console.error(err);
+      showAlert("Gagal mengirim addon service.", "error");
     }
   };
 
@@ -140,7 +166,6 @@ export default function AddonServiceForm({
                   <Label htmlFor="title">Addon Title</Label>
                   <Input
                     id="title"
-                    required
                     placeholder="Premium Shampoo"
                     value={formData.name}
                     onChange={(e) =>
@@ -168,7 +193,6 @@ export default function AddonServiceForm({
                   <Input
                     type="number"
                     min={1}
-                    required
                     value={formData.price}
                     onChange={(e) =>
                       setFormData({

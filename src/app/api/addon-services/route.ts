@@ -129,16 +129,24 @@ export async function POST(req: Request) {
   try {
     const supabase = await createClient();
 
-    // Auth check
+    // ===== AUTH CHECK =====
     const {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        {
+          error: "UNAUTHORIZED",
+          message: "Akses tidak diizinkan.",
+          detail: authError?.message || null,
+        },
+        { status: 401 }
+      );
     }
 
+    // ===== READ FORM DATA =====
     const formData = await req.formData();
 
     const name = formData.get("name") as string;
@@ -147,16 +155,20 @@ export async function POST(req: Request) {
 
     if (!name || !price) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        {
+          error: "VALIDATION_ERROR",
+          message: "Beberapa field wajib belum diisi.",
+          detail: "Field wajib: name, price",
+        },
         { status: 400 }
       );
     }
 
-    // Generate unique slug
+    // ===== SLUG GENERATION =====
     const baseSlug = slugify(name);
     const slug = await generateUniqueSlug(baseSlug, supabase);
 
-    // Insert WITHOUT image
+    // ===== INSERT RECORD (no image) =====
     const { data, error } = await supabase
       .from("addon_services")
       .insert([
@@ -170,13 +182,27 @@ export async function POST(req: Request) {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      return NextResponse.json(
+        {
+          error: "DATABASE_ERROR",
+          message: "Gagal membuat addon service.",
+          detail: error.message,
+        },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(data, { status: 201 });
   } catch (error: any) {
-    console.error("Error creating addon service:", error.message);
+    console.error("Error creating addon service:", error?.message);
+
     return NextResponse.json(
-      { error: "Failed to create addon service" },
+      {
+        error: "SERVER_ERROR",
+        message: "Terjadi kesalahan pada server.",
+        detail: error?.message || error,
+      },
       { status: 500 }
     );
   }
