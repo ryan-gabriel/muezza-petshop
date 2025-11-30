@@ -50,7 +50,14 @@ export async function PATCH(
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Anda tidak memiliki akses (Unauthorized)",
+          detail: authError?.message,
+        },
+        { status: 401 }
+      );
     }
 
     const { id } = await params;
@@ -63,12 +70,17 @@ export async function PATCH(
 
     if (!id || !name || !description || !google_map_url) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        {
+          error: true,
+          message: "Data wajib diisi tidak lengkap",
+          detail:
+            "Field yang dibutuhkan: id, name, description, google_map_url",
+        },
         { status: 400 }
       );
     }
 
-    // Ambil branch lama
+    // Ambil data lama
     const { data: existingBranch, error: fetchError } = await supabase
       .from("branches")
       .select("id, image_url")
@@ -77,14 +89,18 @@ export async function PATCH(
 
     if (fetchError || !existingBranch) {
       return NextResponse.json(
-        { message: "Branch not found" },
+        {
+          error: true,
+          message: "Cabang tidak ditemukan",
+          detail: fetchError?.message,
+        },
         { status: 404 }
       );
     }
 
     let imageUrl = existingBranch.image_url;
 
-    // Upload image baru jika ada
+    // Upload image baru
     if (image) {
       const fileExt = image.name.split(".").pop();
       const fileName = `${Date.now()}.${fileExt}`;
@@ -94,7 +110,16 @@ export async function PATCH(
         .from("branch-images")
         .upload(filePath, image);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        return NextResponse.json(
+          {
+            error: true,
+            message: "Gagal mengupload gambar",
+            detail: uploadError.message,
+          },
+          { status: 500 }
+        );
+      }
 
       const { data: publicUrlData } = supabase.storage
         .from("branch-images")
@@ -109,7 +134,7 @@ export async function PATCH(
       }
     }
 
-    // 🔥 Generate slug baru + unique
+    // Generate slug unik
     const slug = await generateUniqueSlug(supabase, name, Number(id));
 
     // Update DB
@@ -127,13 +152,33 @@ export async function PATCH(
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Gagal memperbarui data cabang",
+          detail: error.message,
+        },
+        { status: 400 }
+      );
+    }
 
-    return NextResponse.json(data, { status: 200 });
+    return NextResponse.json(
+      {
+        error: false,
+        message: "Cabang berhasil diperbarui",
+        data,
+      },
+      { status: 200 }
+    );
   } catch (error: any) {
     console.error("Error updating branch:", error.message);
     return NextResponse.json(
-      { error: "Failed to update branch" },
+      {
+        error: true,
+        message: "Terjadi kesalahan server saat memperbarui cabang",
+        detail: error.message,
+      },
       { status: 500 }
     );
   }
@@ -151,18 +196,29 @@ export async function DELETE(
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Anda tidak memiliki akses",
+          detail: authError?.message,
+        },
+        { status: 401 }
+      );
     }
 
     const { id } = await params;
+
     if (!id) {
       return NextResponse.json(
-        { message: "Missing branch ID" },
+        {
+          error: true,
+          message: "ID cabang tidak ditemukan",
+          detail: "Parameter 'id' wajib ada.",
+        },
         { status: 400 }
       );
     }
 
-    // Ambil branch untuk hapus gambar
     const { data: branch, error: fetchError } = await supabase
       .from("branches")
       .select("image_url")
@@ -171,29 +227,47 @@ export async function DELETE(
 
     if (fetchError || !branch) {
       return NextResponse.json(
-        { message: "Branch not found" },
+        {
+          error: true,
+          message: "Cabang tidak ditemukan",
+          detail: fetchError?.message,
+        },
         { status: 404 }
       );
     }
 
-    // Hapus gambar dari storage
     const filePath = branch.image_url?.split("/branch-images/")[1];
     if (filePath) {
       await supabase.storage.from("branch-images").remove([filePath]);
     }
 
-    // Hapus row
     const { error } = await supabase.from("branches").delete().eq("id", id);
-    if (error) throw error;
+    if (error) {
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Gagal menghapus cabang",
+          detail: error.message,
+        },
+        { status: 400 }
+      );
+    }
 
     return NextResponse.json(
-      { message: "Branch deleted successfully" },
+      {
+        error: false,
+        message: "Cabang berhasil dihapus",
+      },
       { status: 200 }
     );
   } catch (error: any) {
     console.error("Error deleting branch:", error.message);
     return NextResponse.json(
-      { error: "Failed to delete branch" },
+      {
+        error: true,
+        message: "Terjadi kesalahan server saat menghapus cabang",
+        detail: error.message,
+      },
       { status: 500 }
     );
   }

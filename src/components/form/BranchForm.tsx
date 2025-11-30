@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -17,6 +18,7 @@ import { PlusCircle, Upload, X, Eye } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Branch } from "@/type/branch";
+import { showAlert } from "@/lib/alert";
 
 interface BranchFormProps {
   branch?: Branch;
@@ -183,6 +185,37 @@ export default function BranchForm({
   // === Submit ===
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!formData.name.trim()) {
+      showAlert("Nama cabang wajib diisi.", "warning");
+      return;
+    }
+
+    if (isConverting) {
+      showAlert("Gambar sedang diproses. Harap tunggu sebentar.", "warning");
+      return;
+    }
+
+    if (!formData.description.trim()) {
+      showAlert("Deskripsi wajib diisi.", "warning");
+      return;
+    }
+
+    if (!imageFile && !formData.image_url) {
+      showAlert("Gambar cabang wajib diunggah.", "warning");
+      return;
+    }
+
+    if (!formData.google_map_url.trim()) {
+      showAlert("URL Google Maps wajib diisi.", "warning");
+      return;
+    }
+
+    if (!formData.whatsapp_number.trim()) {
+      showAlert("Nomor WhatsApp wajib diisi.", "warning");
+      return;
+    }
+
     setShowPreview(true);
   };
 
@@ -200,8 +233,16 @@ export default function BranchForm({
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.message || "Failed to submit");
+        showAlert(err.message || "Gagal mengirim branch.", "error");
+        return;
       }
+
+      showAlert(
+        branch
+          ? "Branch updated successfully."
+          : "Branch created successfully.",
+        "success"
+      );
 
       router.refresh();
       setOpen(false);
@@ -220,8 +261,8 @@ export default function BranchForm({
         setImageFile(null);
         setImagePreview("");
       }
-    } catch (err) {
-      console.error(err);
+    } catch (_) {
+      showAlert("Gagal mengirim branch.", "error");
     }
   };
 
@@ -318,7 +359,6 @@ export default function BranchForm({
                   <Input
                     id="name"
                     value={formData.name}
-                    required
                     placeholder="Enter branch name"
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })

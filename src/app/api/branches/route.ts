@@ -70,7 +70,14 @@ export async function POST(req: Request) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        {
+          error: "UNAUTHORIZED",
+          message: "Kamu tidak memiliki izin untuk melakukan aksi ini.",
+          detail: authError?.message || null,
+        },
+        { status: 401 }
+      );
     }
 
     const formData = await req.formData();
@@ -80,9 +87,19 @@ export async function POST(req: Request) {
     const google_map_url = formData.get("google_map_url") as string;
     const image = formData.get("image") as File | null;
 
+    // Validasi field
     if (!name || !description || !google_map_url || !image) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        {
+          error: "VALIDATION_ERROR",
+          message: "Nama, deskripsi, URL Google Maps, dan gambar wajib diisi.",
+          detail: {
+            name: !name ? "required" : null,
+            description: !description ? "required" : null,
+            google_map_url: !google_map_url ? "required" : null,
+            image: !image ? "required" : null,
+          },
+        },
         { status: 400 }
       );
     }
@@ -90,10 +107,10 @@ export async function POST(req: Request) {
     // slug dasar
     const baseSlug = slugify(name);
 
-    // generate slug unik dari DB
+    // generate slug unik
     const slug = await generateUniqueSlug(baseSlug, supabase);
 
-    // Upload gambar
+    // ---- Upload Gambar ----
     const ext = image.name.split(".").pop();
     const fileName = `${Date.now()}.${ext}`;
     const filePath = `branches/${fileName}`;
@@ -102,7 +119,16 @@ export async function POST(req: Request) {
       .from("branch-images")
       .upload(filePath, image);
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      return NextResponse.json(
+        {
+          error: "STORAGE_UPLOAD_FAILED",
+          message: "Gagal mengunggah gambar ke storage.",
+          detail: uploadError.message,
+        },
+        { status: 500 }
+      );
+    }
 
     const { data: publicUrlData } = supabase.storage
       .from("branch-images")
@@ -110,8 +136,8 @@ export async function POST(req: Request) {
 
     const imageUrl = publicUrlData.publicUrl;
 
-    // Insert DB
-    const { data, error } = await supabase
+    // ---- Insert DB ----
+    const { data, error: insertError } = await supabase
       .from("branches")
       .insert([
         {
@@ -125,15 +151,37 @@ export async function POST(req: Request) {
       .select()
       .single();
 
-    if (error) throw error;
+    if (insertError) {
+      return NextResponse.json(
+        {
+          error: "DB_INSERT_FAILED",
+          message: "Gagal menyimpan data cabang ke database.",
+          detail: insertError.message,
+        },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json(data, { status: 201 });
+    // ---- SUCCESS ----
+    return NextResponse.json(
+      {
+        message: "Cabang berhasil dibuat.",
+        data,
+      },
+      { status: 201 }
+    );
 
   } catch (error: any) {
-    console.error("Error creating branch:", error.message);
+    console.error("Error creating branch:", error);
+
     return NextResponse.json(
-      { error: "Failed to create branch" },
+      {
+        error: "SERVER_ERROR",
+        message: "Terjadi kesalahan pada server.",
+        detail: error?.message || error,
+      },
       { status: 500 }
     );
   }
 }
+
