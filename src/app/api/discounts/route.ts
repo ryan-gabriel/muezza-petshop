@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
@@ -90,7 +91,6 @@ function slugify(text: string) {
 // ----------------------
 // UTIL — Generate Unique Slug (discounts slug checker)
 // ----------------------
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function generateUniqueDiscountSlug(baseSlug: string, supabase: any) {
   let slug = baseSlug;
   let counter = 1;
@@ -113,96 +113,162 @@ async function generateUniqueDiscountSlug(baseSlug: string, supabase: any) {
 // POST — FormData + File Upload
 // ----------------------
 export async function POST(req: Request) {
-  const supabase = await createClient();
-  const formData = await req.formData();
+  try {
+    const supabase = await createClient();
+    const formData = await req.formData();
 
-  const title = formData.get("title") as string;
-  const description = formData.get("description") as string;
-  const discount_percent = Number(formData.get("discount_percent"));
-  const start_date = formData.get("start_date") as string;
-  const end_date = formData.get("end_date") as string;
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
+    const discount_percent = Number(formData.get("discount_percent"));
+    const start_date = formData.get("start_date") as string;
+    const end_date = formData.get("end_date") as string;
 
-  const target_type = formData.get("target_type") as string;
-  const target_id = Number(formData.get("target_id"));
+    const target_type = formData.get("target_type") as string;
+    const target_id = Number(formData.get("target_id"));
 
-  const imageAction = (formData.get("image_action") as string) || "keep";
-  const imageFile = formData.get("image") as File | null;
+    const imageAction = (formData.get("image_action") as string) || "keep";
+    const imageFile = formData.get("image") as File | null;
 
-  // --------------------------
-  // Step 1: Handle Image Logic
-  // --------------------------
-  let image_url: string | null = null;
-
-  if (imageAction === "replace" && imageFile) {
-    const fileExt = imageFile.name.split(".").pop();
-    const filePath = `discounts/${Date.now()}.${fileExt}`;
-
-
-    const { error: uploadError } = await supabase.storage
-      .from("discount-images")
-      .upload(filePath, imageFile, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-
-    if (uploadError) {
+    if (!title || !discount_percent || !start_date || !end_date) {
       return NextResponse.json(
-        { message: "Failed to upload image", error: uploadError },
+        {
+          error: true,
+          message: "Data yang dibutuhkan tidak lengkap.",
+          detail: {
+            missing: {
+              title: !title,
+              discount_percent: !discount_percent,
+              start_date: !start_date,
+              end_date: !end_date,
+            },
+          },
+        },
+        { status: 400 }
+      );
+    }
+
+    // --------------------------
+    // Step 1: Handle Image Logic
+    // --------------------------
+    let image_url: string | null = null;
+
+    if (imageAction === "replace" && imageFile) {
+      try {
+        const fileExt = imageFile.name.split(".").pop();
+        const filePath = `discounts/${Date.now()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("discount-images")
+          .upload(filePath, imageFile, { cacheControl: "3600", upsert: false });
+
+        if (uploadError) {
+          return NextResponse.json(
+            {
+              error: true,
+              message: "Gagal mengunggah gambar diskon.",
+              detail: uploadError.message,
+            },
+            { status: 500 }
+          );
+        }
+
+        const { data: publicURLData } = supabase.storage
+          .from("discount-images")
+          .getPublicUrl(filePath);
+
+        image_url = publicURLData.publicUrl;
+      } catch (imgError: any) {
+        return NextResponse.json(
+          {
+            error: true,
+            message: "Terjadi kesalahan saat memproses gambar.",
+            detail: imgError.message,
+          },
+          { status: 500 }
+        );
+      }
+    }
+
+    // --------------------------
+    // Step 2: Create Slug
+    // --------------------------
+    const baseSlug = slugify(title);
+    let uniqueSlug: string;
+    try {
+      uniqueSlug = await generateUniqueDiscountSlug(baseSlug, supabase);
+    } catch (slugError: any) {
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Gagal membuat slug unik untuk diskon.",
+          detail: slugError.message,
+        },
         { status: 500 }
       );
     }
 
-    const { data: publicURLData } = supabase.storage
-      .from("discount-images")
-      .getPublicUrl(filePath);
+    // --------------------------
+    // Step 3: Insert Discount
+    // --------------------------
+    const { data: discount, error } = await supabase
+      .from("discounts")
+      .insert({
+        title,
+        description,
+        discount_percent,
+        start_date,
+        end_date,
+        slug: uniqueSlug,
+        image_url,
+      })
+      .select()
+      .single();
 
-    image_url = publicURLData.publicUrl;
-  }
+    if (error) {
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Gagal membuat diskon baru.",
+          detail: error.message,
+        },
+        { status: 500 }
+      );
+    }
 
-  // "remove" dan "keep" di create → image_url null (default)
-  // Jadi tidak perlu melakukan apa-apa
+    // --------------------------
+    // Step 4: Create Target Mapping
+    // --------------------------
+    try {
+      await supabase.from("discount_targets").insert({
+        discount_id: discount.id,
+        target_type,
+        target_id,
+      });
+    } catch (targetError: any) {
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Diskon dibuat, tetapi gagal menambahkan target.",
+          detail: targetError.message,
+        },
+        { status: 500 }
+      );
+    }
 
-  // --------------------------
-  // Step 2: Create Slug
-  // --------------------------
-  const baseSlug = slugify(title);
-  const uniqueSlug = await generateUniqueDiscountSlug(baseSlug, supabase);
-
-  // --------------------------
-  // Step 3: Insert Discount
-  // --------------------------
-  const { data: discount, error } = await supabase
-    .from("discounts")
-    .insert({
-      title,
-      description,
-      discount_percent,
-      start_date,
-      end_date,
-      slug: uniqueSlug,
-      image_url,
-    })
-    .select()
-    .single();
-
-  if (error) {
+    return NextResponse.json({
+      error: false,
+      message: "Diskon berhasil dibuat.",
+      discount,
+    });
+  } catch (error: any) {
+    console.error("Error creating discount:", error);
     return NextResponse.json(
-      { message: "Failed to create discount", error },
+      {
+        error: true,
+        message: "Terjadi kesalahan pada server saat membuat diskon.",
+        detail: error.message,
+      },
       { status: 500 }
     );
   }
-
-  // --------------------------
-  // Step 4: Create Target Mapping
-  // --------------------------
-  await supabase.from("discount_targets").insert({
-    discount_id: discount.id,
-    target_type,
-    target_id,
-  });
-
-  return NextResponse.json({
-    message: "Discount created successfully",
-    discount,
-  });
 }

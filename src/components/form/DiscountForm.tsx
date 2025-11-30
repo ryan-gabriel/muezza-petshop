@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -25,17 +26,14 @@ import {
 import { Discount } from "@/type/discount";
 import Image from "next/image";
 import { SquarePen } from "lucide-react";
+import { showAlert } from "@/lib/alert";
 
 type TargetOption = {
   id: number;
   name: string;
 };
 
-export default function DiscountForm({
-  discount,
-}: {
-  discount?: Discount;
-}) {
+export default function DiscountForm({ discount }: { discount?: Discount }) {
   const isEdit = !!discount;
   const [open, setOpen] = useState(false);
 
@@ -142,84 +140,140 @@ export default function DiscountForm({
 
   // SUBMIT HANDLER
   const handleSubmit = async () => {
-    if (!selectedTarget) {
-      alert("Pilih target dulu!");
-      return;
-    }
+    try {
+      const formData = new FormData();
 
-    const formData = new FormData();
-
-    formData.append("title", title);
-    formData.append("description", description || "");
-    formData.append("discount_percent", percent);
-    formData.append("start_date", startDate);
-    formData.append("end_date", endDate);
-    formData.append("target_type", selectedTarget.target_type);
-    formData.append("target_id", selectedTarget.id.toString());
-
-    // ---- IMAGE HANDLING ----
-    formData.append("image_action", imageAction); // IMPORTANT
-
-    if (imageAction === "replace" && image) {
-      formData.append("image", image);
-    }
-
-    // ---- CALL API ----
-    const res = await fetch(
-      isEdit ? `/api/discounts/${discount!.id}` : "/api/discounts",
-      {
-        method: isEdit ? "PATCH" : "POST",
-        body: formData,
+      if (!selectedTarget) {
+        showAlert("Harap pilih target untuk diskon.", "warning");
+        return;
       }
-    );
 
-    if (!res.ok) {
-      console.error(await res.json());
-      alert("Error saving discount");
-      return;
+      if (!title.trim()) {
+        showAlert("Harap isi judul diskon.", "warning");
+        return;
+      }
+
+      if (!description.trim()) {
+        showAlert("Harap isi deskripsi diskon.", "warning");
+        return;
+      }
+      if (!percent || isNaN(Number(percent)) || Number(percent) <= 0) {
+        showAlert("Harap isi persentase diskon yang valid.", "warning");
+        return;
+      }
+      if (!startDate) {
+        showAlert("Harap isi tanggal mulai diskon.", "warning");
+        return;
+      }
+
+      if (!endDate) {
+        showAlert("Harap isi tanggal berakhir diskon.", "warning");
+        return;
+      }
+
+      if (endDate < startDate) {
+        showAlert("Tanggal berakhir harus setelah tanggal mulai.", "warning");
+        return;
+      }
+
+      formData.append("title", title);
+      formData.append("description", description || "");
+      formData.append("discount_percent", percent);
+      formData.append("start_date", startDate);
+      formData.append("end_date", endDate);
+      formData.append("target_type", selectedTarget.target_type);
+      formData.append("target_id", selectedTarget.id.toString());
+
+      // ---- IMAGE HANDLING ----
+      formData.append("image_action", imageAction); // IMPORTANT
+
+      if (imageAction === "replace" && image) {
+        formData.append("image", image);
+      }
+
+      // ---- CALL API ----
+      const res = await fetch(
+        isEdit ? `/api/discounts/${discount!.id}` : "/api/discounts",
+        {
+          method: isEdit ? "PATCH" : "POST",
+          body: formData,
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.json();
+        showAlert(err.message || "Gagal mengirim diskon.", "error");
+        return;
+      }
+
+      showAlert(
+        isEdit
+          ? "Discount updated successfully."
+          : "Discount created successfully.",
+        "success"
+      );
+
+      setOpen(false);
+      window.location.reload();
+    } catch (_) {
+      showAlert("Gagal mengirim diskon.", "error");
     }
-
-    setOpen(false);
-    window.location.reload();
   };
 
   // UI SECTION
   const FormUI = (
-    <div className="space-y-6 p-4">
-      <div>
-        <Label>Title</Label>
-        <Input value={title} onChange={(e) => setTitle(e.target.value)} />
-      </div>
-
-      <div>
-        <Label>Description</Label>
-        <Textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-      </div>
-
-      <div>
-        <Label>Discount Percent (%)</Label>
-        <Input
-          type="number"
-          value={percent}
-          onChange={(e) => setPercent(e.target.value)}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
+    <div className="space-y-8 p-6 bg-white rounded-2xl shadow-md max-w-2xl mx-auto">
+      {/* ------------------ TITLE & DESCRIPTION ------------------ */}
+      <div className="space-y-4">
         <div>
-          <Label>Start Date</Label>
+          <Label htmlFor="title">Title</Label>
           <Input
+            id="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Enter discount title"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="description">Description</Label>
+          <Textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Enter description..."
+            rows={4}
+          />
+        </div>
+      </div>
+
+      {/* ------------------ DISCOUNT & DATE ------------------ */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <Label htmlFor="percent">Discount (%)</Label>
+          <Input
+            id="percent"
+            type="number"
+            value={percent}
+            onChange={(e) => setPercent(e.target.value)}
+            placeholder="0"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="startDate">Start Date</Label>
+          <Input
+            id="startDate"
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
           />
         </div>
+
         <div>
-          <Label>End Date</Label>
+          <Label htmlFor="endDate">End Date</Label>
           <Input
+            id="endDate"
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
@@ -227,37 +281,35 @@ export default function DiscountForm({
         </div>
       </div>
 
-      {/* IMAGE SECTION */}
-      <div>
+      {/* ------------------ IMAGE UPLOAD ------------------ */}
+      <div className="space-y-2">
         <Label>Image (Optional)</Label>
-
-        <Input type="file" accept="image/*" onChange={handleImageChange} />
-
-        {preview && (
-          <div className="mt-2">
-            <Image
-              src={preview}
-              alt="Preview"
-              width={120}
-              height={120}
-              className="rounded-md border object-cover"
-            />
-            <Button
-              variant="destructive"
-              size="sm"
-              className="mt-2"
-              onClick={handleRemoveImage}
-            >
-              Remove Image
-            </Button>
-          </div>
-        )}
+        <div className="flex flex-col sm:flex-row items-start gap-4">
+          <Input type="file" accept="image/*" onChange={handleImageChange} />
+          {preview && (
+            <div className="relative w-36 h-36 border rounded-lg overflow-hidden shadow-sm">
+              <Image
+                src={preview}
+                alt="Preview"
+                fill
+                className="object-cover"
+              />
+              <Button
+                variant="destructive"
+                size="sm"
+                className="absolute top-2 right-2"
+                onClick={handleRemoveImage}
+              >
+                ✕
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* TARGET TYPE */}
-      <div>
+      {/* ------------------ TARGET TYPE ------------------ */}
+      <div className="space-y-2">
         <Label>Target Type</Label>
-
         <Select
           value={targetType}
           onValueChange={(v) => {
@@ -266,9 +318,8 @@ export default function DiscountForm({
           }}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Pilih target" />
+            <SelectValue placeholder="Select target" />
           </SelectTrigger>
-
           <SelectContent>
             <SelectItem value="product">Product</SelectItem>
             <SelectItem value="hotel">Hotel Room</SelectItem>
@@ -279,38 +330,41 @@ export default function DiscountForm({
         </Select>
       </div>
 
+      {/* ------------------ SEARCH TARGET ------------------ */}
       {targetType && (
-        <div>
-          <Label>Cari Target</Label>
+        <div className="space-y-2">
+          <Label>Search Target</Label>
           <Input
-            placeholder="Cari berdasarkan nama..."
+            placeholder="Search by name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          <div className="border rounded-md max-h-60 overflow-y-auto">
+            {options.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => chooseTarget(item)}
+                className="p-2 cursor-pointer hover:bg-blue-50 rounded transition"
+              >
+                {item.name}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
-      {targetType && (
-        <div className="border p-3 rounded-md max-h-48 overflow-y-auto">
-          {options.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => chooseTarget(item)}
-              className="p-2 border-b cursor-pointer hover:bg-gray-100"
-            >
-              {item.name}
-            </div>
-          ))}
-        </div>
-      )}
-
+      {/* ------------------ SELECTED TARGET ------------------ */}
       {selectedTarget && (
-        <div className="mt-2 p-3 bg-blue-50 border rounded-md">
-          <strong>Selected Target:</strong> {selectedTarget.name}
+        <div className="p-3 bg-blue-50 border-l-4 border-blue-400 rounded-md">
+          <span className="font-semibold">Selected Target:</span>{" "}
+          {selectedTarget.name}
         </div>
       )}
 
-      <Button onClick={handleSubmit}>{isEdit ? "Update" : "Create"}</Button>
+      {/* ------------------ SUBMIT BUTTON ------------------ */}
+      <Button className="w-full py-3 text-lg" onClick={handleSubmit}>
+        {isEdit ? "Update Discount" : "Create Discount"}
+      </Button>
     </div>
   );
 
