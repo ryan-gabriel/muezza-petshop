@@ -1,18 +1,86 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// app/branches/page.tsx
 import Navbar from "@/components/ui/Navbar";
 import { getBranches } from "@/utils/branches";
 import { MapPin, Phone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-export const dynamic = "force-dynamic"; // di page.tsx
+import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
 
+// ✅ Generate dynamic metadata untuk halaman cabang
+export async function generateMetadata(): Promise<Metadata> {
+  let branches = [];
+  try {
+    branches = await getBranches();
+  } catch (_) {
+    branches = [];
+  }
+
+  const totalBranches = branches.length;
+
+  return {
+    title: "Cabang Muezza | Petshop & Grooming Hewan",
+    description: `Kunjungi ${totalBranches} cabang Muezza Petshop & Grooming untuk pelayanan terbaik bagi hewan peliharaan Anda. Temukan lokasi, fasilitas, dan kontak setiap cabang.`,
+    themeColor: "#ffffff",
+    icons: {
+      icon: [
+        { url: "/favicon-16x16.ico", sizes: "16x16", type: "image/x-icon" },
+        { url: "/favicon-32x32.ico", sizes: "32x32", type: "image/x-icon" },
+        { url: "/favicon-48x48.ico", sizes: "48x48", type: "image/x-icon" },
+      ],
+      apple: "/apple-touch-icon.png",
+      shortcut: "/favicon-32x32.ico",
+    },
+    openGraph: {
+      title: "Cabang Muezza | Petshop & Grooming Hewan",
+      description: `Kunjungi ${totalBranches} cabang Muezza Petshop & Grooming untuk pelayanan terbaik bagi hewan peliharaan Anda.`,
+      url: "https://muezza-petshop.vercel.app/branches",
+      siteName: "Muezza Petshop",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          type: "image/png",
+        },
+      ],
+      locale: "id_ID",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Cabang Muezza | Petshop & Grooming Hewan",
+      description: `Kunjungi ${totalBranches} cabang Muezza Petshop & Grooming untuk pelayanan terbaik bagi hewan peliharaan Anda.`,
+      images: [
+        {
+          url: "/twitter-image.png",
+          width: 1200,
+          height: 675,
+          type: "image/png",
+        },
+      ],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+      },
+    },
+  };
+}
+
+// Halaman cabang
 const Page = async () => {
   let branches = [];
 
   try {
     branches = await getBranches();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
   } catch (_: any) {
     return (
       <main className="px-6 py-12 pt-28">
@@ -49,10 +117,9 @@ const Page = async () => {
             >
               {/* --- GAMBAR --- */}
               <div
-                className={`
-                  w-full flex justify-center
-                  ${isEven ? "md:order-1" : "md:order-2"}
-                `}
+                className={`w-full flex justify-center ${
+                  isEven ? "md:order-1" : "md:order-2"
+                }`}
               >
                 <div className="relative w-[80%] md:w-[60%] aspect-square">
                   <Image
@@ -74,10 +141,9 @@ const Page = async () => {
 
               {/* --- KONTEN --- */}
               <div
-                className={`
-                  space-y-4 text-center md:text-left
-                  ${!isEven ? "md:order-1 md:pl-20" : "md:order-2"}
-                `}
+                className={`space-y-4 text-center md:text-left ${
+                  !isEven ? "md:order-1 md:pl-20" : "md:order-2"
+                }`}
               >
                 <h2 className="text-2xl md:text-3xl font-bold font-boogaloo">
                   {item.name}

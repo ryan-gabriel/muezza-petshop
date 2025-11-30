@@ -1,3 +1,4 @@
+// app/page.tsx
 import SectionDiscount from "@/components/page/produk/SectionDiscount";
 import Navbar from "@/components/ui/Navbar";
 import { getProductClient } from "@/utils/products";
@@ -5,43 +6,100 @@ import { MoveRight } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 import Link from "next/link";
-export const dynamic = "force-dynamic"; // di page.tsx
+import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
 
+// ✅ Generate dynamic metadata berdasarkan data API
+export async function generateMetadata(): Promise<Metadata> {
+  const data = await getProductClient();
+
+  // Ambil jumlah produk / kategori untuk deskripsi dinamis
+  const totalCategories = data.products.length;
+  const totalProducts = data.products.reduce(
+    (sum, group) => sum + group.products.length,
+    0
+  );
+
+  return {
+    title: `Produk Terbaru | Muezza Petshop`,
+    description: `Temukan ${totalProducts} produk hewan peliharaan di ${totalCategories} kategori di Muezza Petshop. Makanan, vitamin, aksesoris, dan layanan grooming untuk kucing & anjing.`,
+    themeColor: "#ffffff",
+    icons: {
+      icon: [
+        { url: "/favicon-16x16.ico", sizes: "16x16", type: "image/x-icon" },
+        { url: "/favicon-32x32.ico", sizes: "32x32", type: "image/x-icon" },
+        { url: "/favicon-48x48.ico", sizes: "48x48", type: "image/x-icon" },
+      ],
+      apple: "/apple-touch-icon.png",
+      shortcut: "/favicon-32x32.ico",
+    },
+    openGraph: {
+      title: "Produk Terbaru | Muezza Petshop",
+      description: `Temukan ${totalProducts} produk hewan peliharaan di ${totalCategories} kategori.`,
+      url: "https://muezza-petshop.vercel.app/list-produk",
+      siteName: "Muezza Petshop",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          type: "image/png",
+        },
+      ],
+      locale: "id_ID",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Produk Terbaru | Muezza Petshop",
+      description: `Temukan ${totalProducts} produk hewan peliharaan di ${totalCategories} kategori.`,
+      images: [
+        {
+          url: "/twitter-image.png",
+          width: 1200,
+          height: 675,
+          type: "image/png",
+        },
+      ],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+      },
+    },
+  };
+}
+
+// Halaman produk
 const page = async () => {
   const data = await getProductClient();
 
   return (
     <>
-      <Navbar useBackground={true}/>
+      <Navbar useBackground={true} />
       <main className="px-6 py-12 pt-28">
         {data.products.map((group, index) => (
           <React.Fragment key={group.slug}>
             <section className="mb-16">
-              {/* Judul kategori */}
               <h2 className="text-4xl font-bold mb-6 text-center font-boogaloo">
                 {group.category}
               </h2>
-
               <p className="text-center text-gray-700">{group.description}</p>
 
-              {/* 3 produk teratas */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {group.products.slice(0, 3).map((product) => (
-                  <div
-                    key={product.id}
-                    className="rounded-xl p-4 flex flex-col"
-                  >
+                  <div key={product.id} className="rounded-xl p-4 flex flex-col">
                     <div className="relative w-full aspect-[435/570]">
-                      {/* Background full cover */}
                       <Image
                         src="/produk/image_bg.webp"
                         alt="Background Produk"
                         fill
                         className="object-cover"
                       />
-
-                      {/* Product image centered */}
                       <div className="absolute inset-0 flex items-center justify-center p-4">
                         <Image
                           src={product.image_url}
@@ -57,11 +115,9 @@ const page = async () => {
                       {product.name}
                     </h3>
 
-                    {/* Harga / Diskon */}
                     <div className="text-center font-medium mt-2">
                       {product.discount?.is_active ? (
                         <div className="flex flex-col items-center gap-1">
-                          {/* Harga asli dicoret */}
                           <div className="flex gap-2 items-center">
                             <span className="text-gray-500 line-through text-sm">
                               Rp{" "}
@@ -69,19 +125,17 @@ const page = async () => {
                                 product.price
                               )}
                             </span>
-
                             <span className="text-red-500 font-semibold text-sm">
                               -{product.discount.discount_percent}%
                             </span>
                           </div>
-
-                          {/* Harga setelah diskon */}
                           <span className="text-green-600 font-bold text-lg">
                             Rp{" "}
                             {new Intl.NumberFormat("id-ID").format(
                               product.price -
-                                product.price *
-                                  (product.discount.discount_percent / 100)
+                                (product.price *
+                                  product.discount.discount_percent) /
+                                  100
                             )}
                           </span>
                         </div>
@@ -106,7 +160,6 @@ const page = async () => {
               </div>
             </section>
 
-            {/* Tampilkan SectionDiscount hanya setelah kategori pertama */}
             {index === 0 && data.discounts.length > 0 && (
               <SectionDiscount list={data.discounts} />
             )}
