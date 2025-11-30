@@ -12,6 +12,7 @@ import { createClient } from "@/utils/supabase/client";
 export default function ResetPasswordPage() {
   const supabase = createClient();
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
 
   useLayoutEffect(() => {
@@ -22,8 +23,12 @@ export default function ResetPasswordPage() {
   }, []);
 
   const handleReset = async () => {
-    if (!password) {
-      return showAlert("Password tidak boleh kosong", "error");
+    if (!password || !confirm) {
+      return showAlert("Semua kolom password wajib diisi", "error");
+    }
+
+    if (password !== confirm) {
+      return showAlert("Password dan konfirmasi tidak sama", "error");
     }
 
     setLoading(true);
@@ -36,7 +41,7 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
-      <Card className="w-full max-w-sm shadow-md border border-slate-200">
+      <Card className="w-full max-w-md shadow-md border border-slate-200">
         <CardHeader className="space-y-1 text-center">
           <div className="mx-auto bg-blue-100 p-3 rounded-full w-fit">
             <Lock className="w-6 h-6 text-blue-600" />
@@ -50,6 +55,7 @@ export default function ResetPasswordPage() {
         </CardHeader>
 
         <CardContent className="space-y-4">
+          {/* Password */}
           <div className="grid gap-2">
             <Label htmlFor="password">Password Baru</Label>
             <Input
@@ -58,6 +64,18 @@ export default function ResetPasswordPage() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          {/* Confirm Password */}
+          <div className="grid gap-2">
+            <Label htmlFor="confirm">Konfirmasi Password</Label>
+            <Input
+              id="confirm"
+              type="password"
+              placeholder="••••••••"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
             />
           </div>
 
