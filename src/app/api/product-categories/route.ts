@@ -13,7 +13,6 @@ export async function GET(req: Request) {
     .order("created_at", { ascending: false });
 
   if (search) {
-    console.log("Testing:", search)
     query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
   }
 

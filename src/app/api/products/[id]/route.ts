@@ -25,11 +25,6 @@ export async function PATCH(
     const { id } = await params;
 
     if (!id || !name || !price || !category_id || !description) {
-        console.log(id)
-        console.log(name)
-        console.log(price)
-        console.log(category_id)
-        console.log(description)
       return NextResponse.json(
         { message: "Missing required fields" },
         { status: 400 }

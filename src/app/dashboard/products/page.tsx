@@ -56,12 +56,14 @@ export default async function AdminProductsPage({
             </CardTitle>
             <SearchBar />
           </div>
+
           {search && (
             <p className="text-sm text-muted-foreground">
               Showing results for &quot;{search}&quot;
             </p>
           )}
         </CardHeader>
+
         <CardContent>
           <div className="rounded-md border overflow-x-auto">
             <Table>
@@ -71,10 +73,10 @@ export default async function AdminProductsPage({
                   <TableHead>Name</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Category</TableHead>
-                  <TableHead>Created At</TableHead>
                   <TableHead className="text-center">Action</TableHead>
                 </TableRow>
               </TableHeader>
+
               <TableBody>
                 {data.results.length > 0 ? (
                   data.results.map((product) => (
@@ -93,12 +95,15 @@ export default async function AdminProductsPage({
                           className="object-cover rounded-md border"
                         />
                       </TableCell>
+
                       <TableCell className="font-medium max-w-[250px] truncate">
                         {product.name}
                       </TableCell>
+
                       <TableCell>
                         Rp {product.price.toLocaleString("id-ID")}
                       </TableCell>
+
                       <TableCell>
                         <Badge
                           className={`capitalize ${
@@ -110,22 +115,18 @@ export default async function AdminProductsPage({
                           {product.product_categories?.name || "Uncategorized"}
                         </Badge>
                       </TableCell>
-                      <TableCell>
-                        {new Date(product.created_at).toLocaleDateString(
-                          "id-ID"
-                        )}
-                      </TableCell>
+
                       <TableCell className="text-center flex justify-center items-center gap-4">
-                        {categories.length > 0 && (
-                          <ProductForm
-                            product={product}
-                            productCategories={categories}
-                          />
-                        )}
+                        <ProductForm
+                          product={product}
+                          productCategories={categories}
+                        />
+
                         <ProductVisibilityToggle
                           productId={product.id}
                           initialVisibility={product.visibility}
                         />
+
                         <DeleteResourceButton
                           id={product.id}
                           apiUrl="/api/products"
@@ -158,49 +159,37 @@ export default async function AdminProductsPage({
 
             <div className="flex items-center flex-wrap gap-2">
               {/* Prev */}
-              <Button
-                variant="outline"
-                size="sm"
-                asChild
-                className={
-                  !data.previous ? "pointer-events-none opacity-50" : ""
+              <Link
+                href={
+                  data.previous ? `?page=${data.previous}` : `?page=${page}`
                 }
               >
-                <Link
-                  href={
-                    data.previous ? `?page=${data.previous}` : `?page=${page}`
-                  }
-                >
+                <Button variant="outline" size="sm" disabled={!data.previous}>
                   <ChevronLeft />
-                </Link>
-              </Button>
+                </Button>
+              </Link>
 
-              {/* Page numbers */}
+              {/* Pages */}
               {Array.from({ length: data.totalPages }, (_, i) => i + 1).map(
                 (p) => (
-                  <Button
-                    key={p}
-                    variant={p === page ? "default" : "outline"}
-                    size="sm"
-                    className="w-10"
-                    asChild
-                  >
-                    <Link href={`?page=${p}`}>{p}</Link>
-                  </Button>
+                  <Link key={p} href={`?page=${p}`}>
+                    <Button
+                      variant={p === page ? "default" : "outline"}
+                      size="sm"
+                      className="w-10"
+                    >
+                      {p}
+                    </Button>
+                  </Link>
                 )
               )}
 
               {/* Next */}
-              <Button
-                variant="outline"
-                size="sm"
-                asChild
-                className={!data.next ? "pointer-events-none opacity-50" : ""}
-              >
-                <Link href={data.next ? `?page=${data.next}` : `?page=${page}`}>
+              <Link href={data.next ? `?page=${data.next}` : `?page=${page}`}>
+                <Button variant="outline" size="sm" disabled={!data.next}>
                   <ChevronRight />
-                </Link>
-              </Button>
+                </Button>
+              </Link>
             </div>
           </div>
         </CardContent>

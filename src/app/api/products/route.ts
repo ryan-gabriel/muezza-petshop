@@ -10,8 +10,6 @@ export async function GET(req: Request) {
   const search = searchParams.get("search")?.trim().toLowerCase() || "";
   const categorySlug = searchParams.get("category")?.trim().toLowerCase() || "";
 
-  console.log("slug: ", categorySlug);
-
   // =====================================================
   // CLIENT MODE → GROUPED BY CATEGORY
   // =====================================================
