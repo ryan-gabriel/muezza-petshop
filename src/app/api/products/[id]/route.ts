@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
@@ -13,20 +14,38 @@ export async function PATCH(
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Anda tidak memiliki akses.",
+          detail: authError?.message || "Unauthorized user",
+        },
+        { status: 401 }
+      );
     }
 
     const formData = await req.formData();
     const name = formData.get("name") as string;
     const price = Number(formData.get("price"));
     const category_id = Number(formData.get("category"));
-    const description = formData.get("description") as string;
     const image = formData.get("image") as File | null;
+
     const { id } = await params;
 
-    if (!id || !name || !price || !category_id || !description) {
+    // VALIDASI DATA
+    const missing: string[] = [];
+    if (!id) missing.push("id");
+    if (!name) missing.push("nama produk");
+    if (!price) missing.push("harga");
+    if (!category_id) missing.push("kategori");
+
+    if (missing.length > 0) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        {
+          success: false,
+          message: "Data tidak lengkap.",
+          detail: `Field yang belum diisi: ${missing.join(", ")}`,
+        },
         { status: 400 }
       );
     }
@@ -40,35 +59,59 @@ export async function PATCH(
 
     if (fetchError || !existingProduct) {
       return NextResponse.json(
-        { message: "Product not found" },
+        {
+          success: false,
+          message: "Produk tidak ditemukan.",
+          detail: fetchError?.message,
+        },
         { status: 404 }
       );
     }
 
     let imageUrl = existingProduct.image_url;
 
-    // Jika upload gambar baru
+    // Jika ada upload gambar baru
     if (image) {
-      const fileExt = image.name.split(".").pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `products/${fileName}`;
+      try {
+        const fileExt = image.name.split(".").pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        const filePath = `products/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("product-images")
-        .upload(filePath, image, { upsert: false });
+        const { error: uploadError } = await supabase.storage
+          .from("product-images")
+          .upload(filePath, image, { upsert: false });
 
-      if (uploadError) throw uploadError;
+        if (uploadError) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: "Gagal mengupload gambar.",
+              detail: uploadError.message,
+            },
+            { status: 500 }
+          );
+        }
 
-      const { data: publicUrlData } = supabase.storage
-        .from("product-images")
-        .getPublicUrl(filePath);
+        const { data: publicUrlData } = supabase.storage
+          .from("product-images")
+          .getPublicUrl(filePath);
 
-      imageUrl = publicUrlData.publicUrl;
+        imageUrl = publicUrlData.publicUrl;
 
-      // Hapus file lama (opsional)
-      const oldPath = existingProduct.image_url?.split("/product-images/")[1];
-      if (oldPath) {
-        await supabase.storage.from("product-images").remove([oldPath]);
+        // Hapus file lama
+        const oldPath = existingProduct.image_url?.split("/product-images/")[1];
+        if (oldPath) {
+          await supabase.storage.from("product-images").remove([oldPath]);
+        }
+      } catch (err: any) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Terjadi kesalahan saat mengolah gambar.",
+            detail: err.message,
+          },
+          { status: 500 }
+        );
       }
     }
 
@@ -79,7 +122,6 @@ export async function PATCH(
         name,
         price,
         category_id,
-        description,
         image_url: imageUrl,
         updated_at: new Date().toISOString(),
       })
@@ -87,14 +129,32 @@ export async function PATCH(
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Gagal memperbarui produk.",
+          detail: error.message,
+        },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json(data, { status: 200 });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    console.error("Error updating product:", error.message);
     return NextResponse.json(
-      { error: "Failed to update product" },
+      {
+        success: true,
+        message: "Produk berhasil diperbarui.",
+        data,
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Terjadi kesalahan pada server.",
+        detail: error.message,
+      },
       { status: 500 }
     );
   }
@@ -112,13 +172,25 @@ export async function DELETE(
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Anda tidak memiliki akses.",
+          detail: authError?.message || "Unauthorized user",
+        },
+        { status: 401 }
+      );
     }
+
     const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
-        { message: "Missing product ID" },
+        {
+          success: false,
+          message: "ID produk tidak diberikan.",
+          detail: "Parameter id diperlukan.",
+        },
         { status: 400 }
       );
     }
@@ -132,12 +204,16 @@ export async function DELETE(
 
     if (fetchError || !product) {
       return NextResponse.json(
-        { message: "Product not found" },
+        {
+          success: false,
+          message: "Produk tidak ditemukan.",
+          detail: fetchError?.message,
+        },
         { status: 404 }
       );
     }
 
-    // Hapus file dari storage jika ada
+    // Hapus file dari storage
     const filePath = product.image_url?.split("/product-images/")[1];
     if (filePath) {
       await supabase.storage.from("product-images").remove([filePath]);
@@ -146,17 +222,31 @@ export async function DELETE(
     // Hapus dari database
     const { error } = await supabase.from("products").delete().eq("id", id);
 
-    if (error) throw error;
+    if (error) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Gagal menghapus produk.",
+          detail: error.message,
+        },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(
-      { message: "Product deleted successfully" },
+      {
+        success: true,
+        message: "Produk berhasil dihapus.",
+      },
       { status: 200 }
     );
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.error("Error deleting product:", error.message);
     return NextResponse.json(
-      { error: "Failed to delete product" },
+      {
+        success: false,
+        message: "Terjadi kesalahan pada server.",
+        detail: error.message,
+      },
       { status: 500 }
     );
   }

@@ -24,6 +24,7 @@ import Image from "next/image";
 import { Product, ProductCreateRequest } from "@/type/product";
 import { ProductCategory } from "@/type/productCategory";
 import { useRouter } from "next/navigation";
+import { showAlert } from "@/lib/alert";
 
 interface ProductFormProps {
   product?: Product;
@@ -196,13 +197,18 @@ export default function ProductForm({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to submit product");
+        showAlert(errorData.message, "error");
+        return;
       }
 
       router.refresh();
       setOpen(false);
       setShowPreview(false);
       if (onSubmit) onSubmit(data);
+      showAlert(
+        `Produk berhasil ${product ? "diperbarui" : "ditambahkan"}.`,
+        "success"
+      );
       if (!product) {
         // === RESET FORM setelah submit sukses ===
         setFormData({
@@ -218,6 +224,7 @@ export default function ProductForm({
       }
     } catch (error) {
       console.error("Error submitting product:", error);
+      showAlert("Terjadi kesalahan pada server.", "error");
     }
   };
 
@@ -337,7 +344,6 @@ export default function ProductForm({
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
-                    required
                   />
                 </div>
 
@@ -354,7 +360,6 @@ export default function ProductForm({
                         price: Number(e.target.value),
                       })
                     }
-                    required
                   />
                 </div>
 
@@ -381,7 +386,6 @@ export default function ProductForm({
                     </SelectContent>
                   </Select>
                 </div>
-
               </div>
 
               {/* Submit */}

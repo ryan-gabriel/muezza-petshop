@@ -268,80 +268,147 @@ export async function POST(req: Request) {
   try {
     const supabase = await createClient();
 
-    // Verify user is authenticated
+    // =============================
+    // 1. CEK AUTH USER
+    // =============================
     const {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Akses ditolak. Anda harus login terlebih dahulu.",
+          detail: authError?.message || null,
+        },
+        { status: 401 }
+      );
     }
 
+    // =============================
+    // 2. AMBIL FORM DATA
+    // =============================
     const formData = await req.formData();
 
-    const name = formData.get("name") as string;
+    const name = formData.get("name") as string | null;
     const price = Number(formData.get("price"));
     const category_id = Number(formData.get("category"));
-    const image = formData.get("image") as File | null;
+    const image = formData.get("image");
 
-    if (!name || !price || !category_id || !image) {
+    // =============================
+    // 3. VALIDASI FIELD
+    // =============================
+    const missingFields: string[] = [];
+
+    if (!name) missingFields.push("nama produk");
+    if (!price) missingFields.push("harga");
+    if (!category_id) missingFields.push("kategori");
+    if (!image || !(image instanceof File)) {
+      missingFields.push("gambar produk");
+    }
+
+    if (missingFields.length > 0) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        {
+          error: true,
+          message: "Data yang dibutuhkan belum lengkap.",
+          detail: `Field yang kurang: ${missingFields.join(", ")}`,
+        },
         { status: 400 }
       );
     }
 
-    // Generate base slug
-    let slug = generateSlug(name);
+    // Pada titik ini, image sudah aman menjadi File
+    const file = image as File;
 
-    // Check if slug already exists, add suffix if needed
-    let counter = 1;
+    // =============================
+    // 4. GENERATE SLUG UNIK
+    // =============================
+    let slug = generateSlug(name as string);
     let uniqueSlug = slug;
+    let counter = 1;
 
     while (true) {
-      const { data: existing } = await supabase
+      const { data: exists } = await supabase
         .from("products")
         .select("id")
         .eq("slug", uniqueSlug)
         .maybeSingle();
 
-      if (!existing) break; // slug available
+      if (!exists) break;
       uniqueSlug = `${slug}-${counter++}`;
     }
 
     slug = uniqueSlug;
 
-    // Upload image ke Supabase Storage
-    const fileExt = image.name.split(".").pop();
+    // =============================
+    // 5. UPLOAD GAMBAR
+    // =============================
+    const fileExt = file.name.split(".").pop();
     const fileName = `${Date.now()}.${fileExt}`;
     const filePath = `products/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from("product-images")
-      .upload(filePath, image);
+      .upload(filePath, file);
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Gagal mengunggah gambar.",
+          detail: uploadError.message,
+        },
+        { status: 500 }
+      );
+    }
 
     const { data: publicUrlData } = supabase.storage
       .from("product-images")
       .getPublicUrl(filePath);
 
     const imageUrl = publicUrlData.publicUrl;
-    // Simpan ke tabel products
+
+    // =============================
+    // 6. SIMPAN PRODUK KE DATABASE
+    // =============================
     const { data, error } = await supabase
       .from("products")
       .insert([{ name, price, category_id, image_url: imageUrl, slug }])
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Gagal menyimpan produk ke database.",
+          detail: error.message,
+        },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json(data, { status: 201 });
-  } catch (error: any) {
-    console.error("Error creating product:", error.message);
+    // =============================
+    // 7. SUCCESS RESPONSE
+    // =============================
     return NextResponse.json(
-      { error: "Failed to create product" },
+      {
+        error: false,
+        message: "Produk berhasil dibuat.",
+        data,
+      },
+      { status: 201 }
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      {
+        error: true,
+        message: "Terjadi kesalahan pada server.",
+        detail: error?.message || null,
+      },
       { status: 500 }
     );
   }

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Trash2, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { showAlert } from "@/lib/alert";
 
 interface DeleteResourceButtonProps {
   id: number | string;
@@ -45,8 +46,11 @@ export default function DeleteResourceButton({
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
+        showAlert(errorData.message || "Gagal menghapus item.", "error");
         throw new Error(errorData.message || "Failed to delete");
       }
+
+      showAlert("Item berhasil dihapus.", "success");
 
       onDelete?.();
       setOpen(false);
@@ -62,7 +66,11 @@ export default function DeleteResourceButton({
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm" className="flex items-center gap-2">
+        <Button
+          variant="destructive"
+          size="sm"
+          className="flex items-center gap-2"
+        >
           <Trash2 className="w-4 h-4" />
         </Button>
       </AlertDialogTrigger>
