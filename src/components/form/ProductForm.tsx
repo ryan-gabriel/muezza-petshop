@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -47,7 +46,6 @@ export default function ProductForm({
     name: product?.name || "",
     price: product?.price || 0,
     category: product?.product_categories?.id || 0,
-    description: product?.description || "",
     image_url: product?.image_url,
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -152,7 +150,6 @@ export default function ProductForm({
         name: product.name,
         price: product.price,
         category: product?.product_categories?.id || 0,
-        description: product.description,
         image_url: product.image_url,
       });
       setImagePreview(product.image_url || "");
@@ -385,18 +382,6 @@ export default function ProductForm({
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Enter product description"
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                    rows={3}
-                  />
-                </div>
               </div>
 
               {/* Submit */}

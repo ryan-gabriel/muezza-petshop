@@ -9,8 +9,8 @@ export async function GET(req: Request) {
   const clientMode = searchParams.get("client") === "true";
   const search = searchParams.get("search")?.trim().toLowerCase() || "";
   const categorySlug = searchParams.get("category")?.trim().toLowerCase() || "";
-  
-    console.log("slug: ", categorySlug)
+
+  console.log("slug: ", categorySlug);
 
   // =====================================================
   // CLIENT MODE → GROUPED BY CATEGORY
@@ -18,7 +18,7 @@ export async function GET(req: Request) {
   if (clientMode) {
     const { data: categories, error: catErr } = await supabase
       .from("product_categories")
-      .select("id, name, slug, description")
+      .select("id, name, slug")
       .order("name", { ascending: true });
 
     if (catErr)
@@ -30,15 +30,13 @@ export async function GET(req: Request) {
     for (const c of categories) {
       let query = supabase
         .from("products")
-        .select("id, name, description, price, image_url, slug, created_at")
+        .select("id, name, price, image_url, slug, created_at")
         .eq("category_id", c.id)
         .limit(3)
         .order("created_at", { ascending: false });
 
       if (search) {
-        query = query.or(
-          `name.ilike.%${search}%,description.ilike.%${search}%`
-        );
+        query = query.or(`name.ilike.%${search}%`);
       }
 
       const { data: products, error: prodErr } = await query;
@@ -108,7 +106,6 @@ export async function GET(req: Request) {
       results.push({
         category: c.name,
         slug: c.slug,
-        description: c.description,
         products: enrichedProducts,
       });
     }
@@ -158,7 +155,7 @@ export async function GET(req: Request) {
     .range(from, to);
 
   if (search) {
-    query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
+    query = query.or(`name.ilike.%${search}%`);
   }
 
   if (categoryId) {
@@ -230,10 +227,9 @@ export async function POST(req: Request) {
     const name = formData.get("name") as string;
     const price = Number(formData.get("price"));
     const category_id = Number(formData.get("category"));
-    const description = formData.get("description") as string;
     const image = formData.get("image") as File | null;
 
-    if (!name || !price || !category_id || !description || !image) {
+    if (!name || !price || !category_id || !image) {
       return NextResponse.json(
         { message: "Missing required fields" },
         { status: 400 }
@@ -279,9 +275,7 @@ export async function POST(req: Request) {
     // Simpan ke tabel products
     const { data, error } = await supabase
       .from("products")
-      .insert([
-        { name, price, category_id, description, image_url: imageUrl, slug },
-      ])
+      .insert([{ name, price, category_id, image_url: imageUrl, slug }])
       .select()
       .single();
 

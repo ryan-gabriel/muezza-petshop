@@ -4,7 +4,6 @@ export interface Product {
   id: number;
   name: string;
   slug: string;
-  description: string;
   price: number;
   image_url: string;
   product_categories: { name: string; slug: string; id: number };

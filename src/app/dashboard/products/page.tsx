@@ -69,7 +69,6 @@ export default async function AdminProductsPage({
                 <TableRow>
                   <TableHead>Image</TableHead>
                   <TableHead>Name</TableHead>
-                  <TableHead>Description</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Created At</TableHead>
@@ -96,9 +95,6 @@ export default async function AdminProductsPage({
                       </TableCell>
                       <TableCell className="font-medium max-w-[250px] truncate">
                         {product.name}
-                      </TableCell>
-                      <TableCell className="max-w-[250px] truncate text-muted-foreground">
-                        {product.description}
                       </TableCell>
                       <TableCell>
                         Rp {product.price.toLocaleString("id-ID")}
