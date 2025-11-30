@@ -1,209 +1,267 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { generateSlug } from "@/utils/utilities";
 
 export async function GET(req: Request) {
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
+    const { searchParams } = new URL(req.url);
 
-  const { searchParams } = new URL(req.url);
-  const clientMode = searchParams.get("client") === "true";
-  const search = searchParams.get("search")?.trim().toLowerCase() || "";
-  const categorySlug = searchParams.get("category")?.trim().toLowerCase() || "";
+    const clientMode = searchParams.get("client") === "true";
+    const search = searchParams.get("search")?.trim().toLowerCase() || "";
+    const categorySlug =
+      searchParams.get("category")?.trim().toLowerCase() || "";
 
-  // =====================================================
-  // CLIENT MODE → GROUPED BY CATEGORY
-  // =====================================================
-  if (clientMode) {
-    const { data: categories, error: catErr } = await supabase
-      .from("product_categories")
-      .select("id, name, slug")
-      .order("name", { ascending: true });
+    // =====================================================
+    // CLIENT MODE
+    // =====================================================
+    if (clientMode) {
+      try {
+        const { data: categories, error: catErr } = await supabase
+          .from("product_categories")
+          .select("id, name, slug")
+          .order("name", { ascending: true });
 
-    if (catErr)
-      return NextResponse.json({ error: catErr.message }, { status: 400 });
+        if (catErr)
+          return NextResponse.json(
+            {
+              error: true,
+              message: "Gagal memuat kategori.",
+              detail: catErr.message,
+            },
+            { status: 500 }
+          );
 
-    const results = [];
-    const discountList = []; // GLOBAL DISCOUNT COLLECTOR
+        const results = [];
+        const discountList = [];
 
-    for (const c of categories) {
+        for (const c of categories) {
+          let query = supabase
+            .from("products")
+            .select("id, name, price, image_url, slug, created_at")
+            .eq("category_id", c.id)
+            .limit(3)
+            .order("created_at", { ascending: false });
+
+          if (search) {
+            query = query.or(`name.ilike.%${search}%`);
+          }
+
+          const { data: products, error: prodErr } = await query;
+
+          if (prodErr)
+            return NextResponse.json(
+              {
+                error: true,
+                message: `Gagal memuat produk untuk kategori ${c.name}.`,
+                detail: prodErr.message,
+              },
+              { status: 500 }
+            );
+
+          const enrichedProducts = [];
+
+          for (const p of products) {
+            const { data: targets, error: targetErr } = await supabase
+              .from("discount_targets")
+              .select("discount_id")
+              .eq("target_type", "product")
+              .eq("target_id", p.id);
+
+            if (targetErr)
+              return NextResponse.json(
+                {
+                  error: true,
+                  message: `Gagal memuat diskon produk ${p.name}.`,
+                  detail: targetErr.message,
+                },
+                { status: 500 }
+              );
+
+            if (!targets || targets.length === 0) {
+              enrichedProducts.push({ ...p, discounts: [] });
+              continue;
+            }
+
+            const today = new Date().toISOString().slice(0, 10);
+            const activeDiscounts = [];
+
+            for (const t of targets) {
+              const { data: discount, error: discErr } = await supabase
+                .from("discounts")
+                .select("*")
+                .eq("id", t.discount_id)
+                .lte("start_date", today)
+                .gte("end_date", today)
+                .maybeSingle();
+
+              if (discErr) continue;
+              if (!discount) continue;
+
+              activeDiscounts.push(discount);
+
+              discountList.push({
+                product: {
+                  id: p.id,
+                  name: p.name,
+                  slug: p.slug,
+                  image_url: p.image_url,
+                  price: p.price,
+                },
+                discount,
+              });
+            }
+
+            enrichedProducts.push({ ...p, discounts: activeDiscounts });
+          }
+
+          results.push({
+            category: c.name,
+            slug: c.slug,
+            products: enrichedProducts,
+          });
+        }
+
+        return NextResponse.json(
+          { error: false, products: results, discounts: discountList },
+          { status: 200 }
+        );
+      } catch (err: any) {
+        return NextResponse.json(
+          {
+            error: true,
+            message: "Terjadi kesalahan saat memuat data client mode.",
+            detail: err.message,
+          },
+          { status: 500 }
+        );
+      }
+    }
+
+    // =====================================================
+    // ADMIN MODE
+    // =====================================================
+
+    try {
+      const page = parseInt(searchParams.get("page") || "1", 10);
+      const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
+      const from = (page - 1) * pageSize;
+      const to = from + pageSize - 1;
+
+      let categoryId: number | null = null;
+
+      if (categorySlug) {
+        const { data: cat, error: catErr } = await supabase
+          .from("product_categories")
+          .select("id")
+          .eq("slug", categorySlug)
+          .maybeSingle();
+
+        if (catErr)
+          return NextResponse.json(
+            {
+              error: true,
+              message: "Gagal memuat kategori.",
+              detail: catErr.message,
+            },
+            { status: 500 }
+          );
+
+        if (!cat)
+          return NextResponse.json(
+            { error: true, message: "Kategori tidak ditemukan." },
+            { status: 404 }
+          );
+
+        categoryId = cat.id;
+      }
+
       let query = supabase
         .from("products")
-        .select("id, name, price, image_url, slug, created_at")
-        .eq("category_id", c.id)
-        .limit(3)
-        .order("created_at", { ascending: false });
+        .select("*, product_categories(id, name, slug)", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(from, to);
 
       if (search) {
         query = query.or(`name.ilike.%${search}%`);
       }
 
-      const { data: products, error: prodErr } = await query;
+      if (categoryId) {
+        query = query.eq("category_id", categoryId);
+      }
 
-      if (prodErr)
-        return NextResponse.json({ error: prodErr.message }, { status: 400 });
+      const { data, error, count } = await query;
 
-      const enrichedProducts = [];
+      if (error)
+        return NextResponse.json(
+          {
+            error: true,
+            message: "Gagal memuat daftar produk.",
+            detail: error.message,
+          },
+          { status: 500 }
+        );
 
-      for (const p of products) {
-        // 👉 Ambil semua discount target untuk produk ini
-        const { data: targets, error: targetErr } = await supabase
+      const productsWithDiscount = [];
+
+      for (const p of data || []) {
+        const { data: target } = await supabase
           .from("discount_targets")
           .select("discount_id")
           .eq("target_type", "product")
-          .eq("target_id", p.id);
+          .eq("target_id", p.id)
+          .maybeSingle();
 
-        if (targetErr)
-          return NextResponse.json(
-            { error: targetErr.message },
-            { status: 400 }
-          );
+        let discount = null;
 
-        // Tidak ada discount target
-        if (!targets || targets.length === 0) {
-          enrichedProducts.push({ ...p, discounts: [] });
-          continue;
-        }
-
-        const today = new Date().toISOString().slice(0, 10);
-        const activeDiscounts = [];
-
-        // 👉 Loop semua discount_id
-        for (const t of targets) {
-          const { data: discount, error: discErr } = await supabase
+        if (target?.discount_id) {
+          const { data: d } = await supabase
             .from("discounts")
             .select("*")
-            .eq("id", t.discount_id)
-            .lte("start_date", today)
-            .gte("end_date", today)
+            .eq("id", target.discount_id)
+            .eq("is_active", true)
             .maybeSingle();
 
-          if (discErr) continue;
-          if (!discount) continue; // skip jika expired / belum aktif
-
-          activeDiscounts.push(discount);
-
-          // Push ke global discount list
-          discountList.push({
-            product: {
-              id: p.id,
-              name: p.name,
-              slug: p.slug,
-              image_url: p.image_url,
-              price: p.price,
-            },
-            discount,
-          });
+          if (d) discount = d;
         }
 
-        enrichedProducts.push({
-          ...p,
-          discounts: activeDiscounts, // <- array of discounts
-        });
+        productsWithDiscount.push({ ...p, discount });
       }
 
-      results.push({
-        category: c.name,
-        slug: c.slug,
-        products: enrichedProducts,
-      });
-    }
+      const totalPages = count ? Math.ceil(count / pageSize) : 0;
 
-    return NextResponse.json({
-      products: results, // produk per kategori
-      discounts: discountList, // semua discount aktif
-    });
-  }
-
-  // =====================================================
-  // NORMAL MODE (ADMIN) — default behaviour
-  // =====================================================
-
-  const page = parseInt(searchParams.get("page") || "1", 10);
-  const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-
-  // STEP 1: Konversi slug → category_id
-  let categoryId: number | null = null;
-
-  if (categorySlug) {
-    const { data: cat, error: catErr } = await supabase
-      .from("product_categories")
-      .select("id")
-      .eq("slug", categorySlug)
-      .maybeSingle();
-
-    if (catErr)
-      return NextResponse.json({ error: catErr.message }, { status: 400 });
-
-    if (!cat)
       return NextResponse.json(
-        { error: "Kategori tidak ditemukan." },
-        { status: 404 }
+        {
+          error: false,
+          count: count || 0,
+          totalPages,
+          next: page < totalPages ? page + 1 : null,
+          previous: page > 1 ? page - 1 : null,
+          results: productsWithDiscount,
+        },
+        { status: 200 }
       );
-
-    categoryId = cat.id;
-  }
-
-  // STEP 2: Query produk + filter kategori jika ada
-  let query = supabase
-    .from("products")
-    .select("*, product_categories(id, name, slug)", { count: "exact" })
-    .order("created_at", { ascending: false })
-    .range(from, to);
-
-  if (search) {
-    query = query.or(`name.ilike.%${search}%`);
-  }
-
-  if (categoryId) {
-    query = query.eq("category_id", categoryId);
-  }
-
-  const { data, error, count } = await query;
-
-  if (error)
-    return NextResponse.json({ error: error.message }, { status: 400 });
-
-  // STEP 3: Ambil discount
-  const productsWithDiscount = [];
-
-  for (const p of data || []) {
-    const { data: target } = await supabase
-      .from("discount_targets")
-      .select("discount_id")
-      .eq("target_type", "product")
-      .eq("target_id", p.id)
-      .maybeSingle();
-
-    let discount = null;
-
-    if (target?.discount_id) {
-      const { data: d } = await supabase
-        .from("discounts")
-        .select("*")
-        .eq("id", target.discount_id)
-        .eq("is_active", true)
-        .maybeSingle();
-
-      if (d) discount = d;
+    } catch (err: any) {
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Gagal memuat data produk.",
+          detail: err.message,
+        },
+        { status: 500 }
+      );
     }
-
-    productsWithDiscount.push({
-      ...p,
-      discount,
-    });
+  } catch (err: any) {
+    return NextResponse.json(
+      {
+        error: true,
+        message: "Terjadi kesalahan tak terduga pada server.",
+        detail: err.message,
+      },
+      { status: 500 }
+    );
   }
-
-  const totalPages = count ? Math.ceil(count / pageSize) : 0;
-
-  return NextResponse.json({
-    count: count || 0,
-    totalPages,
-    next: page < totalPages ? page + 1 : null,
-    previous: page > 1 ? page - 1 : null,
-    results: productsWithDiscount,
-  });
 }
 
 export async function POST(req: Request) {
@@ -280,7 +338,6 @@ export async function POST(req: Request) {
     if (error) throw error;
 
     return NextResponse.json(data, { status: 201 });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Error creating product:", error.message);
     return NextResponse.json(
