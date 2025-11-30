@@ -59,7 +59,14 @@ export async function PATCH(
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Tidak memiliki akses. Silakan login terlebih dahulu.",
+          detail: authError?.message || null,
+        },
+        { status: 401 }
+      );
     }
 
     const { id } = await params;
@@ -67,12 +74,22 @@ export async function PATCH(
     const formData = await req.formData();
     const name = formData.get("name") as string;
     const price = formData.get("price") as string;
-    const featuresRaw = formData.get("features") as string; // comma separated
+    const featuresRaw = formData.get("features") as string; // comma or JSON array
     const image = formData.get("image") as File | null;
 
     if (!id || !name || !price) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        {
+          error: true,
+          message: "Data yang dibutuhkan tidak lengkap.",
+          detail: {
+            missing: {
+              id: !id,
+              name: !name,
+              price: !price,
+            },
+          },
+        },
         { status: 400 }
       );
     }
@@ -86,7 +103,11 @@ export async function PATCH(
 
     if (fetchError || !existing) {
       return NextResponse.json(
-        { message: "Photoshoot package not found" },
+        {
+          error: true,
+          message: "Paket photoshoot tidak ditemukan.",
+          detail: fetchError?.message || null,
+        },
         { status: 404 }
       );
     }
@@ -95,19 +116,23 @@ export async function PATCH(
 
     // Convert features string → array
     let features: string[] = [];
-
     if (featuresRaw) {
       try {
-        // If raw is valid JSON array → parse it
         if (featuresRaw.startsWith("[") && featuresRaw.endsWith("]")) {
           features = JSON.parse(featuresRaw);
+          if (!Array.isArray(features)) throw new Error("Format fitur tidak valid.");
         } else {
-          // fallback: comma separated
           features = featuresRaw.split(",").map((s) => s.trim());
         }
-      } catch {
-        // fallback jika parsing gagal
-        features = featuresRaw.split(",").map((s) => s.trim());
+      } catch (parseError: any) {
+        return NextResponse.json(
+          {
+            error: true,
+            message: "Format fitur tidak valid. Harus berupa array JSON atau comma separated.",
+            detail: parseError.message,
+          },
+          { status: 400 }
+        );
       }
     }
 
@@ -121,7 +146,16 @@ export async function PATCH(
         .from("photoshoot-images")
         .upload(filePath, image);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        return NextResponse.json(
+          {
+            error: true,
+            message: "Gagal mengunggah gambar.",
+            detail: uploadError.message,
+          },
+          { status: 500 }
+        );
+      }
 
       const { data: publicUrlData } = supabase.storage
         .from("photoshoot-images")
@@ -154,13 +188,33 @@ export async function PATCH(
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Gagal memperbarui paket photoshoot.",
+          detail: error.message,
+        },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json(data, { status: 200 });
-  } catch (error: any) {
-    console.error("Error updating photoshoot package:", error.message);
     return NextResponse.json(
-      { error: "Failed to update photoshoot package" },
+      {
+        error: false,
+        message: "Paket photoshoot berhasil diperbarui.",
+        data,
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("Error updating photoshoot package:", error);
+    return NextResponse.json(
+      {
+        error: true,
+        message: "Terjadi kesalahan pada server saat memperbarui paket photoshoot.",
+        detail: error.message,
+      },
       { status: 500 }
     );
   }
@@ -181,7 +235,14 @@ export async function DELETE(
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Tidak memiliki akses. Silakan login terlebih dahulu.",
+          detail: authError?.message || null,
+        },
+        { status: 401 }
+      );
     }
 
     const { id } = await params;
@@ -195,7 +256,11 @@ export async function DELETE(
 
     if (fetchError || !pkg) {
       return NextResponse.json(
-        { message: "Photoshoot package not found" },
+        {
+          error: true,
+          message: "Paket photoshoot tidak ditemukan.",
+          detail: fetchError?.message || null,
+        },
         { status: 404 }
       );
     }
@@ -212,17 +277,34 @@ export async function DELETE(
       .delete()
       .eq("id", id);
 
-    if (error) throw error;
+    if (error) {
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Gagal menghapus paket photoshoot.",
+          detail: error.message,
+        },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(
-      { message: "Photoshoot package deleted successfully" },
+      {
+        error: false,
+        message: "Paket photoshoot berhasil dihapus.",
+      },
       { status: 200 }
     );
   } catch (error: any) {
-    console.error("Error deleting photoshoot package:", error.message);
+    console.error("Error deleting photoshoot package:", error);
     return NextResponse.json(
-      { error: "Failed to delete photoshoot package" },
+      {
+        error: true,
+        message: "Terjadi kesalahan pada server saat menghapus paket photoshoot.",
+        detail: error.message,
+      },
       { status: 500 }
     );
   }
 }
+

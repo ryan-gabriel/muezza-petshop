@@ -134,34 +134,58 @@ export async function POST(req: Request) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Tidak memiliki akses. Silakan login terlebih dahulu.",
+          detail: authError?.message || null,
+        },
+        { status: 401 }
+      );
     }
 
     const formData = await req.formData();
 
     const name = formData.get("name") as string;
     const price = formData.get("price") as string;
-    const featuresRaw = formData.get("features") as string; // JSON string
+    const featuresRaw = formData.get("features") as string;
     const image = formData.get("image") as File | null;
 
     if (!name || !price || !image) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        {
+          error: true,
+          message: "Data yang dibutuhkan tidak lengkap.",
+          detail: {
+            missing: {
+              name: !name,
+              price: !price,
+              image: !image,
+            },
+          },
+        },
         { status: 400 }
       );
     }
 
-    // Convert features JSON string → array safely
+    // Convert features JSON safely
     let features: string[] = [];
     try {
       if (featuresRaw) {
         features = JSON.parse(featuresRaw);
-        if (!Array.isArray(features)) features = [];
+        if (!Array.isArray(features)) {
+          throw new Error("Format fitur tidak valid.");
+        }
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_: any) {
-      console.warn("Invalid features JSON:", featuresRaw);
-      features = [];
+    } catch (parseError: any) {
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Format fitur tidak valid. Harus berupa array JSON.",
+          detail: parseError.message,
+        },
+        { status: 400 }
+      );
     }
 
     // Generate slug
@@ -177,7 +201,16 @@ export async function POST(req: Request) {
       .from("photoshoot-images")
       .upload(filePath, image);
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Gagal mengunggah gambar.",
+          detail: uploadError.message,
+        },
+        { status: 500 }
+      );
+    }
 
     const { data: publicUrlData } = supabase.storage
       .from("photoshoot-images")
@@ -185,7 +218,7 @@ export async function POST(req: Request) {
 
     const imageUrl = publicUrlData.publicUrl;
 
-    // Insert record
+    // Insert DB record
     const { data, error } = await supabase
       .from("photoshoot_packages")
       .insert([
@@ -200,13 +233,34 @@ export async function POST(req: Request) {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Gagal membuat paket photoshoot.",
+          detail: error.message,
+        },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json(data, { status: 201 });
-  } catch (error: any) {
-    console.error("Error creating photoshoot package:", error.message);
     return NextResponse.json(
-      { error: "Failed to create photoshoot package" },
+      {
+        error: false,
+        message: "Paket photoshoot berhasil dibuat.",
+        data,
+      },
+      { status: 201 }
+    );
+  } catch (error: any) {
+    console.error("Error creating photoshoot package:", error);
+
+    return NextResponse.json(
+      {
+        error: true,
+        message: "Terjadi kesalahan pada server.",
+        detail: error.message,
+      },
       { status: 500 }
     );
   }

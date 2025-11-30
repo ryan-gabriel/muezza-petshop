@@ -16,6 +16,7 @@ import { PlusCircle, Upload, X, Eye } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { PhotoshootPackage } from "@/type/photoshoot";
+import { showAlert } from "@/lib/alert";
 
 interface PhotoshootFormProps {
   packageItem?: PhotoshootPackage;
@@ -171,6 +172,32 @@ export default function PhotoshootForm({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (
+      !formData.name.trim() ||
+      formData.price <= 0 ||
+      isNaN(formData.price) ||
+      !isFinite(formData.price)
+    ) {
+      showAlert("Harus mengisi nama dan harga yang valid.", "warning");
+      return;
+    }
+
+    if (isConverting) {
+      showAlert("Masih mengonversi gambar. Mohon tunggu.", "warning");
+      return;
+    }
+
+    if (!imageFile && !formData.image_url) {
+      showAlert("Harus mengunggah gambar paket photoshoot.", "warning");
+      return;
+    }
+
+    if (!formData.features.length) {
+      showAlert("Harus menambahkan minimal satu fitur.", "warning");
+      return;
+    }
+
     setShowPreview(true);
   };
 
@@ -183,8 +210,18 @@ export default function PhotoshootForm({
       const method = packageItem ? "PATCH" : "POST";
 
       const res = await fetch(url, { method, body: data });
-      if (!res.ok) throw new Error("Failed to submit");
+      if (!res.ok) {
+        const err = await res.json();
+        showAlert(err.message || "Gagal mengirim photoshoot package.", "error");
+        return;
+      }
 
+      showAlert(
+        packageItem
+          ? "Photoshoot package updated successfully."
+          : "Photoshoot package created successfully.",
+        "success"
+      );
       router.refresh();
       setOpen(false);
       setShowPreview(false);
@@ -202,6 +239,7 @@ export default function PhotoshootForm({
       }
     } catch (err) {
       console.error(err);
+      showAlert("Gagal mengirim photoshoot package.", "error");
     }
   };
 
@@ -305,7 +343,6 @@ export default function PhotoshootForm({
                 <div className="space-y-2">
                   <Label>Package Name</Label>
                   <Input
-                    required
                     placeholder="Premium Photoshoot"
                     value={formData.name}
                     onChange={(e) =>
@@ -320,7 +357,6 @@ export default function PhotoshootForm({
                   <Input
                     type="number"
                     min={1}
-                    required
                     value={formData.price}
                     onChange={(e) =>
                       setFormData({
