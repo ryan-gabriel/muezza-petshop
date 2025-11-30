@@ -4,15 +4,12 @@ import Image from "next/image";
 import { useLayoutEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const router = useRouter();
 
@@ -110,18 +107,7 @@ export default function LoginForm() {
               />
 
               <div className="flex items-center justify-between">
-                <Label className="flex items-center gap-2 cursor-pointer">
-                  <Checkbox
-                    checked={rememberMe}
-                    onCheckedChange={(v) => setRememberMe(Boolean(v))}
-                    className="
-                      data-[state=checked]:bg-[#7754F6]
-                      data-[state=checked]:border-[#7754F6]
-                    "
-                  />
-                  <span className="text-sm text-gray-700">Ingat saya</span>
-                </Label>
-
+          
                 <a
                   href="#"
                   className="text-sm text-[#7754F6] hover:text-purple-700"

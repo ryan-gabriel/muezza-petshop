@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /dashboard/
+Disallow: /login/
+
+Sitemap: https://muezza-petshop.vercel.app/sitemap.xml
