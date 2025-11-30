@@ -6,17 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Loader2 } from "lucide-react";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleLogin = async (e: any) => {
     e.preventDefault();
     setErrorMsg("");
+    setLoading(true);
 
     if (!email || !password) {
       setErrorMsg("Harap isi email dan password");
@@ -42,6 +46,8 @@ export default function LoginForm() {
     } catch (error) {
       setErrorMsg("Terjadi kesalahan. Silakan coba lagi.");
       console.error("Login error:", error);
+    } finally {
+      setLoading(false);
     }
   };
   useLayoutEffect(() => {
@@ -107,20 +113,24 @@ export default function LoginForm() {
               />
 
               <div className="flex items-center justify-between">
-          
-                <a
-                  href="#"
+                <Link
+                  href="/forget-password"
                   className="text-sm text-[#7754F6] hover:text-purple-700"
                 >
                   Forget Password?
-                </a>
+                </Link>
               </div>
 
               <Button
                 type="submit"
-                className="w-full bg-[#7754F6] hover:brightness-90 cursor-pointer shadow-lg hover:shadow-xl"
+                className="w-full bg-[#7754F6] hover:bg-[#9b83f3]  cursor-pointer shadow-lg"
+                disabled={loading}
               >
-                Log In
+                {loading ? (
+                  <Loader2 className="animate-spin h-5 w-5" />
+                ) : (
+                  "Log In"
+                )}
               </Button>
             </form>
           </CardContent>
