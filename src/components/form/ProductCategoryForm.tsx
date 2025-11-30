@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle, Eye, SquarePenIcon } from "lucide-react";
 import { ProductCategory } from "@/type/productCategory";
 import { useRouter } from "next/navigation";
+import { showAlert } from "@/lib/alert";
 
 interface ProductCategoryFormProps {
   category?: ProductCategory;
@@ -51,6 +52,10 @@ export default function ProductCategoryForm({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!formData.name.trim()) {
+      showAlert("Harus mengisi nama.", "warning");
+      return;
+    }
     setShowPreview(true);
   };
 
@@ -72,9 +77,14 @@ export default function ProductCategoryForm({
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to submit category");
+        showAlert(errorData.message || "Gagal mengirim kategori.", "error");
+        return;
       }
 
+      showAlert(
+        `Kategori berhasil ${category ? "diperbarui" : "ditambahkan"}.`,
+        "success"
+      );
       router.refresh();
       setOpen(false);
       setShowPreview(false);
@@ -88,7 +98,7 @@ export default function ProductCategoryForm({
       }
     } catch (error) {
       console.error("Error submitting category:", error);
-      alert("Failed to submit category.");
+      showAlert("Gagal mengirim kategori.", "error");
     } finally {
       setLoading(false);
     }
@@ -147,7 +157,6 @@ export default function ProductCategoryForm({
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
-                    required
                   />
                 </div>
 

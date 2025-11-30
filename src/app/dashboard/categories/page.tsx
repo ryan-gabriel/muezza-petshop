@@ -50,9 +50,7 @@ export default async function AdminCategoriesPage({
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Slug</TableHead>
                   <TableHead>Description</TableHead>
-                  <TableHead>Created At</TableHead>
                   <TableHead className="text-center">Action</TableHead>
                 </TableRow>
               </TableHeader>
@@ -63,16 +61,8 @@ export default async function AdminCategoriesPage({
                       <TableCell className="font-medium">
                         {category.name}
                       </TableCell>
-                      <TableCell className="lowercase text-muted-foreground">
-                        {category.slug}
-                      </TableCell>
                       <TableCell className="max-w-[250px] truncate text-muted-foreground">
                         {category.description || "-"}
-                      </TableCell>
-                      <TableCell>
-                        {new Date(category.created_at).toLocaleDateString(
-                          "id-ID"
-                        )}
                       </TableCell>
                       <TableCell className="text-center flex justify-evenly">
                         <ProductCategoryForm category={category} />

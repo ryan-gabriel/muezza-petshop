@@ -180,6 +180,26 @@ export default function ProductForm({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!formData.name.trim()) {
+      showAlert("Harus mengisi nama produk.", "warning");
+      return;
+    }
+    if (formData.price <= 0) {
+      showAlert("Harga harus lebih dari 0.", "warning");
+      return;
+    }
+    if (formData.category <= 0) {
+      showAlert("Harus memilih kategori produk.", "warning");
+      return;
+    }
+    if (isConverting) {
+      showAlert("Tunggu hingga proses konversi gambar selesai.", "warning");
+      return;
+    }
+    if (formData.image_url === undefined && imageFile === null) {
+      showAlert("Harus mengunggah gambar produk.", "warning");
+      return;
+    }
     setShowPreview(true);
   };
 
@@ -374,8 +394,8 @@ export default function ProductForm({
                     }
                     value={String(formData.category)}
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
+                    <SelectTrigger className="text-muted-foreground">
+                      <SelectValue>Select a category</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {productCategories.map((cat) => (
