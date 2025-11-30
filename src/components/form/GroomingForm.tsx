@@ -17,6 +17,7 @@ import { PlusCircle, Upload, X, Eye } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { GroomingService } from "@/type/grooming";
+import { showAlert } from "@/lib/alert";
 
 interface GroomingFormProps {
   grooming?: GroomingService;
@@ -184,6 +185,22 @@ export default function GroomingForm({
   // === Submit (Preview First) ===
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!formData.name.trim()) {
+      showAlert("Harus mengisi nama service.", "warning");
+      return;
+    }
+    if (formData.price <= 0) {
+      showAlert("Harga harus lebih dari 0.", "warning");
+      return;
+    }
+    if (isConverting) {
+      showAlert("Tunggu hingga proses konversi gambar selesai.", "warning");
+      return;
+    }
+    if (!imageFile && !formData.image_url) {
+      showAlert("Harus mengunggah gambar service.", "warning");
+      return;
+    }
     setShowPreview(true);
   };
 
@@ -202,8 +219,16 @@ export default function GroomingForm({
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.message || "Failed to submit");
+        showAlert(err.message || "Gagal mengirim grooming service.", "error");
+        return;
       }
+
+      showAlert(
+        grooming
+          ? "Grooming service updated successfully."
+          : "Grooming service created successfully.",
+        "success"
+      );
 
       router.refresh();
       setOpen(false);
@@ -224,6 +249,7 @@ export default function GroomingForm({
       }
     } catch (err) {
       console.error(err);
+      showAlert("Gagal mengirim grooming service.", "error");
     }
   };
 
@@ -324,7 +350,6 @@ export default function GroomingForm({
                   <Input
                     id="name"
                     value={formData.name}
-                    required
                     placeholder="Grooming Deluxe"
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
@@ -352,7 +377,6 @@ export default function GroomingForm({
                     type="number"
                     min={1}
                     value={formData.price}
-                    required
                     onChange={(e) =>
                       setFormData({
                         ...formData,

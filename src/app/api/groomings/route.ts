@@ -130,16 +130,24 @@ export async function POST(req: Request) {
   try {
     const supabase = await createClient();
 
-    // Auth check
+    // ===== AUTH CHECK =====
     const {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        {
+          error: "UNAUTHORIZED",
+          message: "Akses tidak diizinkan.",
+          detail: authError?.message || null,
+        },
+        { status: 401 }
+      );
     }
 
+    // ===== BACA FORM DATA =====
     const formData = await req.formData();
 
     const name = formData.get("name") as string;
@@ -149,16 +157,20 @@ export async function POST(req: Request) {
 
     if (!name || !price || !image) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        {
+          error: "VALIDATION_ERROR",
+          message: "Beberapa field wajib belum diisi.",
+          detail: "Field wajib: name, price, image",
+        },
         { status: 400 }
       );
     }
 
-    // Generate slug
+    // ===== SLUG =====
     const baseSlug = slugify(name);
     const slug = await generateUniqueSlug(baseSlug, supabase);
 
-    // Upload image
+    // ===== UPLOAD IMAGE =====
     const ext = image.name.split(".").pop();
     const fileName = `${Date.now()}.${ext}`;
     const filePath = `grooming/${fileName}`;
@@ -167,7 +179,16 @@ export async function POST(req: Request) {
       .from("grooming-images")
       .upload(filePath, image);
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      return NextResponse.json(
+        {
+          error: "UPLOAD_ERROR",
+          message: "Gagal mengunggah gambar.",
+          detail: uploadError.message,
+        },
+        { status: 500 }
+      );
+    }
 
     const { data: publicUrlData } = supabase.storage
       .from("grooming-images")
@@ -175,7 +196,7 @@ export async function POST(req: Request) {
 
     const imageUrl = publicUrlData.publicUrl;
 
-    // Insert record
+    // ===== INSERT DB =====
     const { data, error } = await supabase
       .from("grooming_services")
       .insert([
@@ -190,13 +211,27 @@ export async function POST(req: Request) {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      return NextResponse.json(
+        {
+          error: "DATABASE_ERROR",
+          message: "Gagal membuat layanan grooming.",
+          detail: error.message,
+        },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(data, { status: 201 });
   } catch (error: any) {
-    console.error("Error creating grooming service:", error.message);
+    console.error("Error creating grooming service:", error?.message);
+
     return NextResponse.json(
-      { error: "Failed to create grooming service" },
+      {
+        error: "SERVER_ERROR",
+        message: "Terjadi kesalahan pada server.",
+        detail: error?.message || error,
+      },
       { status: 500 }
     );
   }
