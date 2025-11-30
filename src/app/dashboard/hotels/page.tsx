@@ -1,6 +1,4 @@
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { SquarePen } from "lucide-react";
 import DeleteResourceButton from "@/components/resource/DeleteResourceButton";
 import { PetHotelRoom } from "@/type/hotel";
 
@@ -79,14 +77,7 @@ export default async function Page() {
 
                   <TableCell className="text-center">
                     <div className="flex justify-center items-center gap-3">
-                      <PetHotelRoomForm
-                        room={room}
-                        trigger={
-                          <Button variant="outline" className="gap-2">
-                            <SquarePen className="w-4 h-4" />
-                          </Button>
-                        }
-                      />
+                      <PetHotelRoomForm room={room} />
 
                       <DeleteResourceButton
                         id={room.id}

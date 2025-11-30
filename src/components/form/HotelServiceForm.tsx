@@ -13,10 +13,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusCircle, Upload, X, Eye } from "lucide-react";
+import { PlusCircle, Upload, X, Eye, SquarePen } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { PetHotelRoom } from "@/type/hotel";
+import { showAlert } from "@/lib/alert";
 
 interface PetHotelRoomFormProps {
   room?: PetHotelRoom;
@@ -27,7 +28,6 @@ interface PetHotelRoomFormProps {
 export default function PetHotelRoomForm({
   room,
   onSubmit,
-  trigger,
 }: PetHotelRoomFormProps) {
   const router = useRouter();
 
@@ -179,6 +179,26 @@ export default function PetHotelRoomForm({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!formData.name.trim() || formData.price_per_night <= 0) {
+      showAlert(
+        "Harus mengisi nama dan harga per malam yang valid.",
+        "warning"
+      );
+      return;
+    }
+    if (isConverting) {
+      showAlert("Please wait until image conversion is complete.", "warning");
+      return;
+    }
+    if (!formData.description.trim()) {
+      showAlert("Harus mengisi deskripsi.", "warning");
+      return;
+    }
+    if (!imageFile && !formData.image_url) {
+      showAlert("Harus mengunggah gambar kamar.", "warning");
+      return;
+    }
+
     setShowPreview(true);
   };
 
@@ -192,8 +212,18 @@ export default function PetHotelRoomForm({
 
       const res = await fetch(url, { method, body: data });
 
-      if (!res.ok) throw new Error("Failed to submit");
+      if (!res.ok) {
+        const err = await res.json();
+        showAlert(err.message || "Gagal mengirim pet hotel room.", "error");
+        return;
+      }
 
+      showAlert(
+        room
+          ? "Pet hotel room updated successfully."
+          : "Pet hotel room created successfully.",
+        "success"
+      );
       router.refresh();
       setOpen(false);
       setShowPreview(false);
@@ -213,14 +243,17 @@ export default function PetHotelRoomForm({
       }
     } catch (err) {
       console.error(err);
+      showAlert("Gagal mengirim pet hotel room.", "error");
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {trigger ? (
-          trigger
+        {room ? (
+          <Button variant="outline" className="gap-2">
+            <SquarePen className="w-4 h-4" />
+          </Button>
         ) : (
           <Button variant="default" className="flex gap-2">
             <PlusCircle className="w-4 h-4" /> Add Pet Hotel Room
@@ -315,7 +348,6 @@ export default function PetHotelRoomForm({
                 <div className="space-y-2">
                   <Label>Room Name</Label>
                   <Input
-                    required
                     placeholder="Deluxe Pet Suite"
                     value={formData.name}
                     onChange={(e) =>
@@ -343,7 +375,6 @@ export default function PetHotelRoomForm({
                   <Input
                     type="number"
                     min={1}
-                    required
                     value={formData.price_per_night}
                     onChange={(e) =>
                       setFormData({

@@ -135,7 +135,10 @@ export async function POST(req: Request) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Anda tidak memiliki izin untuk mengakses layanan ini." },
+        { status: 401 }
+      );
     }
 
     const formData = await req.formData();
@@ -145,9 +148,10 @@ export async function POST(req: Request) {
     const price_per_night = formData.get("price_per_night") as string;
     const image = formData.get("image") as File | null;
 
+    // Required field validation
     if (!name || !price_per_night || !image) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        { message: "Beberapa field wajib belum diisi." },
         { status: 400 }
       );
     }
@@ -194,7 +198,7 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error("Error creating pet hotel room:", error.message);
     return NextResponse.json(
-      { error: "Failed to create pet hotel room" },
+      { error: "Gagal menambahkan kamar pet hotel." },
       { status: 500 }
     );
   }

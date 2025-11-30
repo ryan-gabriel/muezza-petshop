@@ -59,7 +59,10 @@ export async function PATCH(
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Tidak memiliki akses. Silakan login terlebih dahulu." },
+        { status: 401 }
+      );
     }
 
     const { id } = await params;
@@ -72,7 +75,7 @@ export async function PATCH(
 
     if (!id || !name || !price_per_night) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        { message: "Data yang dibutuhkan tidak lengkap." },
         { status: 400 }
       );
     }
@@ -86,7 +89,7 @@ export async function PATCH(
 
     if (fetchError || !existing) {
       return NextResponse.json(
-        { message: "Pet hotel room not found" },
+        { message: "Kamar pet hotel tidak ditemukan." },
         { status: 404 }
       );
     }
@@ -138,11 +141,14 @@ export async function PATCH(
 
     if (error) throw error;
 
-    return NextResponse.json(data, { status: 200 });
+    return NextResponse.json(
+      { message: "Kamar pet hotel berhasil diperbarui.", data },
+      { status: 200 }
+    );
   } catch (error: any) {
     console.error("Error updating pet hotel room:", error.message);
     return NextResponse.json(
-      { error: "Failed to update pet hotel room" },
+      { error: "Gagal memperbarui kamar pet hotel." },
       { status: 500 }
     );
   }
@@ -163,7 +169,10 @@ export async function DELETE(
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Tidak memiliki akses. Silakan login terlebih dahulu." },
+        { status: 401 }
+      );
     }
 
     const { id } = await params;
@@ -177,7 +186,7 @@ export async function DELETE(
 
     if (fetchError || !room) {
       return NextResponse.json(
-        { message: "Pet hotel room not found" },
+        { message: "Kamar pet hotel tidak ditemukan." },
         { status: 404 }
       );
     }
@@ -197,13 +206,13 @@ export async function DELETE(
     if (error) throw error;
 
     return NextResponse.json(
-      { message: "Pet hotel room deleted successfully" },
+      { message: "Kamar pet hotel berhasil dihapus." },
       { status: 200 }
     );
   } catch (error: any) {
     console.error("Error deleting pet hotel room:", error.message);
     return NextResponse.json(
-      { error: "Failed to delete pet hotel room" },
+      { error: "Gagal menghapus kamar pet hotel." },
       { status: 500 }
     );
   }
