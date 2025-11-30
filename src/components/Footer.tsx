@@ -14,7 +14,7 @@ const Footer = () => {
   const petLinks = [
     { href: "/cabang", label: "Cabang Muezza" },
     { href: "/produk", label: "Produk Muezza" },
-    { href: "/dashboard", label: "Dashboard admin" },
+    { href: "/list-produk", label: "List Produk" },
     // { href: "/call-us", label: "Call Us" },
     // { href: "/blog", label: "Blog" },
   ];

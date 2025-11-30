@@ -60,7 +60,7 @@ const Page = async () => {
                     alt={item.name}
                     width={1080}
                     height={1080}
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-cover rounded-2xl relative z-10"
                   />
                   <Image
                     src="/cabang/image-bg.webp"

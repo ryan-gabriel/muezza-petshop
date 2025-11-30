@@ -1,5 +1,6 @@
 import Image from "next/image";
 import React from "react";
+import Link from "next/link";
 
 const ProdukSection = () => {
   return (
@@ -26,9 +27,12 @@ const ProdukSection = () => {
             Setiap produk sudah dipilih dengan cermat agar aman dan nyaman dipakai. 
             Kamu bisa belanja tanpa bingung karena semua kategori tersedia dalam satu tempat.
           </p>
-          <button className="font-boogaloo text-xl px-16 py-3 rounded-full w-fit bg-primary-blue shadow-xl">
-            Selengkapnya 
-          </button>
+          <Link
+            href="/produk"
+            className="font-boogaloo text-xl px-16 py-3 rounded-full w-fit bg-primary-blue shadow-xl"
+          >
+            Selengkapnya
+          </Link>
         </div>
         <div className="w-full md:w-1/2 h-full">
           <Image
