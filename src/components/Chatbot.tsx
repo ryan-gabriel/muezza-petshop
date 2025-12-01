@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import ReactMarkdown from "react-markdown";
 
 type Message = {
   id: number;
@@ -135,7 +136,32 @@ export default function Chatbot() {
                     )}
                   >
                     {/* Render text (bisa ditambahkan markdown parser jika ingin format bold/list) */}
-                    {msg.text}
+                    {/* Gunakan ReactMarkdown untuk merender teks */}
+                    <ReactMarkdown
+                      components={{
+                        // Styling untuk paragraf
+                        p: ({ node, ...props }) => <p className="mb-2 last:mb-0 leading-relaxed" {...props} />,
+
+                        // Styling untuk list (bullet points)
+                        ul: ({ node, ...props }) => <ul className="list-disc pl-4 mb-2 space-y-1" {...props} />,
+                        ol: ({ node, ...props }) => <ol className="list-decimal pl-4 mb-2 space-y-1" {...props} />,
+
+                        // Styling untuk item list
+                        li: ({ node, ...props }) => <li className="pl-1" {...props} />,
+
+                        // Styling untuk teks tebal (bold)
+                        strong: ({ node, ...props }) => (
+                          <span className="font-bold text-[#1D3A2F]" {...props} />
+                        ),
+
+                        // Styling untuk link (jika ada)
+                        a: ({ node, ...props }) => (
+                          <a target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-600" {...props} />
+                        ),
+                      }}
+                    >
+                      {msg.text}
+                    </ReactMarkdown>
                   </div>
                 </div>
               ))}
