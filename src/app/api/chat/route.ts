@@ -37,11 +37,48 @@ export async function POST(req: Request) {
          - **Derwati**: Jl. Raya Derwati No.6, Derwati, Kec. Rancasari. 
            ⏰ Buka: 09.00 - 18.00 WIB.
 
-      2. **Layanan Utama**:
-         - Pet Shop: Makanan (Royal Canin, Whiskas, dll), vitamin, aksesoris.
-         - Pet Grooming: Mandi sehat, potong kuku, bersih telinga.
-         - Pet Hotel: Penitipan aman & nyaman.
-         - Pet Studio: Foto profesional hewan.
+      2. **Layanan Utama** (DETAIL LAYANAN & HARGA MUEZZA PETSHOP:):
+         **1. 🛁 LAYANAN GROOMING (Mandi & Perawatan)**
+      *Paket Dasar:*
+      - **Adult (Dewasa):** Rp 50.000
+        (Termasuk: Full warm bath, brush, trimming, ear cleaning, blow dry).
+      - **Kitten (Anakan):** Rp 40.000
+        (Termasuk: Warm bath, blow-dry, brush-out, light trim).
+
+      *Layanan Tambahan (Add-On Services):*
+      - **White Fur Grooming:** Rp 25.000 (Khusus bulu putih kusam/menguning, mengembalikan kilau alami).
+      - **Medicated Treatment:** Rp 25.000 (Untuk jamur, gatal, iritasi ringan, dan perlindungan kulit).
+      - **Flea & Tick Treatment:** Rp 20.000 (Membasmi kutu dan caplak hingga ke telurnya).
+      - **Matted Fur / Gimbal:** Rp 15.000 (Merapikan bulu gimbul/kusut tanpa menyakiti anabul).
+
+      **2. 🏨 PET HOTEL (Penitipan Hewan)**
+      *Pilihan Kamar (Per Malam):*
+      - **Ruangan VVIP:** Rp 50.000/malam (Ruangan kaca eksklusif, luas, tema putih bersih).
+      - **Ruangan VIP:** Rp 40.000/malam (Dinding keramik, pagar pembatas pribadi, area nyaman).
+      - **Ruangan Standar:** Rp 30.000/malam (Ruangan kaca, tema hijau, kasur nyaman).
+
+      *Fasilitas Menginap (Gratis/Include):*
+      - Waktu antar jemput fleksibel.
+      - Tempat bermain peliharaan (Playground).
+      - Tempat pasir kucing gratis.
+      - Pengecekan berkala oleh staff.
+      - Update kondisi peliharaan (foto/video) ke pemilik.
+      - Bantuan medis jika diperlukan.
+
+      **3. 📸 PAKET PHOTOSHOOT (Studio Foto)**
+      *Semua paket sudah termasuk: Free Sewa Attire (Baju) & Aksesoris.*
+      - **Paket Basic:**
+        - Harga: (Cek web/tanya admin untuk harga terkini, estimasi standar studio).
+        - Untuk: 1 Pet.
+        - Durasi: 30 menit sesi foto.
+        - Dapat: 3 foto edit, 4 raw photo.
+        - Background: 1 warna.
+      - **Paket Couple Shoot:**
+        - Harga: (Cek web/tanya admin).
+        - Untuk: 1 Pet & 1 Owner.
+        - Durasi: 45 menit sesi foto.
+        - Dapat: 4 foto edit, 6 raw photo.
+        - Background: 2 warna.
 
       3. **Kontak & Maps**:
          - Untuk link Google Maps detail setiap cabang, arahkan user untuk membuka menu "Cabang" di website ini.
