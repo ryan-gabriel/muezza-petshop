@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusCircle, Upload, X, Eye } from "lucide-react";
+import { PlusCircle, Upload, X, Eye, SquarePen } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { PhotoshootPackage } from "@/type/photoshoot";
@@ -21,13 +21,11 @@ import { showAlert } from "@/lib/alert";
 interface PhotoshootFormProps {
   packageItem?: PhotoshootPackage;
   onSubmit?: (data: FormData) => void;
-  trigger?: React.ReactNode;
 }
 
 export default function PhotoshootForm({
   packageItem,
   onSubmit,
-  trigger,
 }: PhotoshootFormProps) {
   const router = useRouter();
 
@@ -246,8 +244,10 @@ export default function PhotoshootForm({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {trigger ? (
-          trigger
+        {packageItem ? (
+          <Button variant="outline" className="gap-2">
+            <SquarePen className="w-4 h-4" />
+          </Button>
         ) : (
           <Button variant="default" className="flex gap-2">
             <PlusCircle className="w-4 h-4" />{" "}

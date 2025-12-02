@@ -1,7 +1,5 @@
 import PhotoshootForm from "@/components/form/PhotoshootForm";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { SquarePen } from "lucide-react";
 import DeleteResourceButton from "@/components/resource/DeleteResourceButton";
 import { PhotoshootPackage } from "@/type/photoshoot";
 
@@ -92,11 +90,6 @@ export default async function Page() {
                       {/* Edit Button */}
                       <PhotoshootForm
                         packageItem={p}
-                        trigger={
-                          <Button variant="outline" className="gap-2">
-                            <SquarePen className="w-4 h-4" />
-                          </Button>
-                        }
                       />
 
                       {/* Delete Button */}

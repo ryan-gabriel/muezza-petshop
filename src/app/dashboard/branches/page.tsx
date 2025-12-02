@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Branch } from "@/type/branch";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, SquarePen } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import DeleteResourceButton from "@/components/resource/DeleteResourceButton";
 
 async function getBranches(): Promise<Branch[]> {
@@ -87,14 +87,7 @@ export default async function Page() {
                     </Button>
                   )}
 
-                  <BranchForm
-                    branch={b}
-                    trigger={
-                      <Button variant="outline" className="gap-2">
-                        <SquarePen className="w-4 h-4" />
-                      </Button>
-                    }
-                  />
+                  <BranchForm branch={b} />
                   <DeleteResourceButton
                     id={b.id}
                     apiUrl="/api/branches"

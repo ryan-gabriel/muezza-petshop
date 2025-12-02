@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusCircle, Eye } from "lucide-react";
+import { PlusCircle, Eye, SquarePen } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AddonService } from "@/type/addonService";
 import { showAlert } from "@/lib/alert";
@@ -21,13 +21,11 @@ import { showAlert } from "@/lib/alert";
 interface AddonServiceFormProps {
   addon?: AddonService;
   onSubmit?: (data: FormData) => void;
-  trigger?: React.ReactNode;
 }
 
 export default function AddonServiceForm({
   addon,
   onSubmit,
-  trigger,
 }: AddonServiceFormProps) {
   const router = useRouter();
 
@@ -131,8 +129,10 @@ export default function AddonServiceForm({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {trigger ? (
-          trigger
+        {addon ? (
+          <Button variant="outline" className="gap-2">
+            <SquarePen className="w-4 h-4" />
+          </Button>
         ) : (
           <Button variant="default" className="flex gap-2">
             <PlusCircle className="w-4 h-4" /> Add Addon Service

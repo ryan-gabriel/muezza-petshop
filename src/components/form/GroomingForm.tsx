@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusCircle, Upload, X, Eye } from "lucide-react";
+import { PlusCircle, Upload, X, Eye, SquarePen } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { GroomingService } from "@/type/grooming";
@@ -22,13 +22,11 @@ import { showAlert } from "@/lib/alert";
 interface GroomingFormProps {
   grooming?: GroomingService;
   onSubmit?: (data: FormData) => void;
-  trigger?: React.ReactNode;
 }
 
 export default function GroomingForm({
   grooming,
   onSubmit,
-  trigger,
 }: GroomingFormProps) {
   const router = useRouter();
 
@@ -256,8 +254,10 @@ export default function GroomingForm({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {trigger ? (
-          trigger
+        {grooming ? (
+          <Button variant="outline" className="gap-2">
+            <SquarePen className="w-4 h-4" />
+          </Button>
         ) : (
           <Button variant="default" className="flex gap-2">
             <PlusCircle className="w-4 h-4" /> Add Grooming
