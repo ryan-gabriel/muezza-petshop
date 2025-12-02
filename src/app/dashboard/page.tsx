@@ -126,9 +126,9 @@ const DashboardPage = async () => {
             </div>
             <CardContent className="pt-6">
               <div className="space-y-3">
-                {data.products_by_category.map((c) => (
+                {data.products_by_category.map((c,index) => (
                   <div
-                    key={c.category}
+                    key={index}
                     className="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors duration-200"
                   >
                     <div className="flex items-center gap-3">
