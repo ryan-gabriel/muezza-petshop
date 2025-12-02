@@ -34,10 +34,6 @@ const DashboardPage = async () => {
             </h1>
             <p className="text-slate-600 mt-2">Ringkasan lengkap bisnis Anda</p>
           </div>
-          <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-slate-200">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-sm text-slate-600">Live Data</span>
-          </div>
         </div>
 
         {/* Stats Grid */}

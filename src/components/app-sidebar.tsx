@@ -29,6 +29,7 @@ import {
 } from "./ui/dropdown-menu";
 import { SignOutButton } from "./auth/SignOutButton";
 import { createClient } from "@/utils/supabase/server";
+import ClientLinkButton from "./ui/ClientLinkButton";
 
 const items = [
   { title: "Overview", url: "/dashboard", icon: ChartArea },
@@ -61,10 +62,10 @@ export async function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <ClientLinkButton href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </ClientLinkButton>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
