@@ -4,7 +4,7 @@ export async function getCategories(
   search?: string
 ): Promise<ProductCategory[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
     // Build URL dengan search param jika ada
     const url = new URL(`${baseUrl}/api/product-categories`);
