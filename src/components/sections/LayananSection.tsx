@@ -44,14 +44,14 @@ const LayananSection = () => {
             Untuk layar kecil → grid (vertikal stack) */}
         <div
           className="
-            flex md:flex-row flex-col items-center justify-center
-            overflow-x-auto md:overflow-x-auto
-            overflow-y-visible md:overflow-y-hidden
+            flex md:flex-row flex-col items-center
+            overflow-x-auto md:overflow-x-scroll
+            overflow-y-visible md:overflow-y-visible
             scroll-smooth
-            snap-x md:snap-x snap-mandatory
+            snap-x md:snap-none
             gap-6
             scrollbar-none
-          "
+            w-full"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
@@ -65,7 +65,7 @@ const LayananSection = () => {
                 flex-shrink-0
                 snap-center
                 flex flex-col items-center
-                w-[70%] md:w-[40vw] lg:w-[25vw] max-w-[500px]
+                w-[70%] md:w-[40vw] lg:w-[25vw] max-w-[400px]
               "
             >
               <div className="rounded-2xl overflow-hidden w-full">
