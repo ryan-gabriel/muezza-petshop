@@ -19,6 +19,12 @@ export default function Navbar({
 }: {
   useBackground?: boolean;
 }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const path = usePathname();
 
   const [openDropdown, setOpenDropdown] = useState(false); // Desktop
@@ -44,6 +50,8 @@ export default function Navbar({
     setOpenDropdown(false); // desktop dropdown
     setMobileDropdown(false); // mobile dropdown
   }, [path]);
+
+  if (!mounted) return null;
 
   return (
     <nav

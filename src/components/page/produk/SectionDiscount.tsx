@@ -18,7 +18,7 @@ export default function SectionDiscount({ list }: { list: DiscountProduct[] }) {
   const filtered = list.filter((item) => item.discount?.is_active);
 
   return (
-    <section className="w-full relative bg-gradient-to-r from-[#B0D9F0] to-[#9CB8C8] text-[#224F34] overflow-hidden rounded-lg">
+    <section className="w-full relative bg-gradient-to-r from-[#B0D9F0] to-[#9CB8C8] text-[#224F34] overflow-hidden rounded-lg mb-12">
       <Image
         src="/elements/paw-trail-white.webp"
         alt="Paw Trail"
@@ -99,7 +99,10 @@ function DiscountCard({ item }: { item: DiscountProduct }) {
   const p = item.product;
   const d = item.discount!;
 
-  const discountedPrice = p.price - (p.price * d.discount_percent) / 100;
+  const discountedPrice = Math.round(
+    p.price - (p.price * d.discount_percent) / 100
+  );
+
   const discountImage = d.image_url || null;
 
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(d.end_date));
