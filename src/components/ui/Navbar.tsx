@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, ChevronDown } from "lucide-react";
 import {
@@ -12,7 +11,8 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import ClientLinkButton from "./ClientLinkButton";
 
 export default function Navbar({
   useBackground = false,
@@ -39,6 +39,11 @@ export default function Navbar({
     { href: "/layanan/grooming", label: "Grooming" },
     { href: "/layanan/studio", label: "Studio" },
   ];
+
+  useEffect(() => {
+    setOpenDropdown(false); // desktop dropdown
+    setMobileDropdown(false); // mobile dropdown
+  }, [path]);
 
   return (
     <nav
@@ -75,9 +80,7 @@ export default function Navbar({
       <div className="hidden md:flex items-center gap-10 font-semibold tracking-wide relative">
         {navItems.map((item) => {
           const isActive =
-            item.href === "/"
-              ? path === "/"
-              : path.startsWith(item.href);
+            item.href === "/" ? path === "/" : path.startsWith(item.href);
 
           // ============= DESKTOP DROPDOWN =============
           if (item.label === "Layanan") {
@@ -97,7 +100,6 @@ export default function Navbar({
                   `}
                 >
                   Layanan
-
                   <ChevronDown
                     className={`w-4 h-4 transition-transform duration-300 ${
                       openDropdown ? "rotate-180" : "rotate-0"
@@ -130,7 +132,7 @@ export default function Navbar({
                     const isSubActive = path.startsWith(sub.href);
 
                     return (
-                      <Link
+                      <ClientLinkButton
                         key={sub.href}
                         href={sub.href}
                         className={`
@@ -143,7 +145,7 @@ export default function Navbar({
                         `}
                       >
                         {sub.label}
-                      </Link>
+                      </ClientLinkButton>
                     );
                   })}
                 </div>
@@ -153,7 +155,7 @@ export default function Navbar({
 
           // ============= REGULAR DESKTOP LINK =============
           return (
-            <Link
+            <ClientLinkButton
               key={item.href}
               href={item.href}
               className={`
@@ -172,7 +174,7 @@ export default function Navbar({
                   ${isActive ? "opacity-100" : "opacity-0"}
                 `}
               />
-            </Link>
+            </ClientLinkButton>
           );
         })}
       </div>
@@ -200,9 +202,7 @@ export default function Navbar({
             <div className="flex flex-col gap-4 text-lg font-medium mt-4">
               {navItems.map((item) => {
                 const isActive =
-                  item.href === "/"
-                    ? path === "/"
-                    : path.startsWith(item.href);
+                  item.href === "/" ? path === "/" : path.startsWith(item.href);
 
                 // MOBILE DROPDOWN
                 if (item.label === "Layanan") {
@@ -235,7 +235,7 @@ export default function Navbar({
                             const isSubActive = path.startsWith(sub.href);
 
                             return (
-                              <Link
+                              <ClientLinkButton
                                 key={sub.href}
                                 href={sub.href}
                                 className={`
@@ -248,7 +248,7 @@ export default function Navbar({
                                 `}
                               >
                                 {sub.label}
-                              </Link>
+                              </ClientLinkButton>
                             );
                           })}
                         </div>
@@ -259,7 +259,7 @@ export default function Navbar({
 
                 // MOBILE REGULAR LINK
                 return (
-                  <Link
+                  <ClientLinkButton
                     key={item.href}
                     href={item.href}
                     className={`
@@ -272,7 +272,7 @@ export default function Navbar({
                     `}
                   >
                     {item.label}
-                  </Link>
+                  </ClientLinkButton>
                 );
               })}
             </div>

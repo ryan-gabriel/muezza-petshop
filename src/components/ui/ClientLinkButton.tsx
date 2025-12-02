@@ -4,6 +4,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { createPortal } from "react-dom";
 
 const ClientLinkButton = ({
   className,
@@ -16,8 +17,14 @@ const ClientLinkButton = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
 
-  // Reset loading ketika page sudah berpindah
+  // Needed for portal (CSR only)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Reset loading after navigation
   useEffect(() => {
     setLoading(false);
   }, [pathname]);
@@ -28,17 +35,18 @@ const ClientLinkButton = ({
 
   return (
     <>
-      {/* LINK */}
       <Link href={href} onClick={handleClick} className={className}>
         {loading ? <Loader2 className="animate-spin h-5 w-5" /> : children}
       </Link>
 
-      {/* FULLSCREEN LOADING OVERLAY (scroll tetap jalan) */}
-      {loading && (
-        <div className="fixed inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-[9999]">
-          <Loader2 className="animate-spin h-10 w-10 text-green-700" />
-        </div>
-      )}
+      {/* FULLSCREEN LOADING via PORTAL */}
+      {mounted && loading &&
+        createPortal(
+          <div className="fixed inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-[999999]">
+            <Loader2 className="animate-spin h-10 w-10 text-green-700" />
+          </div>,
+          document.body
+        )}
     </>
   );
 };
