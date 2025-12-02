@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import Link from "next/link";
+import ClientLinkButton from "../ui/ClientLinkButton";
 
 const ProdukSection = () => {
   return (
@@ -13,7 +13,7 @@ const ProdukSection = () => {
         priority
         className="-z-50 absolute inset-0 m-auto transform scale-x-[-1] object-contain md:w-[50%] w-full"
       />
-      
+
       <h2 className="text-3xl md:text-4xl font-boogaloo font-semibold text-center mb-16">
         Produk Muezza{" "}
       </h2>
@@ -23,16 +23,19 @@ const ProdukSection = () => {
             Produk di toko muezza
           </h3>
           <p className="text-lg">
-            Kamu bisa menemukan berbagai kebutuhan kucing di sini. Muezza menyediakan makanan, vitamin, pasir, mainan, alat grooming, dan perlengkapan harian lain yang bisa kamu pilih sesuai kebutuhan kucingmu. 
-            Setiap produk sudah dipilih dengan cermat agar aman dan nyaman dipakai. 
-            Kamu bisa belanja tanpa bingung karena semua kategori tersedia dalam satu tempat.
+            Kamu bisa menemukan berbagai kebutuhan kucing di sini. Muezza
+            menyediakan makanan, vitamin, pasir, mainan, alat grooming, dan
+            perlengkapan harian lain yang bisa kamu pilih sesuai kebutuhan
+            kucingmu. Setiap produk sudah dipilih dengan cermat agar aman dan
+            nyaman dipakai. Kamu bisa belanja tanpa bingung karena semua
+            kategori tersedia dalam satu tempat.
           </p>
-          <Link
+          <ClientLinkButton
             href="/produk"
             className="font-boogaloo text-xl px-16 py-3 rounded-full w-fit bg-primary-blue shadow-xl"
           >
             Selengkapnya
-          </Link>
+          </ClientLinkButton>
         </div>
         <div className="w-full md:w-1/2 h-full">
           <Image
