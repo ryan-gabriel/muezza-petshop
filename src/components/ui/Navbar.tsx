@@ -27,8 +27,9 @@ export default function Navbar({
 
   const path = usePathname();
 
-  const [openDropdown, setOpenDropdown] = useState(false); // Desktop
-  const [mobileDropdown, setMobileDropdown] = useState(false); // Mobile
+  const [openDropdown, setOpenDropdown] = useState(false); // desktop open state
+  const [dropdownLocked, setDropdownLocked] = useState(false); // NEW lock state
+  const [mobileDropdown, setMobileDropdown] = useState(false); // mobile
 
   const navItems = [
     { href: "/", label: "Home" },
@@ -37,7 +38,6 @@ export default function Navbar({
     { href: "/cabang", label: "Cabang" },
   ];
 
-  // Detect active subpage in /layanan/*
   const layananActive = path.startsWith("/layanan");
 
   const subItems = [
@@ -46,9 +46,11 @@ export default function Navbar({
     { href: "/layanan/studio", label: "Studio" },
   ];
 
+  // Reset saat pindah halaman
   useEffect(() => {
-    setOpenDropdown(false); // desktop dropdown
-    setMobileDropdown(false); // mobile dropdown
+    setOpenDropdown(false);
+    setMobileDropdown(false);
+    setDropdownLocked(false); // NEW
   }, [path]);
 
   if (!mounted) return null;
@@ -90,14 +92,19 @@ export default function Navbar({
           const isActive =
             item.href === "/" ? path === "/" : path.startsWith(item.href);
 
-          // ============= DESKTOP DROPDOWN =============
+          // DESKTOP DROPDOWN
           if (item.label === "Layanan") {
             return (
               <div key={item.href} className="relative group">
                 {/* BUTTON */}
                 <button
-                  onClick={() => setOpenDropdown(!openDropdown)}
-                  onMouseEnter={() => setOpenDropdown(true)}
+                  onClick={() => {
+                    setDropdownLocked(!dropdownLocked); // lock/unlock
+                    setOpenDropdown(!openDropdown); // toggle open
+                  }}
+                  onMouseEnter={() => {
+                    if (!dropdownLocked) setOpenDropdown(true);
+                  }}
                   className={`
                     pb-1 flex items-center gap-1 transition-colors
                     ${
@@ -115,7 +122,7 @@ export default function Navbar({
                   />
                 </button>
 
-                {/* UNDERLINE WHEN ACTIVE */}
+                {/* UNDERLINE */}
                 {layananActive && (
                   <span className="absolute left-0 -bottom-1 h-[2px] w-full bg-[#1D3A2F]" />
                 )}
@@ -123,7 +130,9 @@ export default function Navbar({
                 {/* DROPDOWN */}
                 <div
                   onMouseEnter={() => setOpenDropdown(true)}
-                  onMouseLeave={() => setOpenDropdown(false)}
+                  onMouseLeave={() => {
+                    if (!dropdownLocked) setOpenDropdown(false);
+                  }}
                   className={`
                     absolute left-0 top-full mt-0 
                     w-44 bg-white shadow-md rounded-lg py-2
@@ -161,7 +170,7 @@ export default function Navbar({
             );
           }
 
-          // ============= REGULAR DESKTOP LINK =============
+          // NORMAL DESKTOP LINKS
           return (
             <ClientLinkButton
               key={item.href}
@@ -201,7 +210,9 @@ export default function Navbar({
               <SheetTitle className="text-xl font-bold tracking-wide text-[#1D3A2F]">
                 Menu
               </SheetTitle>
-              <p className="text-sm text-black/50 mt-1">Akses navigasi utama</p>
+              <p className="text-sm text-black/50 mt-1">
+                Akses navigasi utama
+              </p>
             </SheetHeader>
 
             <div className="w-full h-px bg-black/10" />
@@ -236,7 +247,6 @@ export default function Navbar({
                         />
                       </button>
 
-                      {/* SUBMENU */}
                       {mobileDropdown && (
                         <div className="ml-4 mt-2 flex flex-col gap-3 text-base">
                           {subItems.map((sub) => {
@@ -265,7 +275,7 @@ export default function Navbar({
                   );
                 }
 
-                // MOBILE REGULAR LINK
+                // MOBILE NORMAL LINK
                 return (
                   <ClientLinkButton
                     key={item.href}
