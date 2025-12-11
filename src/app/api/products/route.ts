@@ -349,6 +349,7 @@ export async function POST(req: Request) {
     const name = formData.get("name") as string | null;
     const price = Number(formData.get("price"));
     const category_id = Number(formData.get("category"));
+    const is_featured = Boolean(formData.get("is_featured"));
     const image = formData.get("image");
 
     // =============================
@@ -430,7 +431,7 @@ export async function POST(req: Request) {
     // =============================
     const { data, error } = await supabase
       .from("products")
-      .insert([{ name, price, category_id, image_url: imageUrl, slug }])
+      .insert([{ name, price, category_id, image_url: imageUrl, slug, is_featured }])
       .select()
       .single();
 

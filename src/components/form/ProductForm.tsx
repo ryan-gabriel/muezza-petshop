@@ -48,7 +48,9 @@ export default function ProductForm({
     price: product?.price || 0,
     category: product?.product_categories?.id || 0,
     image_url: product?.image_url,
+    is_featured: product?.is_featured ?? false,
   });
+
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>(
     product?.image_url || ""
@@ -152,7 +154,9 @@ export default function ProductForm({
         price: product.price,
         category: product?.product_categories?.id || 0,
         image_url: product.image_url,
+        is_featured: product?.is_featured ?? false,
       });
+
       setImagePreview(product.image_url || "");
     } else {
       setFormData({
@@ -161,6 +165,7 @@ export default function ProductForm({
         category: 0,
         description: "",
         image_url: undefined,
+        is_featured: false,
       });
       setImagePreview("");
     }
@@ -173,6 +178,7 @@ export default function ProductForm({
     data.append("price", formData.price.toString());
     if (formData.category) data.append("category", String(formData.category));
     data.append("description", formData.description || "");
+    data.append("is_featured", formData.is_featured ? "1" : "0");
     if (imageFile) data.append("image", imageFile);
     else if (formData.image_url) data.append("image_url", formData.image_url);
     return data;
@@ -237,6 +243,7 @@ export default function ProductForm({
           category: 0,
           description: "",
           image_url: undefined,
+          is_featured: false,
         });
 
         setImageFile(null);
@@ -406,6 +413,23 @@ export default function ProductForm({
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="space-y-2">
+                  <Label>Featured Product</Label>
+                  <Select
+                    onValueChange={(val) =>
+                      setFormData({ ...formData, is_featured: val === "1" })
+                    }
+                    value={formData.is_featured ? "1" : "0"}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">Featured</SelectItem>
+                      <SelectItem value="0">Not Featured</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               {/* Submit */}
@@ -462,6 +486,10 @@ export default function ProductForm({
                     <strong>Description:</strong> {formData.description}
                   </p>
                 )}
+                <p>
+                  <strong>Featured:</strong>{" "}
+                  {formData.is_featured ? "Yes" : "No"}
+                </p>
               </div>
             </div>
 

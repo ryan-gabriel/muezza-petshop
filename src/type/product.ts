@@ -9,6 +9,7 @@ export interface Product {
   product_categories: { name: string; slug: string; id: number };
   created_at: string;
   visibility: boolean;
+  is_featured: boolean;
 }
 
 export interface ProductCreateRequest {
@@ -17,6 +18,7 @@ export interface ProductCreateRequest {
   price: number;
   image_url?: string;
   category: number;
+  is_featured: boolean;
 }
 
 export interface PaginatedResponse<T> {
@@ -45,4 +47,3 @@ export interface ProductClientResponse {
   products: ProductCategoryGroup[];
   discounts: DiscountProduct[];
 }
-

@@ -28,6 +28,7 @@ export async function PATCH(
     const name = formData.get("name") as string;
     const price = Number(formData.get("price"));
     const category_id = Number(formData.get("category"));
+    const is_featured = Boolean(formData.get("is_featured"));
     const image = formData.get("image") as File | null;
 
     const { id } = await params;
@@ -124,6 +125,7 @@ export async function PATCH(
         category_id,
         image_url: imageUrl,
         updated_at: new Date().toISOString(),
+        is_featured,
       })
       .eq("id", id)
       .select()
