@@ -163,7 +163,6 @@ export async function GET(req: Request) {
         );
       }
 
-      // Attach discount like usual
       const productsWithDiscount = [];
 
       for (const p of data || []) {
@@ -190,7 +189,22 @@ export async function GET(req: Request) {
         productsWithDiscount.push({ ...p, discount });
       }
 
-      return NextResponse.json(productsWithDiscount, { status: 200 });
+      const serialized = productsWithDiscount.map((p) => ({
+        ...p,
+        created_at: p.created_at?.toISOString?.() ?? p.created_at,
+        updated_at: p.updated_at?.toISOString?.() ?? p.updated_at,
+        discount: p.discount
+          ? {
+              ...p.discount,
+              created_at:
+                p.discount.created_at?.toISOString?.() ?? p.discount.created_at,
+              updated_at:
+                p.discount.updated_at?.toISOString?.() ?? p.discount.updated_at,
+            }
+          : null,
+      }));
+
+      return NextResponse.json(serialized, { status: 200 });
     }
 
     // =====================================================
@@ -431,7 +445,9 @@ export async function POST(req: Request) {
     // =============================
     const { data, error } = await supabase
       .from("products")
-      .insert([{ name, price, category_id, image_url: imageUrl, slug, is_featured }])
+      .insert([
+        { name, price, category_id, image_url: imageUrl, slug, is_featured },
+      ])
       .select()
       .single();
 
