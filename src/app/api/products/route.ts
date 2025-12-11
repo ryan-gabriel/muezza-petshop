@@ -139,6 +139,60 @@ export async function GET(req: Request) {
       }
     }
 
+    // NEW: CHECK FEATURED MODE
+    const isFeatured = searchParams.get("is_featured") === "true";
+
+    // =====================================================
+    // FEATURED MODE (NO PAGINATION)
+    // =====================================================
+    if (isFeatured) {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*, product_categories(id, name, slug)")
+        .eq("is_featured", true)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        return NextResponse.json(
+          {
+            error: true,
+            message: "Gagal memuat produk featured.",
+            detail: error.message,
+          },
+          { status: 500 }
+        );
+      }
+
+      // Attach discount like usual
+      const productsWithDiscount = [];
+
+      for (const p of data || []) {
+        const { data: target } = await supabase
+          .from("discount_targets")
+          .select("discount_id")
+          .eq("target_type", "product")
+          .eq("target_id", p.id)
+          .maybeSingle();
+
+        let discount = null;
+
+        if (target?.discount_id) {
+          const { data: d } = await supabase
+            .from("discounts")
+            .select("*")
+            .eq("id", target.discount_id)
+            .eq("is_active", true)
+            .maybeSingle();
+
+          if (d) discount = d;
+        }
+
+        productsWithDiscount.push({ ...p, discount });
+      }
+
+      return NextResponse.json(productsWithDiscount, { status: 200 });
+    }
+
     // =====================================================
     // ADMIN MODE
     // =====================================================

@@ -45,3 +45,4 @@ export interface ProductClientResponse {
   products: ProductCategoryGroup[];
   discounts: DiscountProduct[];
 }
+

@@ -1,3 +1,4 @@
+import { Discount } from "@/type/discount";
 import {
   PaginatedResponse,
   Product,
@@ -62,6 +63,27 @@ export async function getProductClient(): Promise<ProductClientResponse> {
     return data;
   } catch (error) {
     console.error("getProductClient error:", error);
+    throw error;
+  }
+}
+
+type featuredProductType = Product & { discount: Discount | null };
+export async function getFeaturedProducts(): Promise<featuredProductType[]> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const res = await fetch(`${baseUrl}/api/products?is_featured=true`, {
+      method: "GET",
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Failed to fetch products: ${err}`);
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error("Error getting featured products:", error);
     throw error;
   }
 }

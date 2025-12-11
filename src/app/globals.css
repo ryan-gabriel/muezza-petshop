@@ -210,3 +210,12 @@
   33% { opacity: 0; transform: translateX(-30px); }
   100% { opacity: 0; transform: translateX(-30px); }
 }
+
+/* Hide scrollbar */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
