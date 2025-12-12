@@ -7,6 +7,7 @@ import {
   ChevronUp,
   Group,
   Hotel,
+  MessageSquareText,
   Store,
   Tags,
   User2,
@@ -41,6 +42,7 @@ const items = [
   { title: "Pet Hotels", url: "/dashboard/hotels", icon: Hotel },
   { title: "Photoshoots", url: "/dashboard/photoshoots", icon: Camera },
   { title: "Discounts", url: "/dashboard/discounts", icon: Tags },
+  { title: "Chatbot Config", url: "/dashboard/chatbot", icon: MessageSquareText },
 ];
 
 export async function AppSidebar() {
