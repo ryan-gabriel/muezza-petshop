@@ -16,7 +16,8 @@ export async function GET() {
     if (error) throw error;
 
     return NextResponse.json(data);
-  } catch (error: any) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (_) {
     return NextResponse.json({ prompt_text: "" }, { status: 200 }); // Return empty if not found
   }
 }

@@ -43,7 +43,8 @@ export default function ChatbotConfigPage() {
       if (!res.ok) throw new Error("Gagal menyimpan");
 
       showAlert("Prompt chatbot berhasil diperbarui!", "success");
-    } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
       showAlert("Gagal menyimpan prompt.", "error");
     } finally {
       setSaving(false);
