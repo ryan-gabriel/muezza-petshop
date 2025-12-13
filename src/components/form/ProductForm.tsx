@@ -264,7 +264,7 @@ export default function ProductForm({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger asChild className="cursor-pointer">
         {trigger ? (
           trigger
         ) : (
@@ -343,7 +343,7 @@ export default function ProductForm({
                       <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                       <Label
                         htmlFor="image-upload"
-                        className="cursor-pointer text-sm text-muted-foreground hover:text-foreground"
+                        className="cursor-pointer text-sm flex justify-center text-muted-foreground hover:text-foreground"
                       >
                         {isConverting
                           ? "Converting to WebP..."

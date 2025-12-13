@@ -106,7 +106,7 @@ export default function ProductCategoryForm({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger asChild className="cursor-pointer">
         {trigger ? (
           trigger
         ) : (

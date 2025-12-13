@@ -263,7 +263,7 @@ export default function BranchForm({ branch, onSubmit }: BranchFormProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger asChild className="cursor-pointer">
         {branch ? (
           <Button variant="outline" className="gap-2">
             <SquarePen className="w-4 h-4" />
@@ -332,7 +332,7 @@ export default function BranchForm({ branch, onSubmit }: BranchFormProps) {
                       <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                       <Label
                         htmlFor="branch-image"
-                        className="cursor-pointer text-sm text-muted-foreground hover:text-foreground"
+                        className="cursor-pointer flex justify-center text-sm text-muted-foreground hover:text-foreground"
                       >
                         {isConverting
                           ? "Converting to WebP..."

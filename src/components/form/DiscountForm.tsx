@@ -370,7 +370,7 @@ export default function DiscountForm({ discount }: { discount?: Discount }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger asChild className="cursor-pointer">
         {discount ? (
           <Button variant="outline" className="gap-2">
             <SquarePen className="w-4 h-4" />
