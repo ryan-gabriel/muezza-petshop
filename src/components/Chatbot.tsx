@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Loader2, Bot } from "lucide-react";
+import { X, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -86,9 +86,9 @@ export default function Chatbot() {
         {!isOpen && (
           <Button
             onClick={() => setIsOpen(true)}
-            className="h-14 w-14 rounded-full shadow-xl bg-primary-blue hover:bg-[#9dcce6] text-[#1D3A2F] transition-transform hover:scale-110"
+            className="h-24 w-24 rounded-full shadow-xl bg-primary-blue hover:bg-[#9dcce6] transition-transform hover:scale-110"
           >
-            <MessageCircle className="!w-8 !h-8" />
+            <img src="/chatbot/CScat.png" alt="Chat Icon" className="!w-24 !h-24 object-contain" />
           </Button>
         )}
       </div>
@@ -101,7 +101,7 @@ export default function Chatbot() {
             <CardHeader className="bg-primary-blue p-4 flex flex-row items-center justify-between space-y-0">
               <div className="flex items-center gap-2">
                 <div className="bg-white p-1.5 rounded-full">
-                  <Bot className="w-5 h-5 text-primary-blue" />
+                  <img src="/chatbot/CScat.png" alt="Bot Icon" className="w-5 h-5" />
                 </div>
                 <div>
                   <CardTitle className="text-base text-[#1D3A2F]">Muezza AI</CardTitle>
