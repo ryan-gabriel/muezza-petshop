@@ -4,7 +4,6 @@ export interface Product {
   id: number;
   name: string;
   slug: string;
-  price: number;
   image_url: string;
   product_categories: { name: string; slug: string; id: number };
   created_at: string;
@@ -15,7 +14,6 @@ export interface Product {
 export interface ProductCreateRequest {
   name: string;
   description?: string;
-  price: number;
   image_url?: string;
   category: number;
   is_featured: boolean;

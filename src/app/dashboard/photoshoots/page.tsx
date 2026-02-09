@@ -54,7 +54,6 @@ export default async function Page() {
               <TableRow>
                 <TableHead>Image</TableHead>
                 <TableHead>Name</TableHead>
-                <TableHead>Price</TableHead>
                 <TableHead>Features</TableHead>
                 <TableHead className="text-center">Action</TableHead>
               </TableRow>
@@ -76,10 +75,6 @@ export default async function Page() {
                   </TableCell>
 
                   <TableCell className="font-medium">{p.name}</TableCell>
-
-                  <TableCell>
-                    Rp. {Number(p.price).toLocaleString("id-ID")}
-                  </TableCell>
 
                   <TableCell className="max-w-[250px] truncate text-muted-foreground">
                     {p.features?.join(", ")}

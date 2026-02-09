@@ -2,6 +2,11 @@ import Image from "next/image";
 import React from "react";
 
 const GroomingHeroSection = () => {
+
+  const message = encodeURIComponent(
+    "Halo Muezza Petshop, Saya tertarik dengan layanan grooming. Bisakah kita berbicara?"
+  );
+
   return (
     <section className="relative w-full pt-6">
       {/* Background image */}
@@ -35,7 +40,7 @@ const GroomingHeroSection = () => {
             Ubah penampilan hewan kesayangan Anda menjadi lebih rapi dan menggemaskan. Layanan kami mencakup mandi bersih, potong kuku, dan pembersihan telinga. Proses pengerjaan cepat dengan hasil memuaskan. Pesan jadwal grooming Anda hari ini untuk kenyamanan peliharaan Anda.
           </p>
           <a
-            href="https://wa.me/6281222900909"
+            href={`https://wa.me/6281222900909?text=${message}`}
             target="_blank"
             rel="noopener noreferrer"
             className="shadow-lg hover:shadow-2xl transition-all duration-200 px-8 md:px-10 py-3 rounded-full font-boogaloo border-[0.2px] border-blue-300 bg-white md:bg-primary-blue text-black hover:bg-white/80 cursor-pointer md:hover:bg-primary-blue/80 inline-block"

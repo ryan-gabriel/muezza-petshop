@@ -99,10 +99,6 @@ function DiscountCard({ item }: { item: DiscountProduct }) {
   const p = item.product;
   const d = item.discount!;
 
-  const discountedPrice = Math.round(
-    p.price - (p.price * d.discount_percent) / 100
-  );
-
   const discountImage = d.image_url || null;
 
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(d.end_date));
@@ -119,11 +115,10 @@ function DiscountCard({ item }: { item: DiscountProduct }) {
       <div
         className={`
         w-full h-full gap-0
-        ${
-          discountImage
+        ${discountImage
             ? "grid md:grid-cols-2" // jika ada gambar → grid
             : "flex flex-col items-center justify-center text-center" // jika tidak ada gambar → center ALL
-        }
+          }
       `}
       >
         {/* IMAGE */}
@@ -151,21 +146,11 @@ function DiscountCard({ item }: { item: DiscountProduct }) {
             {d.title}
           </h3>
 
-          <p className="text-sm line-through text-muted-foreground">
-            Rp{" "}
-            {new Intl.NumberFormat("id-ID", {
-              minimumFractionDigits: 2,
-            }).format(p.price)}
+          <p className="text-xl font-semibold text-[#1E3A2B] mb-2">
+            {p.name}
           </p>
 
-          <p className="text-4xl font-extrabold text-[#1E3A2B]">
-            Rp{" "}
-            {new Intl.NumberFormat("id-ID", {
-              minimumFractionDigits: 2,
-            }).format(discountedPrice)}
-          </p>
-
-          <p className="font-semibold mt-2 text-lg text-[#224F34]">
+          <p className="font-semibold mt-2 text-lg text-green-600">
             Diskon {d.discount_percent}%!
           </p>
 

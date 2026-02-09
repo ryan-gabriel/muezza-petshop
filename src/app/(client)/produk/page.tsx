@@ -124,40 +124,6 @@ const page = async () => {
                         <h3 className="text-lg font-semibold text-center mt-6">
                           {product.name}
                         </h3>
-
-                        <div className="text-center font-medium mt-2">
-                          {product.discount?.is_active ? (
-                            <div className="flex flex-col items-center gap-1">
-                              <div className="flex gap-2 items-center">
-                                <span className="text-gray-500 line-through text-sm">
-                                  Rp{" "}
-                                  {new Intl.NumberFormat("id-ID").format(
-                                    product.price
-                                  )}
-                                </span>
-                                <span className="text-red-500 font-semibold text-sm">
-                                  -{product.discount.discount_percent}%
-                                </span>
-                              </div>
-                              <span className="text-green-600 font-bold text-lg">
-                                Rp{" "}
-                                {new Intl.NumberFormat("id-ID").format(
-                                  product.price -
-                                    (product.price *
-                                      product.discount.discount_percent) /
-                                      100
-                                )}
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="text-center font-bold text-lg">
-                              Rp{" "}
-                              {new Intl.NumberFormat("id-ID").format(
-                                product.price
-                              )}
-                            </span>
-                          )}
-                        </div>
                       </div>
                     ))}
                   </div>

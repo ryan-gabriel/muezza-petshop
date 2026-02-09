@@ -2,6 +2,7 @@
 
 import { Discount } from "@/type/discount";
 import { Product } from "@/type/product";
+import { MessageCircle } from "lucide-react";
 import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
 
@@ -64,13 +65,13 @@ const UnggulanSection = () => {
     if (scrollElement) {
       // Initial check
       checkScroll();
-      
+
       // Add scroll listener
       scrollElement.addEventListener("scroll", checkScroll);
-      
+
       // Add resize listener untuk handle perubahan ukuran layar
       window.addEventListener("resize", checkScroll);
-      
+
       return () => {
         scrollElement.removeEventListener("scroll", checkScroll);
         window.removeEventListener("resize", checkScroll);
@@ -91,8 +92,8 @@ const UnggulanSection = () => {
   };
 
   return (
-    <section className="my-12 w-full px-4 md:px-8">
-      <h2 className="font-boogaloo text-4xl md:text-5xl text-center mb-8 text-gray-800">
+    <section className="my-16 w-full px-4 md:px-8 bg-pattern">
+      <h2 className="font-boogaloo text-4xl md:text-5xl text-center mb-10 text-gray-800 animate-fade-in-up">
         Produk Unggulan Muezza
       </h2>
 
@@ -155,18 +156,8 @@ const UnggulanSection = () => {
                   bg-white border border-gray-100
                   transition-transform duration-200
                   hover:shadow-xl hover:-translate-y-1
-                  relative
                 "
               >
-                {/* Diskon */}
-                {product.discount && (
-                  <div className="w-full flex justify-end absolute top-4 right-4">
-                    <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                      -{product.discount.discount_percent}%
-                    </span>
-                  </div>
-                )}
-
                 {/* Gambar */}
                 <div className="aspect-square w-full bg-gradient-to-br from-[#B0D9F0] to-[#89C4E8] rounded-xl flex items-center justify-center mb-4 p-4">
                   <Image
@@ -179,61 +170,27 @@ const UnggulanSection = () => {
                 </div>
 
                 {/* Nama */}
-                <h3 className="font-semibold text-2xl font-boogaloo text-center mb-3 text-gray-800 min-h-[60px] flex items-center">
+                <h3 className="font-semibold text-2xl font-boogaloo text-center mb-4 text-gray-800 min-h-[60px] flex items-center">
                   {product.name}
                 </h3>
-
-                {/* Harga */}
-                <div className="flex justify-center items-center gap-4 mb-4">
-                  {product.discount ? (
-                    <>
-                      <span className="text-gray-400 line-through text-sm">
-                        {product.price.toLocaleString("id-ID", {
-                          style: "currency",
-                          currency: "IDR",
-                          minimumFractionDigits: 0,
-                        })}
-                      </span>
-                      <span className="text-green-600 font-bold text-xl">
-                        {(
-                          product.price -
-                          (product.price * product.discount.discount_percent) /
-                            100
-                        ).toLocaleString("id-ID", {
-                          style: "currency",
-                          currency: "IDR",
-                          minimumFractionDigits: 0,
-                        })}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-gray-800 font-bold text-xl">
-                      {product.price.toLocaleString("id-ID", {
-                        style: "currency",
-                        currency: "IDR",
-                        minimumFractionDigits: 0,
-                      })}
-                    </span>
-                  )}
-                </div>
 
                 {/* WA Button */}
                 <a
                   className="
-                    w-full bg-gradient-to-r from-[#B0D9F0] to-[#89C4E8]
-                    py-3 text-center rounded-full 
-                    font-boogaloo text-xl
-                    transition-all duration-200
-                    hover:shadow-md hover:scale-105
-                    text-gray-800 font-semibold
+                    w-full btn-whatsapp
+                    py-3.5 text-center rounded-full 
+                    font-boogaloo text-lg
+                    flex items-center justify-center gap-2
+                    text-white font-semibold
                   "
                   href={`https://wa.me/6281222930909?text=${encodeURIComponent(
-                    `Halo Muezza! Saya ingin membeli produk "${product.name}". Apa masih tersedia?`
+                    `Halo, saya tertarik dengan produk "${product.name}". Bisa berikan informasi lebih lanjut?`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Beli Sekarang
+                  <MessageCircle className="w-5 h-5" />
+                  Tanya via WhatsApp
                 </a>
               </div>
             ))}

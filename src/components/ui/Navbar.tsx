@@ -107,18 +107,16 @@ export default function Navbar({
                   }}
                   className={`
                     pb-1 flex items-center gap-1 transition-colors
-                    ${
-                      layananActive
-                        ? "text-[#1D3A2F]"
-                        : "text-black/70 hover:text-black"
+                    ${layananActive
+                      ? "text-[#1D3A2F]"
+                      : "text-black/70 hover:text-black"
                     }
                   `}
                 >
                   Layanan
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform duration-300 ${
-                      openDropdown ? "rotate-180" : "rotate-0"
-                    }`}
+                    className={`w-4 h-4 transition-transform duration-300 ${openDropdown ? "rotate-180" : "rotate-0"
+                      }`}
                   />
                 </button>
 
@@ -134,14 +132,13 @@ export default function Navbar({
                     if (!dropdownLocked) setOpenDropdown(false);
                   }}
                   className={`
-                    absolute left-0 top-full mt-0 
-                    w-44 bg-white shadow-md rounded-lg py-2
-                    border border-black/10 z-50
-                    transition-all duration-200
-                    ${
-                      openDropdown
-                        ? "opacity-100 translate-y-0 pointer-events-auto"
-                        : "opacity-0 translate-y-2 pointer-events-none"
+                    absolute left-0 top-full mt-1 
+                    w-48 glass shadow-xl rounded-xl py-3
+                    border border-slate-200/50 z-50
+                    transition-all duration-300 ease-in-out
+                    ${openDropdown
+                      ? "opacity-100 translate-y-0 pointer-events-auto"
+                      : "opacity-0 -translate-y-2 pointer-events-none"
                     }
                   `}
                 >
@@ -154,10 +151,9 @@ export default function Navbar({
                         href={sub.href}
                         className={`
                           block px-4 py-2 transition
-                          ${
-                            isSubActive
-                              ? "bg-[#1D3A2F]/10 text-[#1D3A2F] font-semibold"
-                              : "hover:bg-black/5"
+                          ${isSubActive
+                            ? "bg-[#1D3A2F]/10 text-[#1D3A2F] font-semibold"
+                            : "hover:bg-black/5"
                           }
                         `}
                       >
@@ -177,8 +173,7 @@ export default function Navbar({
               href={item.href}
               className={`
                 relative pb-1 transition-colors
-                ${
-                  isActive ? "text-[#1D3A2F]" : "text-black/70 hover:text-black"
+                ${isActive ? "text-[#1D3A2F]" : "text-black/70 hover:text-black"
                 }
               `}
             >
@@ -200,12 +195,12 @@ export default function Navbar({
       <div className="md:hidden">
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Menu className="w-6 h-6 text-black" />
+            <Button variant="ghost" size="icon" className="touch-target">
+              <Menu className="w-7 h-7 text-black" />
             </Button>
           </SheetTrigger>
 
-          <SheetContent side="right" className="w-72 px-6 py-6">
+          <SheetContent side="right" className="w-80 px-6 py-8 bg-white/95 backdrop-blur-lg">
             <SheetHeader className="flex flex-col items-start">
               <SheetTitle className="text-xl font-bold tracking-wide text-[#1D3A2F]">
                 Menu
@@ -231,19 +226,17 @@ export default function Navbar({
                         onClick={() => setMobileDropdown(!mobileDropdown)}
                         className={`
                           px-2 py-2 flex items-center justify-between rounded-lg transition-all
-                          ${
-                            layananActive
-                              ? "text-[#1D3A2F] bg-[#1D3A2F]/10 font-semibold"
-                              : "text-black/70 hover:bg-black/5 hover:text-black"
+                          ${layananActive
+                            ? "text-[#1D3A2F] bg-[#1D3A2F]/10 font-semibold"
+                            : "text-black/70 hover:bg-black/5 hover:text-black"
                           }
                         `}
                       >
                         <span>Layanan</span>
 
                         <ChevronDown
-                          className={`w-5 h-5 transition-transform duration-300 ${
-                            mobileDropdown ? "rotate-180" : "rotate-0"
-                          }`}
+                          className={`w-5 h-5 transition-transform duration-300 ${mobileDropdown ? "rotate-180" : "rotate-0"
+                            }`}
                         />
                       </button>
 
@@ -258,10 +251,9 @@ export default function Navbar({
                                 href={sub.href}
                                 className={`
                                   px-2 py-1 rounded-md
-                                  ${
-                                    isSubActive
-                                      ? "text-[#1D3A2F] font-semibold bg-[#1D3A2F]/10"
-                                      : "text-black/70"
+                                  ${isSubActive
+                                    ? "text-[#1D3A2F] font-semibold bg-[#1D3A2F]/10"
+                                    : "text-black/70"
                                   }
                                 `}
                               >
@@ -282,10 +274,9 @@ export default function Navbar({
                     href={item.href}
                     className={`
                       px-2 py-2 rounded-lg transition-all
-                      ${
-                        isActive
-                          ? "text-[#1D3A2F] bg-[#1D3A2F]/10 font-semibold"
-                          : "text-black/70 hover:bg-black/5 hover:text-black"
+                      ${isActive
+                        ? "text-[#1D3A2F] bg-[#1D3A2F]/10 font-semibold"
+                        : "text-black/70 hover:bg-black/5 hover:text-black"
                       }
                     `}
                   >

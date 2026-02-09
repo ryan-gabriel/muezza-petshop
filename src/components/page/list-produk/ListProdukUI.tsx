@@ -65,15 +65,7 @@ export default function ListProdukUI({
 
   function handleWhatsAppOrder(product: Product) {
     const phoneNumber = "6281222930909";
-    const message = `Halo, saya tertarik untuk memesan produk berikut:\n\n*${
-      product.name
-    }*\n${
-      product.product_categories?.name
-        ? `Kategori: ${product.product_categories.name}\n`
-        : ""
-    }Harga: Rp ${product.price.toLocaleString(
-      "id-ID"
-    )}\n\nMohon informasi lebih lanjut. Terima kasih!`;
+    const message = `Halo, saya tertarik dengan produk *${product.name}*.${product.product_categories?.name ? ` (Kategori: ${product.product_categories.name})` : ""}\n\nBisa berikan informasi lebih lanjut? Terima kasih!`;
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
@@ -100,7 +92,7 @@ export default function ListProdukUI({
         </div>
 
         {/* Filter Bar */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
+        <div className="bg-white rounded-2xl shadow-premium border border-slate-200/60 p-5 mb-8">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search Bar */}
             <div className="flex-1">
@@ -234,19 +226,18 @@ export default function ListProdukUI({
                 : "flex flex-col gap-4"
             }
           >
-            {data.results.map((product) => (
+            {data.results.map((product, index) => (
               <div
                 key={product.id}
-                className={`group bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer ${
-                  viewMode === "list" ? "flex flex-row" : "flex flex-col"
-                }`}
+                className={`group bg-white rounded-2xl shadow-premium border border-slate-200/60 overflow-hidden card-hover cursor-pointer animate-fade-in-up ${viewMode === "list" ? "flex flex-row" : "flex flex-col"
+                  }`}
+                style={{ animationDelay: `${index * 0.05}s` }}
               >
                 <div
-                  className={`relative bg-slate-50 ${
-                    viewMode === "list"
-                      ? "w-48 h-48 flex-shrink-0"
-                      : "w-full aspect-square"
-                  }`}
+                  className={`relative bg-slate-50 ${viewMode === "list"
+                    ? "w-48 h-48 flex-shrink-0"
+                    : "w-full aspect-square"
+                    }`}
                 >
                   <Image
                     src={product.image_url}
@@ -262,25 +253,19 @@ export default function ListProdukUI({
                 </div>
 
                 <div className={`p-5 ${viewMode === "list" ? "flex-1" : ""}`}>
-                  <h3 className="font-semibold text-slate-900 line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+                  <h3 className="font-semibold text-slate-900 line-clamp-2 mb-4 group-hover:text-primary transition-colors">
                     {product.name}
                   </h3>
 
-                  <div className="mt-4">
-                    <p className="text-xs text-slate-500 mb-1">Harga</p>
-                    <p className="text-xl font-bold text-primary mb-4">
-                      Rp {product.price.toLocaleString("id-ID")}
-                    </p>
-
-                    <Button
-                      onClick={() => handleWhatsAppOrder(product)}
-                      className="cursor-pointer w-full bg-green-600 hover:bg-green-700 text-white gap-2"
-                      size="sm"
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                      Pesan via WhatsApp
-                    </Button>
-                  </div>
+                  <Button
+                    onClick={() => handleWhatsAppOrder(product)}
+                    variant="whatsapp"
+                    className="cursor-pointer w-full gap-2"
+                    size="default"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    Tanya via WhatsApp
+                  </Button>
                 </div>
               </div>
             ))}

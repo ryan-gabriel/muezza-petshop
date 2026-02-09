@@ -71,7 +71,6 @@ export default async function AdminProductsPage({
                 <TableRow>
                   <TableHead>Image</TableHead>
                   <TableHead>Name</TableHead>
-                  <TableHead>Price</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead className="text-center">Action</TableHead>
                 </TableRow>
@@ -82,9 +81,8 @@ export default async function AdminProductsPage({
                   data.results.map((product) => (
                     <TableRow
                       key={product.id}
-                      className={`${
-                        !product.visibility && "bg-gray-200 hover:bg-gray-200"
-                      }`}
+                      className={`${!product.visibility && "bg-gray-200 hover:bg-gray-200"
+                        }`}
                     >
                       <TableCell>
                         <Image
@@ -101,16 +99,11 @@ export default async function AdminProductsPage({
                       </TableCell>
 
                       <TableCell>
-                        Rp {product.price.toLocaleString("id-ID")}
-                      </TableCell>
-
-                      <TableCell>
                         <Badge
-                          className={`capitalize ${
-                            !product.product_categories
+                          className={`capitalize ${!product.product_categories
                               ? "bg-gray-200 text-gray-600"
                               : ""
-                          }`}
+                            }`}
                         >
                           {product.product_categories?.name || "Uncategorized"}
                         </Badge>

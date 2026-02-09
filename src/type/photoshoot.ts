@@ -3,7 +3,6 @@ import { Discount } from "./discount";
 export type PhotoshootPackage = {
   id: number;
   name: string;
-  price: number;
   features: string[];
   image_url: string | null;
   created_at: string;

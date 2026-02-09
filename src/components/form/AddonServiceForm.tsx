@@ -35,7 +35,6 @@ export default function AddonServiceForm({
   const [formData, setFormData] = useState({
     name: addon?.name || "",
     description: addon?.description || "",
-    price: addon?.price || 0,
   });
 
   // Reset form ketika edit atau tambah baru
@@ -44,13 +43,11 @@ export default function AddonServiceForm({
       setFormData({
         name: addon.name,
         description: addon.description || "",
-        price: addon.price,
       });
     } else {
       setFormData({
         name: "",
         description: "",
-        price: 0,
       });
     }
   }, [addon]);
@@ -60,7 +57,6 @@ export default function AddonServiceForm({
     const data = new FormData();
     data.append("name", formData.name);
     data.append("description", formData.description || "");
-    data.append("price", String(formData.price));
     return data;
   };
 
@@ -68,13 +64,10 @@ export default function AddonServiceForm({
     e.preventDefault();
     if (
       !formData.name.trim() ||
-      formData.price <= 0 ||
-      isNaN(formData.price) ||
-      !isFinite(formData.price) ||
       !formData.description.trim()
     ) {
       showAlert(
-        "Harus mengisi nama, harga, dan deskripsi yang valid.",
+        "Harus mengisi nama dan deskripsi.",
         "warning"
       );
       return;
@@ -117,7 +110,6 @@ export default function AddonServiceForm({
         setFormData({
           name: "",
           description: "",
-          price: 0,
         });
       }
     } catch (err) {
@@ -186,22 +178,6 @@ export default function AddonServiceForm({
                     }
                   />
                 </div>
-
-                {/* PRICE */}
-                <div className="space-y-2">
-                  <Label>Price (IDR)</Label>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={formData.price}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        price: Number(e.target.value),
-                      })
-                    }
-                  />
-                </div>
               </div>
 
               <div className="flex justify-end gap-2 px-6 py-4 border-t bg-background">
@@ -238,11 +214,6 @@ export default function AddonServiceForm({
                     <strong>Description:</strong> {formData.description}
                   </p>
                 )}
-
-                <p>
-                  <strong>Price:</strong> Rp{" "}
-                  {formData.price.toLocaleString("id-ID")}
-                </p>
               </div>
             </div>
 

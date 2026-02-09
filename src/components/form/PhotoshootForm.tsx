@@ -37,7 +37,6 @@ export default function PhotoshootForm({
 
   const [formData, setFormData] = useState({
     name: packageItem?.name || "",
-    price: packageItem?.price || 0,
     features: Array.isArray(packageItem?.features) ? packageItem.features : [],
     image_url: packageItem?.image_url,
   });
@@ -131,7 +130,6 @@ export default function PhotoshootForm({
     if (packageItem) {
       setFormData({
         name: packageItem.name,
-        price: packageItem.price,
         features: Array.isArray(packageItem.features)
           ? packageItem.features
           : JSON.parse(packageItem.features ?? "[]"),
@@ -141,7 +139,6 @@ export default function PhotoshootForm({
     } else {
       setFormData({
         name: "",
-        price: 0,
         features: [],
         image_url: undefined,
       });
@@ -155,7 +152,6 @@ export default function PhotoshootForm({
   const buildFormData = () => {
     const data = new FormData();
     data.append("name", formData.name);
-    data.append("price", String(formData.price));
 
     data.append("features", JSON.stringify(formData.features));
 
@@ -171,13 +167,8 @@ export default function PhotoshootForm({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (
-      !formData.name.trim() ||
-      formData.price <= 0 ||
-      isNaN(formData.price) ||
-      !isFinite(formData.price)
-    ) {
-      showAlert("Harus mengisi nama dan harga yang valid.", "warning");
+    if (!formData.name.trim()) {
+      showAlert("Harus mengisi nama paket.", "warning");
       return;
     }
 
@@ -227,7 +218,6 @@ export default function PhotoshootForm({
       if (!packageItem) {
         setFormData({
           name: "",
-          price: 0,
           features: [],
           image_url: undefined,
         });
@@ -312,11 +302,10 @@ export default function PhotoshootForm({
                         e.preventDefault();
                         setIsDragging(false);
                       }}
-                      className={`border-2 border-dashed rounded-lg p-6 text-center ${
-                        isDragging
-                          ? "border-primary bg-primary/5"
-                          : "border-muted"
-                      }`}
+                      className={`border-2 border-dashed rounded-lg p-6 text-center ${isDragging
+                        ? "border-primary bg-primary/5"
+                        : "border-muted"
+                        }`}
                     >
                       <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                       <Label
@@ -347,22 +336,6 @@ export default function PhotoshootForm({
                     value={formData.name}
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
-                    }
-                  />
-                </div>
-
-                {/* PRICE */}
-                <div className="space-y-2">
-                  <Label>Price (IDR)</Label>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={formData.price}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        price: Number(e.target.value),
-                      })
                     }
                   />
                 </div>
@@ -457,10 +430,6 @@ export default function PhotoshootForm({
               <div className="border rounded-lg p-4 space-y-3">
                 <p>
                   <strong>Package Name:</strong> {formData.name}
-                </p>
-                <p>
-                  <strong>Price:</strong> Rp{" "}
-                  {formData.price.toLocaleString("id-ID")}
                 </p>
                 {formData.features.length > 0 && (
                   <div>

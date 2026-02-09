@@ -4,7 +4,6 @@ export type PetHotelRoom = {
   id: number;
   name: string;
   description: string | null;
-  price_per_night: number;
   image_url: string;
   slug: string;
   created_at: string;

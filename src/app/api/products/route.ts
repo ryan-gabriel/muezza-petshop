@@ -39,7 +39,7 @@ export async function GET(req: Request) {
         for (const c of categories) {
           let query = supabase
             .from("products")
-            .select("id, name, price, image_url, slug, created_at")
+            .select("id, name, image_url, slug, created_at")
             .eq("category_id", c.id)
             .limit(3)
             .order("created_at", { ascending: false });
@@ -107,7 +107,6 @@ export async function GET(req: Request) {
                   name: p.name,
                   slug: p.slug,
                   image_url: p.image_url,
-                  price: p.price,
                 },
                 discount,
               });
@@ -195,12 +194,12 @@ export async function GET(req: Request) {
         updated_at: p.updated_at?.toISOString?.() ?? p.updated_at,
         discount: p.discount
           ? {
-              ...p.discount,
-              created_at:
-                p.discount.created_at?.toISOString?.() ?? p.discount.created_at,
-              updated_at:
-                p.discount.updated_at?.toISOString?.() ?? p.discount.updated_at,
-            }
+            ...p.discount,
+            created_at:
+              p.discount.created_at?.toISOString?.() ?? p.discount.created_at,
+            updated_at:
+              p.discount.updated_at?.toISOString?.() ?? p.discount.updated_at,
+          }
           : null,
       }));
 
@@ -361,7 +360,6 @@ export async function POST(req: Request) {
     const formData = await req.formData();
 
     const name = formData.get("name") as string | null;
-    const price = Number(formData.get("price"));
     const category_id = Number(formData.get("category"));
     const is_featured = Boolean(formData.get("is_featured"));
     const image = formData.get("image");
@@ -372,7 +370,6 @@ export async function POST(req: Request) {
     const missingFields: string[] = [];
 
     if (!name) missingFields.push("nama produk");
-    if (!price) missingFields.push("harga");
     if (!category_id) missingFields.push("kategori");
     if (!image || !(image instanceof File)) {
       missingFields.push("gambar produk");
@@ -446,7 +443,7 @@ export async function POST(req: Request) {
     const { data, error } = await supabase
       .from("products")
       .insert([
-        { name, price, category_id, image_url: imageUrl, slug, is_featured },
+        { name, category_id, image_url: imageUrl, slug, is_featured },
       ])
       .select()
       .single();

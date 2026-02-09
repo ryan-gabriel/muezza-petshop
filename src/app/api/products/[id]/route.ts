@@ -26,7 +26,6 @@ export async function PATCH(
 
     const formData = await req.formData();
     const name = formData.get("name") as string;
-    const price = Number(formData.get("price"));
     const category_id = Number(formData.get("category"));
     const is_featured = Boolean(formData.get("is_featured"));
     const image = formData.get("image") as File | null;
@@ -37,7 +36,6 @@ export async function PATCH(
     const missing: string[] = [];
     if (!id) missing.push("id");
     if (!name) missing.push("nama produk");
-    if (!price) missing.push("harga");
     if (!category_id) missing.push("kategori");
 
     if (missing.length > 0) {
@@ -121,7 +119,6 @@ export async function PATCH(
       .from("products")
       .update({
         name,
-        price,
         category_id,
         image_url: imageUrl,
         updated_at: new Date().toISOString(),

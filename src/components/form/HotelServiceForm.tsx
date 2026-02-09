@@ -40,7 +40,6 @@ export default function PetHotelRoomForm({
   const [formData, setFormData] = useState({
     name: room?.name || "",
     description: room?.description || "",
-    price_per_night: room?.price_per_night || 0,
     image_url: room?.image_url,
   });
 
@@ -145,7 +144,6 @@ export default function PetHotelRoomForm({
       setFormData({
         name: room.name,
         description: room.description || "",
-        price_per_night: room.price_per_night,
         image_url: room.image_url || undefined,
       });
       setImagePreview(room.image_url || "");
@@ -153,7 +151,6 @@ export default function PetHotelRoomForm({
       setFormData({
         name: "",
         description: "",
-        price_per_night: 0,
         image_url: undefined,
       });
       setImagePreview("");
@@ -169,7 +166,6 @@ export default function PetHotelRoomForm({
     const data = new FormData();
     data.append("name", formData.name);
     data.append("description", formData.description || "");
-    data.append("price_per_night", String(formData.price_per_night));
 
     if (imageFile) data.append("image", imageFile);
     else if (formData.image_url) data.append("image_url", formData.image_url);
@@ -179,9 +175,9 @@ export default function PetHotelRoomForm({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!formData.name.trim() || formData.price_per_night <= 0) {
+    if (!formData.name.trim()) {
       showAlert(
-        "Harus mengisi nama dan harga per malam yang valid.",
+        "Harus mengisi nama kamar.",
         "warning"
       );
       return;
@@ -234,7 +230,6 @@ export default function PetHotelRoomForm({
         setFormData({
           name: "",
           description: "",
-          price_per_night: 0,
           image_url: undefined,
         });
 
@@ -316,11 +311,10 @@ export default function PetHotelRoomForm({
                         e.preventDefault();
                         setIsDragging(false);
                       }}
-                      className={`border-2 border-dashed rounded-lg p-6 text-center ${
-                        isDragging
-                          ? "border-primary bg-primary/5"
-                          : "border-muted"
-                      }`}
+                      className={`border-2 border-dashed rounded-lg p-6 text-center ${isDragging
+                        ? "border-primary bg-primary/5"
+                        : "border-muted"
+                        }`}
                     >
                       <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                       <Label
@@ -365,22 +359,6 @@ export default function PetHotelRoomForm({
                     value={formData.description}
                     onChange={(e) =>
                       setFormData({ ...formData, description: e.target.value })
-                    }
-                  />
-                </div>
-
-                {/* PRICE */}
-                <div className="space-y-2">
-                  <Label>Price per Night (IDR)</Label>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={formData.price_per_night}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        price_per_night: Number(e.target.value),
-                      })
                     }
                   />
                 </div>
@@ -430,11 +408,6 @@ export default function PetHotelRoomForm({
                     <strong>Description:</strong> {formData.description}
                   </p>
                 )}
-
-                <p>
-                  <strong>Price per Night:</strong> Rp{" "}
-                  {formData.price_per_night.toLocaleString("id-ID")}
-                </p>
               </div>
             </div>
 

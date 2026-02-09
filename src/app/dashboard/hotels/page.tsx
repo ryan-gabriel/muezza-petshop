@@ -47,7 +47,6 @@ export default async function Page() {
                 <TableHead>Image</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Description</TableHead>
-                <TableHead>Price / Night</TableHead>
                 <TableHead className="text-center">Action</TableHead>
               </TableRow>
             </TableHeader>
@@ -69,10 +68,6 @@ export default async function Page() {
 
                   <TableCell className="max-w-[300px] truncate text-muted-foreground">
                     {room.description}
-                  </TableCell>
-
-                  <TableCell className="">
-                    Rp. {Number(room.price_per_night).toLocaleString("id-ID")}
                   </TableCell>
 
                   <TableCell className="text-center">

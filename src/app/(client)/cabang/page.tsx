@@ -117,9 +117,8 @@ const Page = async () => {
             >
               {/* --- GAMBAR --- */}
               <div
-                className={`w-full flex justify-center ${
-                  isEven ? "md:order-1" : "md:order-2"
-                }`}
+                className={`w-full flex justify-center ${isEven ? "md:order-1" : "md:order-2"
+                  }`}
               >
                 <div className="relative w-[80%] md:w-[60%] aspect-square">
                   <Image
@@ -141,9 +140,8 @@ const Page = async () => {
 
               {/* --- KONTEN --- */}
               <div
-                className={`space-y-4 text-center md:text-left ${
-                  !isEven ? "md:order-1 md:pl-20" : "md:order-2"
-                }`}
+                className={`space-y-4 text-center md:text-left ${!isEven ? "md:order-1 md:pl-20" : "md:order-2"
+                  }`}
               >
                 <h2 className="text-2xl md:text-3xl font-bold font-boogaloo">
                   {item.name}
@@ -163,7 +161,7 @@ const Page = async () => {
                   </Link>
 
                   <Link
-                    href={`https://wa.me/${item.whatsapp_number}`}
+                    href={`https://wa.me/${item.whatsapp_number}?text=Halo Muezza Petshop, Saya tertarik dengan produk dan layanan cabang ${item.name}. Bisakah anda membantu saya?`}
                     target="_blank"
                     className="px-8 py-3 rounded-full flex gap-2 text-xl items-center border bg-green-500 hover:bg-green-600 transition justify-center"
                   >

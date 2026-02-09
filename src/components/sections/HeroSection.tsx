@@ -43,11 +43,11 @@ const HeroSection = () => {
       {/* Content */}
       <div className="relative z-10 max-w-6xl mx-auto flex flex-col md:flex-row items-center md:items-start px-6 md:px-12 py-20 md:py-32">
         {/* Left content */}
-        <div className="w-full md:w-1/2 text-center md:text-left">
+        <div className="w-full md:w-1/2 text-center md:text-left animate-fade-in-up">
           <h1 className="font-boogaloo text-5xl md:text-8xl leading-tight drop-shadow-lg">
             Muezza Petshop
           </h1>
-          <p className="text-base md:text-lg text-justify mt-6 mb-10">
+          <p className="text-base md:text-lg text-justify mt-6 mb-10 text-slate-700 leading-relaxed">
             Solusi Lengkap Kebahagiaan Hewan Peliharaan Anda, Penuhi semua
             kebutuhan anabul di satu tempat. Muezza Petshop hadir di 4 lokasi
             strategis dengan fasilitas menyeluruh. Kamu bisa belanja produk
@@ -57,12 +57,11 @@ const HeroSection = () => {
           <ClientLinkButton
             href="/produk"
             className="
-              shadow-lg hover:shadow-2xl transition-all duration-200
-              px-8 md:px-10 py-3 rounded-full font-boogaloo
-              border-[0.2px] border-blue-300
-              bg-white md:bg-primary-blue text-black
-              hover:bg-white/80 cursor-pointer
-              md:hover:bg-primary-blue/80
+              btn-gradient shadow-lg hover:shadow-2xl
+              px-8 md:px-10 py-3.5 rounded-full font-boogaloo text-lg
+              border border-[#89C4E8]/40
+              text-slate-800 cursor-pointer
+              transition-all duration-300
             "
           >
             Lihat Produk

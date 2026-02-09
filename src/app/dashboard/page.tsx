@@ -122,7 +122,7 @@ const DashboardPage = async () => {
             </div>
             <CardContent className="pt-6">
               <div className="space-y-3">
-                {data.products_by_category.map((c,index) => (
+                {data.products_by_category.map((c, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors duration-200"
@@ -195,8 +195,8 @@ const DashboardPage = async () => {
                     <span className="font-medium text-slate-700 group-hover:text-slate-900">
                       {s.name}
                     </span>
-                    <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-bold">
-                      Rp. {s.price.toFixed(2)}
+                    <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+                      Layanan
                     </span>
                   </div>
                 ))}

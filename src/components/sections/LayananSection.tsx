@@ -34,7 +34,7 @@ const LayananSection = () => {
       />
 
       {/* Section Title */}
-      <h2 className="text-center font-boogaloo font-semibold text-3xl mb-12">
+      <h2 className="text-center font-boogaloo font-semibold text-4xl mb-14 text-slate-800 animate-fade-in-up">
         Layanan Muezza
       </h2>
 
@@ -66,9 +66,10 @@ const LayananSection = () => {
                 snap-center
                 flex flex-col items-center
                 w-[70%] md:w-[40vw] lg:w-[25vw] max-w-[400px]
+                card-hover
               "
             >
-              <div className="rounded-2xl overflow-hidden w-full">
+              <div className="rounded-2xl overflow-hidden w-full shadow-premium border border-slate-200/50">
                 <Image
                   src={layanan.imageUrl}
                   alt={layanan.title}
@@ -77,7 +78,7 @@ const LayananSection = () => {
                   className="w-full h-auto"
                 />
               </div>
-              <p className="mt-4 text-xl md:text-2xl tracking-wide font-semibold font-boogaloo text-center">
+              <p className="mt-5 text-xl md:text-2xl tracking-wide font-semibold font-boogaloo text-center text-slate-700">
                 {layanan.title}
               </p>
             </div>
@@ -88,17 +89,17 @@ const LayananSection = () => {
         <div className="hidden md:flex absolute inset-0 justify-between items-center px-4 md:px-8 pointer-events-none">
           <a
             href="#layanan-0"
-            className="pointer-events-auto bg-white/90 shadow-md rounded-full p-2 md:p-3 hover:bg-gray-100 transition"
+            className="pointer-events-auto glass shadow-lg rounded-full p-3 hover:bg-white transition-all duration-300 hover:scale-110"
             aria-label="Scroll Left"
           >
-            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-600" />
+            <ChevronLeft className="w-6 h-6 text-slate-600" />
           </a>
           <a
             href={`#layanan-${layananMuezza.length - 1}`}
-            className="pointer-events-auto bg-white/90 shadow-md rounded-full p-2 md:p-3 hover:bg-gray-100 transition"
+            className="pointer-events-auto glass shadow-lg rounded-full p-3 hover:bg-white transition-all duration-300 hover:scale-110"
             aria-label="Scroll Right"
           >
-            <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-600" />
+            <ChevronRight className="w-6 h-6 text-slate-600" />
           </a>
         </div>
       </div>

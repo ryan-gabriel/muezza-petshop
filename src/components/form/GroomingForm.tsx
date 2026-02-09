@@ -39,7 +39,6 @@ export default function GroomingForm({
   const [formData, setFormData] = useState({
     name: grooming?.name || "",
     description: grooming?.description || "",
-    price: grooming?.price || 0,
     image_url: grooming?.image_url,
   });
 
@@ -150,7 +149,6 @@ export default function GroomingForm({
       setFormData({
         name: grooming.name,
         description: grooming.description || "",
-        price: grooming.price,
         image_url: grooming.image_url || undefined,
       });
       setImagePreview(grooming.image_url || "");
@@ -158,7 +156,6 @@ export default function GroomingForm({
       setFormData({
         name: "",
         description: "",
-        price: 0,
         image_url: undefined,
       });
       setImagePreview("");
@@ -172,7 +169,6 @@ export default function GroomingForm({
     const data = new FormData();
     data.append("name", formData.name);
     data.append("description", formData.description || "");
-    data.append("price", String(formData.price));
 
     if (imageFile) data.append("image", imageFile);
     else if (formData.image_url) data.append("image_url", formData.image_url);
@@ -185,10 +181,6 @@ export default function GroomingForm({
     e.preventDefault();
     if (!formData.name.trim()) {
       showAlert("Harus mengisi nama service.", "warning");
-      return;
-    }
-    if (formData.price <= 0) {
-      showAlert("Harga harus lebih dari 0.", "warning");
       return;
     }
     if (isConverting) {
@@ -238,7 +230,6 @@ export default function GroomingForm({
         setFormData({
           name: "",
           description: "",
-          price: 0,
           image_url: undefined,
         });
 
@@ -316,11 +307,10 @@ export default function GroomingForm({
                       onDrop={handleDrop}
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
-                      className={`border-2 border-dashed rounded-lg p-6 text-center ${
-                        isDragging
-                          ? "border-primary bg-primary/5"
-                          : "border-muted"
-                      }`}
+                      className={`border-2 border-dashed rounded-lg p-6 text-center ${isDragging
+                        ? "border-primary bg-primary/5"
+                        : "border-muted"
+                        }`}
                     >
                       <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                       <Label
@@ -366,22 +356,6 @@ export default function GroomingForm({
                     value={formData.description}
                     onChange={(e) =>
                       setFormData({ ...formData, description: e.target.value })
-                    }
-                  />
-                </div>
-
-                {/* PRICE */}
-                <div className="space-y-2">
-                  <Label>Price (IDR)</Label>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={formData.price}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        price: Number(e.target.value),
-                      })
                     }
                   />
                 </div>
@@ -435,10 +409,6 @@ export default function GroomingForm({
                     <strong>Description:</strong> {formData.description}
                   </p>
                 )}
-
-                <p>
-                  <strong>Price:</strong> Rp {formData.price.toLocaleString()}
-                </p>
               </div>
             </div>
 

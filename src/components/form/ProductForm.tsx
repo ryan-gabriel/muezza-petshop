@@ -45,7 +45,6 @@ export default function ProductForm({
   const [isDragging, setIsDragging] = useState(false);
   const [formData, setFormData] = useState<ProductCreateRequest>({
     name: product?.name || "",
-    price: product?.price || 0,
     category: product?.product_categories?.id || 0,
     image_url: product?.image_url,
     is_featured: product?.is_featured ?? false,
@@ -151,7 +150,6 @@ export default function ProductForm({
     if (product) {
       setFormData({
         name: product.name,
-        price: product.price,
         category: product?.product_categories?.id || 0,
         image_url: product.image_url,
         is_featured: product?.is_featured ?? false,
@@ -161,7 +159,6 @@ export default function ProductForm({
     } else {
       setFormData({
         name: "",
-        price: 0,
         category: 0,
         description: "",
         image_url: undefined,
@@ -175,7 +172,6 @@ export default function ProductForm({
   const buildFormData = () => {
     const data = new FormData();
     data.append("name", formData.name);
-    data.append("price", formData.price.toString());
     if (formData.category) data.append("category", String(formData.category));
     data.append("description", formData.description || "");
     data.append("is_featured", formData.is_featured ? "1" : "0");
@@ -188,10 +184,6 @@ export default function ProductForm({
     e.preventDefault();
     if (!formData.name.trim()) {
       showAlert("Harus mengisi nama produk.", "warning");
-      return;
-    }
-    if (formData.price <= 0) {
-      showAlert("Harga harus lebih dari 0.", "warning");
       return;
     }
     if (formData.category <= 0) {
@@ -239,7 +231,6 @@ export default function ProductForm({
         // === RESET FORM setelah submit sukses ===
         setFormData({
           name: "",
-          price: 0,
           category: 0,
           description: "",
           image_url: undefined,
@@ -255,12 +246,6 @@ export default function ProductForm({
     }
   };
 
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(price);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -334,11 +319,10 @@ export default function ProductForm({
                       onDrop={handleDrop}
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
-                      className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-                        isDragging
-                          ? "border-primary bg-primary/5"
-                          : "border-muted"
-                      }`}
+                      className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${isDragging
+                        ? "border-primary bg-primary/5"
+                        : "border-muted"
+                        }`}
                     >
                       <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                       <Label
@@ -370,22 +354,6 @@ export default function ProductForm({
                     value={formData.name}
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="price">Price (Rp)</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    placeholder="50000"
-                    value={formData.price}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        price: Number(e.target.value),
-                      })
                     }
                   />
                 </div>
@@ -472,9 +440,6 @@ export default function ProductForm({
               <div className="space-y-3 border rounded-lg p-4">
                 <p>
                   <strong>Name:</strong> {formData.name}
-                </p>
-                <p>
-                  <strong>Price:</strong> {formatPrice(formData.price)}
                 </p>
                 <p>
                   <strong>Category:</strong>{" "}

@@ -21,45 +21,10 @@ const RoomTypes = ({ roomTypes }: { roomTypes: HotelClient[] }) => {
               className="w-full aspect-square object-cover rounded-lg"
             />
 
-            {/* Nama + Harga */}
+            {/* Nama */}
             <div className="flex flex-col gap-2">
               {/* Nama Room */}
               <h4 className="font-semibold text-xl text-center">{roomType.name}</h4>
-
-              {/* Harga */}
-              <div className="flex flex-col gap-1">
-                {/* Harga Original */}
-                <div className="flex items-center gap-2">
-                  <p
-                    className={`font-semibold text-lg ${
-                      roomType.discount
-                        ? "line-through text-muted-foreground"
-                        : "text-foreground"
-                    }`}
-                  >
-                    Rp {roomType.price_per_night.toLocaleString("id-ID")}/malam
-                  </p>
-
-                  {/* Badge Diskon */}
-                  {roomType.discount && (
-                    <span className="px-2 py-0.5 rounded-md bg-primary-red/10 text-green-600 text-xs font-medium">
-                      -{roomType.discount.discount_percent}%
-                    </span>
-                  )}
-                </div>
-
-                {/* Harga Diskon Final */}
-                {roomType.discount && (
-                  <p className="font-bold text-xl text-green-600">
-                    Rp{" "}
-                    {Math.round(
-                      roomType.price_per_night *
-                        (1 - roomType.discount.discount_percent / 100)
-                    ).toLocaleString("id-ID")}
-                    /malam
-                  </p>
-                )}
-              </div>
             </div>
 
             {/* Deskripsi */}

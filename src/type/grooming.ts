@@ -7,7 +7,6 @@ export interface GroomingService {
   image_url: string;
   created_at?: string;
   updated_at?: string;
-  price: number;
 }
 
 export interface GroomingClient extends GroomingService {

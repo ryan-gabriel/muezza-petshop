@@ -17,7 +17,6 @@ export interface ProductByCategory {
 export interface AddonService {
   id: number;
   name: string;
-  price: number;
 }
 
 export interface ActiveDiscount {

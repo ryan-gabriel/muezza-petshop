@@ -77,7 +77,7 @@ const CabangSection = async () => {
               </p>
 
               <a
-                href={`https://wa.me/${cabang.whatsapp_number}`}
+                href={`https://wa.me/${cabang.whatsapp_number}?text=Halo Muezza Petshop, Saya tertarik dengan produk dan layanan cabang ${cabang.name}. Bisakah anda membantu saya?`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-full shadow-md transition"
