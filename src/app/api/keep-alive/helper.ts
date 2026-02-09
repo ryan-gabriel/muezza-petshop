@@ -8,7 +8,7 @@ export type QueryResponse = {
 }
 
 export type QueryResponseWithData = QueryResponse & {
-    data: any[] | null
+    data: unknown[] | null
 }
 
 
@@ -81,7 +81,7 @@ export const insertRandom = async (supabase: SupabaseClient, randomString: strin
 }
 
 
-export const deleteRandom = async (supabase: SupabaseClient, entryToDelete: any): Promise<QueryResponse> => {
+export const deleteRandom = async (supabase: SupabaseClient, entryToDelete: string): Promise<QueryResponse> => {
 
     const { error } = await supabase
         .from(config.table)
@@ -127,11 +127,13 @@ export const determineAction = async (supabase: SupabaseClient): Promise<QueryRe
             let responseSuccessful: boolean = true
 
             if (retrievedEntries.length > config.sizeBeforeDeletions) {
-                const entryToDelete = retrievedEntries.pop()
-                const deletionResults: QueryResponse = await deleteRandom(supabase, entryToDelete[config.column])
+                const entryToDelete = retrievedEntries.pop() as Record<string, unknown> | undefined
+                if (entryToDelete) {
+                    const deletionResults: QueryResponse = await deleteRandom(supabase, String(entryToDelete[config.column]))
 
-                responseSuccessful = deletionResults.successful
-                responseMessage += deletionResults.message
+                    responseSuccessful = deletionResults.successful
+                    responseMessage += deletionResults.message
+                }
             } else {
                 const currentRandomString = generateRandomString()
                 const insertResults: QueryResponse = await insertRandom(supabase, currentRandomString)
